@@ -53,22 +53,6 @@ struct State {
         return s;
     }
 
-    void pushReserve1(const Piece p) {
-        reserve1.push(p);
-    }
-
-    Piece popReserve1(uint8_t pos) {
-        return reserve1.pop(pos);
-    }
-
-    void pushReserve2(const Piece p) {
-        reserve2.push(p);
-    }
-
-    Piece popReserve2(uint8_t pos) {
-        return reserve2.pop(pos);
-    }
-
     bool allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
         if(a.valid() == false) return false;
         if(b.valid() == false) return false;
@@ -137,9 +121,9 @@ struct State {
         const Piece dst = board[b.idx()];
         if(dst.empty() == false) {
             if(c == P1) {
-                pushReserve1(dst);
+                reserve1.push(dst);
             } else {
-                pushReserve2(dst);
+                reserve2.push(dst);
             }
         }
         board[a.idx()] = Piece();
@@ -172,11 +156,11 @@ struct State {
     void drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
         assert(allowedDrop(pt, c, posInReserve, a));
         if(c == P1) {
-            const Piece src = popReserve1(posInReserve);
+            const Piece src = reserve1.pop(posInReserve);
             board[a.idx()] = src;
         }
         if(c == P2) {
-            const Piece src = popReserve2(posInReserve);
+            const Piece src = reserve2.pop(posInReserve);
             board[a.idx()] = src;
         }
     }

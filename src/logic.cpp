@@ -4,8 +4,6 @@
 static_assert(sizeof(uint8_t) == 1);
 static_assert(sizeof(int8_t) == 1);
 
-
-
 int main() {
     State s;
     std::cout << s.niceToString() << '\n';
