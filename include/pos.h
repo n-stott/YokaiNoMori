@@ -27,7 +27,7 @@ struct Pos {
     std::string toString() const noexcept {
         std::string s;
         s += ('A' + ((pos >> 4)-0xA));
-        s += std::to_string((pos&0x0F)-1);
+        s += std::to_string((pos&0x0F));
         return s;
     }
     

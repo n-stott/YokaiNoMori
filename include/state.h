@@ -2,7 +2,9 @@
 #define STATE_H
 
 #include "action.h"
+#include "board.h"
 #include "piece.h"
+#include "reserve.h"
 
 #include <array>
 #include <string>
@@ -10,32 +12,23 @@
 #include <iostream>
 
 struct State {
-    std::array<Piece, 12> board;
-    std::array<Piece, 6> reserve1;
-    uint8_t size1;
-    std::array<Piece, 6> reserve2;
-    uint8_t size2;
+    Board board;
+    Reserve<P1> reserve1;
+    Reserve<P2> reserve2;
 
     State() : 
-        board({
-            Piece(Tower, P2), Piece(King, P2), Piece(Rook, P2),
-            Piece(),          Piece(Pawn, P2), Piece(),
-            Piece(),          Piece(Pawn, P1), Piece(),
-            Piece(Rook, P1),  Piece(King, P1), Piece(Tower, P1)
-        }),
+        board(),
         reserve1(),
-        size1(0),
-        reserve2(),
-        size2(0)
+        reserve2()
     { }
 
     std::string toString() const {
         std::string s;
         for(Piece p : board) s+=p.toChar();
         s+='|';
-        for(short r = 0; r < size1; ++r) s+=reserve1[r].toChar();
+        s += reserve1.toString();
         s+='|';
-        for(short r = 0; r < size2; ++r) s+=reserve2[r].toChar();
+        s += reserve2.toString();
         return s;
     }
 
@@ -43,47 +36,37 @@ struct State {
         std::string s;
         s += "-----------------\n";
         s+="Player B | ";
-        for(short r = 0; r < size2; ++r) s+=reserve2[r].toChar();
+        s += reserve2.toString();
         s+='\n';
         s += "-----------------";
         for(short i = 0; i < 12; ++i) {
-            if(i%3 == 0) s+='\n' + std::to_string(3-i/3) + ' ';
+            if(i%3 == 0) s+='\n' + std::to_string(4-i/3) + ' ';
             s += board[i].toChar();
         }
         s += '\n';
         s += "  ABC\n";
         s += "-----------------\n";
         s+="Player a | ";
-        for(short r = 0; r < size1; ++r) s+=reserve1[r].toChar();
+        s += reserve1.toString();
         s += '\n';
         s += "-----------------";
         return s;
     }
 
     void pushReserve1(const Piece p) {
-        reserve1[size1] = p;
-        reserve1[size1].setColor(P1);
-        size1++;
+        reserve1.push(p);
     }
 
     Piece popReserve1(uint8_t pos) {
-        assert(pos < size1);
-        size1--;
-        std::swap(reserve1[pos], reserve1[size1]);
-        return reserve1[size1];
+        return reserve1.pop(pos);
     }
 
     void pushReserve2(const Piece p) {
-        reserve2[size2] = p;
-        reserve2[size2].setColor(P2);
-        size2++;
+        reserve2.push(p);
     }
 
     Piece popReserve2(uint8_t pos) {
-        assert(pos < size2);
-        size2--;
-        std::swap(reserve2[pos], reserve2[size1]);
-        return reserve2[size1];
+        return reserve2.pop(pos);
     }
 
     bool allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
@@ -170,14 +153,14 @@ struct State {
         if(pt == NoType) return false;
         if(c != P1 && c != P2) return false;
         if(c == P1) {
-            if(posInReserve >= size1) return false;
+            if(posInReserve >= reserve1.size) return false;
             const Piece src = reserve1[posInReserve];
             if(src.type() != pt) return false;
             if(src.color() != c) return false;
             if(src.type() == King || src.type() == SuperPawn) return false;
         }
         if(c == P2) {
-            if(posInReserve >= size2) return false;
+            if(posInReserve >= reserve2.size) return false;
             const Piece src = reserve2[posInReserve];
             if(src.type() != pt) return false;
             if(src.color() != c) return false;
