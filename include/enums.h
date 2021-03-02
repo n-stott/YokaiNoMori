@@ -1,7 +1,9 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-enum PieceType {
+#include <cstddef>
+
+enum PieceType : char {
     NoType,
     King,
     Tower,
@@ -10,13 +12,13 @@ enum PieceType {
     SuperPawn
 };
 
-enum Color {
+enum Color : char {
     None,
     P1,
     P2
 };
 
-enum ActionType {
+enum ActionType : char {
     Move,
     Drop
 };

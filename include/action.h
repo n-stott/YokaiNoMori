@@ -4,9 +4,10 @@
 #include "enums.h"
 #include "pos.h"
 #include <string>
+#include "piece.h"
 
 struct Action {
-    Color player;
+    Piece p;
     ActionType type;
     Pos src;
     Pos dst;
@@ -14,10 +15,13 @@ struct Action {
 
     std::string toString() const {
         std::string message;
-        message += "Player " + std::to_string(player);
+        message += "Player " + std::to_string(p.color());
         message += " ";
-        message += (type == Move ? "moves" : "drops");
-        message += " from " + src.toString() + " to " + dst.toString();
+        if(type == Move) {
+            message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();
+        } else {
+            message += "drops " + (std::string()+(char)p.toChar()) + " on " + src.toString();
+        }
         return message;
     }
 };

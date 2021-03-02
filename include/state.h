@@ -15,11 +15,13 @@ struct State {
     Board board;
     Reserve<P1> reserve1;
     Reserve<P2> reserve2;
+    Color nextPlayer;
 
     State() : 
         board(),
         reserve1(),
-        reserve2()
+        reserve2(),
+        nextPlayer(P1)
     { }
 
     std::string toString() const {
@@ -128,6 +130,7 @@ struct State {
         }
         board[a.idx()] = Piece();
         board[b.idx()] = src;
+        swapPlayer();
     }
 
     bool allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const {
@@ -163,22 +166,46 @@ struct State {
             const Piece src = reserve2.pop(posInReserve);
             board[a.idx()] = src;
         }
+        swapPlayer();
     }
 
-    std::vector<Action> allowedActions(Color c) const {
+    std::vector<Action> allowedActions() const {
         std::vector<Action> actions;
 
         for(Pos::type i = 0; i < 12; ++i) {
             const Piece p = board[i];
             const Pos src = Pos::validPositions[i];
-            if(p.color() != c) continue;
+            if(p.color() != nextPlayer) continue;
             for(Pos::type offset : p.offsets()) {
                 const Pos dst = src.pos + offset;
                 if(dst.valid() == false) continue;
                 if(allowedMove(p.type(), p.color(), src, dst) == false) continue;
-                Action action{c, Move, src, dst, 0};
-                std::cerr << action.toString() << '\n';
+                Action action{p, Move, src, dst, 0};
                 actions.push_back(action);
+            }
+        }
+        if(nextPlayer == P1) {
+            for(uint8_t k = 0; k < reserve1.size; ++k) {
+                const Piece p = reserve1[k];
+                for(Pos::type i = 0; i < 12; ++i) {
+                    const Pos dst = Pos::validPositions[i];
+                    if(dst.valid() == false) continue;
+                    if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
+                    Action action{p, Drop, dst, dst, k};
+                    actions.push_back(action);
+                }
+            }
+        }
+        else {
+            for(uint8_t k = 0; k < reserve2.size; ++k) {
+                const Piece p = reserve2[k];
+                for(Pos::type i = 0; i < 12; ++i) {
+                    const Pos dst = Pos::validPositions[i];
+                    if(dst.valid() == false) continue;
+                    if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
+                    Action action{p, Drop, dst, dst, k};
+                    actions.push_back(action);
+                }
             }
         }
         return actions;
@@ -186,6 +213,14 @@ struct State {
 
 private:
 
+    void swapPlayer() {
+        nextPlayer = (nextPlayer == P1 ? P2 : P1);
+    }
+
 };
+
+
+static_assert(sizeof(State) == 27);
+static_assert(sizeof(State) <= 32); // fit two states on a cache line ?
 
 #endif
