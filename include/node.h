@@ -13,12 +13,13 @@ struct Node {
     State value;
     Tree* tree;
     int depth;
-    std::vector<Action> actions;
+    ActionSet actions;
     std::vector<Node> children;
 
-    explicit Node(const State& s) :
-        value(s),
-        tree(nullptr),
+
+    Node(Tree* tree) :
+        value(),
+        tree(tree),
         depth(0),
         actions(),
         children()

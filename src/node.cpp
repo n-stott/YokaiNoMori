@@ -2,10 +2,9 @@
 #include "tree.h"
 
 void Node::computeChildren() {
-    if(tree) {
-        auto it = std::find(tree->openNodes.begin(), tree->openNodes.end(), this);
-        if(it != tree->openNodes.end()) tree->openNodes.erase(it);
-    }
+    // auto it = std::find(tree->openNodes.begin(), tree->openNodes.end(), this);
+    // if(it != tree->openNodes.end()) tree->openNodes.erase(it);
+    
     actions = value.allowedActions();
     children.clear();
     for(Action action : actions) {
@@ -17,6 +16,6 @@ void Node::computeChildren() {
             s.drop(action.p.type(), action.p.color(), action.reservePos, action.dst);
         }
         children.emplace_back(tree, s, depth+1);
-        if(tree) tree->openNodes.push_back(&children.back());
+        tree->nodes.push_back(&children.back());
     }
 }

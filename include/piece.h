@@ -5,6 +5,17 @@
 #include "pos.h"
 #include "enums.h"
 
+struct Offset {
+    static constexpr static_vector<Pos::type, 8> empty { };
+    static constexpr static_vector<Pos::type, 8> king { Pos::v, Pos::v+Pos::h, Pos::h, Pos::h-Pos::v, -Pos::v, -Pos::v-Pos::h, -Pos::h, -Pos::h+Pos::v };
+    static constexpr static_vector<Pos::type, 8> tower { Pos::v, Pos::h, -Pos::v, -Pos::h };
+    static constexpr static_vector<Pos::type, 8> rook { +Pos::v+Pos::h, +Pos::v-Pos::h, -Pos::v+Pos::h, -Pos::v-Pos::h };
+    static constexpr static_vector<Pos::type, 8> p1Pawn { Pos::v };
+    static constexpr static_vector<Pos::type, 8> p2Pawn { -Pos::v };
+    static constexpr static_vector<Pos::type, 8> p1SuperPawn { Pos::v, Pos::v+Pos::h, Pos::h, -Pos::v, -Pos::h, -Pos::h+Pos::v };
+    static constexpr static_vector<Pos::type, 8> p2SuperPawn { Pos::v, Pos::h, Pos::h-Pos::v, -Pos::v, -Pos::v-Pos::h, -Pos::h };
+};
+
 class Piece {
 private:
     uint8_t data_;
@@ -31,26 +42,18 @@ public:
     }
 
     const static_vector<Pos::type, 8>& offsets() const {
-        if(type() == King) return kingOffsets;
-        if(type() == Tower) return towerOffsets;
-        if(type() == Rook) return rookOffsets;
-        if(color() == P1 && type() == Pawn) return p1PawnOffsets;
-        if(color() == P1 && type() == SuperPawn) return p1SuperPawnOffsets;
-        if(color() == P2 && type() == Pawn) return p2PawnOffsets;
-        if(color() == P2 && type() == SuperPawn) return p2SuperPawnOffsets;
-        assert(false);
-        return kingOffsets;
+        if(type() == King) return Offset::king;
+        if(type() == Tower) return Offset::tower;
+        if(type() == Rook) return Offset::rook;
+        if(color() == P1 && type() == Pawn) return Offset::p1Pawn;
+        if(color() == P1 && type() == SuperPawn) return Offset::p1SuperPawn;
+        if(color() == P2 && type() == Pawn) return Offset::p2Pawn;
+        if(color() == P2 && type() == SuperPawn) return Offset::p2SuperPawn;
+        return Offset::empty;
     }
 
 private:
 
-    static static_vector<Pos::type, 8> kingOffsets;
-    static static_vector<Pos::type, 8> towerOffsets;
-    static static_vector<Pos::type, 8> rookOffsets;
-    static static_vector<Pos::type, 8> p1PawnOffsets;
-    static static_vector<Pos::type, 8> p2PawnOffsets;
-    static static_vector<Pos::type, 8> p1SuperPawnOffsets;
-    static static_vector<Pos::type, 8> p2SuperPawnOffsets;
 };
 
 #endif

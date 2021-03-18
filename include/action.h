@@ -26,4 +26,23 @@ struct Action {
     }
 };
 
+struct ActionSet {
+    std::vector<Action> actions;
+
+    std::string toString() const {
+        std::string message;
+        for(const Action& action : actions) message += action.toString()+'\n';
+        return message;
+    }
+
+    void push_back(const Action& action) {
+        actions.push_back(action);
+    }
+
+    using const_iterator = std::vector<Action>::const_iterator;
+
+    const_iterator begin() const { return actions.begin(); }
+    const_iterator end() const { return actions.end(); }
+};
+
 #endif

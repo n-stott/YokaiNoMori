@@ -10,7 +10,7 @@ class static_vector {
 public:
     constexpr static_vector() : data_(), size_(0) {}
 
-    static_vector(const std::initializer_list<T>& list) : data_(), size_(0) {
+    constexpr static_vector(const std::initializer_list<T>& list) : data_(), size_(0) {
         for(const auto& t : list) push_back(t);
     }
 

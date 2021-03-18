@@ -169,8 +169,8 @@ struct State {
         swapPlayer();
     }
 
-    std::vector<Action> allowedActions() const {
-        std::vector<Action> actions;
+    ActionSet allowedActions() const {
+        ActionSet actions;
 
         for(Pos::type i = 0; i < 12; ++i) {
             const Piece p = board[i];
