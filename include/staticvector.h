@@ -25,6 +25,8 @@ public:
     constexpr const T* begin() const noexcept { return data_.data(); }
     constexpr const T* end() const noexcept { return data_.data() + size_; }
 
+    constexpr const T& operator[](unsigned int i) const { return data_[i]; }
+
 private:
     std::array<T, max_size> data_;
     unsigned int size_;

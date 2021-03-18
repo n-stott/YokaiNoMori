@@ -1,20 +1,11 @@
 #ifndef PIECE_H
 #define PIECE_H
 
+#include "allowedmove.h"
 #include "staticvector.h"
 #include "pos.h"
 #include "enums.h"
 
-struct Offset {
-    static constexpr static_vector<Pos::type, 8> empty { };
-    static constexpr static_vector<Pos::type, 8> king { Pos::v, Pos::v+Pos::h, Pos::h, Pos::h-Pos::v, -Pos::v, -Pos::v-Pos::h, -Pos::h, -Pos::h+Pos::v };
-    static constexpr static_vector<Pos::type, 8> tower { Pos::v, Pos::h, -Pos::v, -Pos::h };
-    static constexpr static_vector<Pos::type, 8> rook { +Pos::v+Pos::h, +Pos::v-Pos::h, -Pos::v+Pos::h, -Pos::v-Pos::h };
-    static constexpr static_vector<Pos::type, 8> p1Pawn { Pos::v };
-    static constexpr static_vector<Pos::type, 8> p2Pawn { -Pos::v };
-    static constexpr static_vector<Pos::type, 8> p1SuperPawn { Pos::v, Pos::v+Pos::h, Pos::h, -Pos::v, -Pos::h, -Pos::h+Pos::v };
-    static constexpr static_vector<Pos::type, 8> p2SuperPawn { Pos::v, Pos::h, Pos::h-Pos::v, -Pos::v, -Pos::v-Pos::h, -Pos::h };
-};
 
 class Piece {
 private:
@@ -41,15 +32,19 @@ public:
         return ret;
     }
 
-    const static_vector<Pos::type, 8>& offsets() const {
-        if(type() == King) return Offset::king;
-        if(type() == Tower) return Offset::tower;
-        if(type() == Rook) return Offset::rook;
-        if(color() == P1 && type() == Pawn) return Offset::p1Pawn;
-        if(color() == P1 && type() == SuperPawn) return Offset::p1SuperPawn;
-        if(color() == P2 && type() == Pawn) return Offset::p2Pawn;
-        if(color() == P2 && type() == SuperPawn) return Offset::p2SuperPawn;
-        return Offset::empty;
+    const AllowedMove::move_sets& moveSets() const {
+        if(type() == King) return AllowedMove::king;
+        if(type() == Tower) return AllowedMove::tower;
+        if(type() == Rook) return AllowedMove::rook;
+        if(color() == P1 && type() == Pawn) return AllowedMove::p1Pawn;
+        if(color() == P1 && type() == SuperPawn) return AllowedMove::p1SuperPawn;
+        if(color() == P2 && type() == Pawn) return AllowedMove::p2Pawn;
+        if(color() == P2 && type() == SuperPawn) return AllowedMove::p2SuperPawn;
+        return AllowedMove::empty;
+    }
+
+    const AllowedMove::move_set& moveSet(Pos position) const {
+        return moveSets()[position.idx()];
     }
 
 private:

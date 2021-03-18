@@ -1,4 +1,5 @@
 #include "state.h"
+#include "allowedmove.h"
 
 std::string State::toString() const {
     std::string s;
@@ -18,7 +19,7 @@ std::string State::niceToString() const {
     s+='\n';
     s += "-----------------";
     for(short i = 0; i < 12; ++i) {
-        if(i%3 == 0) s+='\n' + std::to_string(4-i/3) + ' ';
+        if(i%3 == 0) s+='\n' + std::to_string(1+i/3) + ' ';
         s += board[i].toChar();
     }
     s += '\n';
@@ -52,44 +53,10 @@ bool State::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
     if(b.valid() == false) return false;
     if(pt == NoType) return false;
     if(c != P1 && c != P2) return false;
-    const Pos::type roffset = b.pos - a.pos;
-    const Pos::type aoffset = std::abs(roffset);
-    if(pt == King) {
-        return(aoffset == Pos::h
-            || aoffset == std::abs(Pos::v-Pos::h)
-            || aoffset == Pos::v
-            || aoffset == Pos::v+Pos::h);
-    }
-    if(pt == Tower) {
-        return(aoffset == Pos::h
-            || aoffset == Pos::v);
-    }
-    if(pt == Rook) {
-        return(aoffset == std::abs(Pos::v-Pos::h)
-            || aoffset == Pos::h+Pos::v);
-    }
-    if(pt == Pawn) {
-        if(c == P1) {
-            return roffset == Pos::v;
-        } else {
-            return roffset == -Pos::v;
-        }
-    }
-    if(pt == SuperPawn) {
-        if(c == P1) {
-            return (aoffset == Pos::v
-                    || aoffset == Pos::h
-                    || roffset == Pos::v + Pos::h
-                    || roffset == Pos::v - Pos::h);
-        } else {
-            return (aoffset == Pos::v
-                    || aoffset == Pos::h
-                    || roffset == -Pos::v + Pos::h
-                    || roffset == -Pos::v - Pos::h);
-        }
-    }
-    assert(false);
-    return false;
+    auto& movesets = AllowedMove::get(c, pt);
+    auto& moveset = movesets[a.idx()];
+    return std::find(moveset.begin(), moveset.end(), b.idx()) != moveset.end();
+
 }
 
 void State::move(PieceType pt, Color c, Pos a, Pos b) {
@@ -148,12 +115,11 @@ void State::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
 ActionSet State::allowedActions() const {
     ActionSet actions;
 
-    for(Pos::type i = 0; i < 12; ++i) {
+    for(Pos::value i = 0; i < 12; ++i) {
         const Piece p = board[i];
-        const Pos src = Pos::validPositions[i];
+        const Pos src(i);
         if(p.color() != currentPlayer) continue;
-        for(Pos::type offset : p.offsets()) {
-            const Pos dst = src.pos + offset;
+        for(Pos dst : p.moveSet(src)) {
             if(dst.valid() == false) continue;
             if(allowedMove(p.type(), p.color(), src, dst) == false) continue;
             Action action{p, Move, src, dst, 0};
@@ -163,8 +129,8 @@ ActionSet State::allowedActions() const {
     if(currentPlayer == P1) {
         for(uint8_t k = 0; k < reserve1.size; ++k) {
             const Piece p = reserve1[k];
-            for(Pos::type i = 0; i < 12; ++i) {
-                const Pos dst = Pos::validPositions[i];
+            for(Pos::value i = 0; i < 12; ++i) {
+                const Pos dst(i);
                 if(dst.valid() == false) continue;
                 if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
                 Action action{p, Drop, dst, dst, k};
@@ -175,8 +141,8 @@ ActionSet State::allowedActions() const {
     else {
         for(uint8_t k = 0; k < reserve2.size; ++k) {
             const Piece p = reserve2[k];
-            for(Pos::type i = 0; i < 12; ++i) {
-                const Pos dst = Pos::validPositions[i];
+            for(Pos::value i = 0; i < 12; ++i) {
+                const Pos dst(i);
                 if(dst.valid() == false) continue;
                 if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
                 Action action{p, Drop, dst, dst, k};

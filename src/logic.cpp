@@ -8,11 +8,11 @@ void test1() {
     std::cout << s.niceToString() << '\n';
     auto aa1 = s.allowedActions();
     std::cout << aa1.toString() << '\n';
-    s.move(Pawn, P1, 0xB2, 0xB3);
+    s.move(Pawn, P1, 7, 4);
     std::cout << s.niceToString() << '\n';
     auto aa2 = s.allowedActions();
     std::cout << aa2.toString() << '\n';
-    s.move(King, P2, 0xB4, 0xB3);
+    s.move(King, P2, 1, 4);
     std::cout << s.niceToString() << '\n';
     auto aa3 = s.allowedActions();
     std::cout << aa3.toString() << '\n';

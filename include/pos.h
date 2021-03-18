@@ -8,34 +8,30 @@
 
 struct Pos {
 
-    using type = int16_t;
+    using value = int16_t;
+    value pos;
 
-    Pos(type p) : pos(p) { }
-    type pos;
+    constexpr Pos() : pos(-1) { }
+    constexpr Pos(value p) : pos(p) { }
 
-    type idx() const {
-        return ((pos >> 4)-0xA) + 3*(4- (pos&0x0F));
+    constexpr value idx() const {
+        return pos;
     }
 
-    static constexpr type h = 0x10;
-    static constexpr type v = 0x01;
+    constexpr bool valid() const noexcept {
+        return pos >= 0 && pos < 12;
+    }
 
-    bool valid() const {
-        return std::find(validPositions.begin(), validPositions.end(), pos) != validPositions.end();
+    constexpr bool operator==(const Pos p) const {
+        return pos == p.pos;
     }
 
     std::string toString() const noexcept {
         std::string s;
-        s += ('A' + ((pos >> 4)-0xA));
-        s += std::to_string((pos&0x0F));
+        s += ('A' + pos%3);
+        s += std::to_string((pos/3)+1);
         return s;
     }
-    
-    void check() {
-        assert(valid());
-    }
-
-    static std::array<Pos::type, 12> validPositions;
 };
 
 
