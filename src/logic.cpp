@@ -69,9 +69,9 @@ void test4() {
     std::cout << "evals : " << agent.nbEvals << std::endl;
 }
 
-int main() {
-    test1();
-    test2();
-    test3();
-    test4();
-}
+// int main() {
+//     test1();
+//     test2();
+//     test3();
+//     test4();
+// }

@@ -34,6 +34,7 @@ std::string State::niceToString() const {
 }
 
 bool State::allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
+    if(hasWon(P1) || hasWon(P2)) return false;
     if(a.valid() == false) return false;
     if(b.valid() == false) return false;
     const Piece src = board[a.idx()];
@@ -78,6 +79,7 @@ void State::move(PieceType pt, Color c, Pos a, Pos b) {
 }
 
 bool State::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const {
+    if(hasWon(P1) || hasWon(P2)) return false;
     if(a.valid() == false) return false;
     const Piece dst = board[a.idx()];
     if(dst.empty() == false) return false;
