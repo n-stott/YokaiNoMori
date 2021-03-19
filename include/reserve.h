@@ -38,6 +38,9 @@ struct Reserve {
         return reserve[pos];
     }
 
+    const Piece* begin() const { return reserve.data(); }
+    const Piece* end() const { return reserve.data()+size; }
+
 };
 
 #endif
