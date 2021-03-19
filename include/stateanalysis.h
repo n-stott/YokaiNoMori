@@ -96,6 +96,9 @@ struct StateAnalysis {
     bool isKingAttacked1() const { return (controlled2&kingPosition1).any(); }
     bool isKingAttacked2() const { return (controlled1&kingPosition2).any(); }
 
+    bool hasKing1() const { return kingPosition1.any(); }
+    bool hasKing2() const { return kingPosition2.any(); }
+
     size_t nbKingEscapes1() const { 
         mask invalid = occupied1 | controlled2;
         return (kingControl1&(~invalid)).count();
@@ -107,19 +110,17 @@ struct StateAnalysis {
     }
 
     size_t kingDistance1() const {
-        assert(kingPosition1.count()==1);
         for(size_t i = 0; i < 12; ++i) {
             if(kingPosition1[i]) return i/3;
         }
-        return 10;
+        return 0;
     }
 
     size_t kingDistance2() const {
-        assert(kingPosition2.count()==1);
         for(size_t i = 0; i < 12; ++i) {
             if(kingPosition2[i]) return 3-i/3;
         }
-        return 10;
+        return 0;
     }
 
 };

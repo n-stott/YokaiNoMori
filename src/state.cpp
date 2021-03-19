@@ -1,5 +1,6 @@
 #include "state.h"
 #include "allowedmove.h"
+#include <algorithm>
 
 std::string State::toString() const {
     std::string s;
@@ -112,8 +113,28 @@ void State::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
     swapPlayer();
 }
 
+
+bool State::hasWon(Color player) const {
+    if(player == Color::P1) {
+        return std::any_of(reserve1.begin(), reserve1.end(), [](Piece p){ return p.type() == PieceType::King; });
+    } else {
+        return std::any_of(reserve2.begin(), reserve2.end(), [](Piece p){ return p.type() == PieceType::King; });
+    }
+}
+
+bool State::hasLost(Color player) const {
+    if(player == Color::P1) {
+        return hasWon(Color::P2);
+    } else {
+        return hasWon(Color::P1);
+    }
+}
+
 ActionSet State::allowedActions() const {
     ActionSet actions;
+    actions.reserve(64);
+
+    if(hasWon(currentPlayer) || hasLost(currentPlayer)) return actions;
 
     for(Pos::value i = 0; i < 12; ++i) {
         const Piece p = board[i];
