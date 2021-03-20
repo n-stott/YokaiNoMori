@@ -106,21 +106,21 @@ std::optional<Action> readAction(Color player) {
 
 
 
-int main() {
+// int main() {
 
-    GameState state;
+//     GameState state;
 
-    while(!state.hasWinner()) {
+//     while(!state.hasWinner()) {
 
-        std::cout << state.niceToString() << std::endl;
+//         std::cout << state.niceToString() << std::endl;
         
-        std::cout << "Turn of player : " << (state.currentPlayer == P1 ? "A" : "B") << std::endl;
-        std::optional<Action> action = readAction(state.currentPlayer);
-        if(action) {
-            std::cout << action.value().toString() << std::endl;
-            bool success = state.apply(action.value());
-            std::cout << "move valid : " << success << std::endl;
-        }
-    }
+//         std::cout << "Turn of player : " << (state.currentPlayer == P1 ? "A" : "B") << std::endl;
+//         std::optional<Action> action = readAction(state.currentPlayer);
+//         if(action) {
+//             std::cout << action.value().toString() << std::endl;
+//             bool success = state.apply(action.value());
+//             std::cout << "move valid : " << success << std::endl;
+//         }
+//     }
 
-}
+// }

@@ -6,42 +6,44 @@
 #include "agent.h"
 #include <limits>
 #include <optional>
+#include <iostream>
 
 struct Search {
 
+    int maxdepth;
     GameState& root;
     std::optional<Action> bestAction;
-    std::optional<Action> tmpBestAction;
-
+    double bestScore;
     Agent& agent;
 
-    Search(GameState& root, Agent& agent) :
+    Search(GameState& root, Agent& agent, int maxdepth) :
+        maxdepth(maxdepth),
         root(root),
         bestAction(),
-        tmpBestAction(),
+        bestScore(-std::numeric_limits<double>::infinity()),
         agent(agent)
     { }
 
-    double search(int depth) {
-        return search(root, depth, agent.player);
+    double run() {
+        return search(root, maxdepth);
     }
 
 private:
 
-    double search(GameState currentState, int depth, Color playerTurn) {
+    double search(GameState currentState, int depth) {
         if(depth == 0) {
             Agent::score score = agent.evaluate(currentState);
-            double eval = score.value(playerTurn);
+            double eval = score.value();
             assert(eval == eval);
             return eval;
         }
         ActionSet actionset = currentState.allowedActions();
         if(actionset.empty()) {
-            if(currentState.hasWon(playerTurn)) {
-                return std::numeric_limits<double>::infinity();
+            if(currentState.hasWon(currentState.currentPlayer)) {
+                return -agent.kingDeadValue - depth;
             }
-            if(currentState.hasLost(playerTurn)) {
-                return -std::numeric_limits<double>::infinity();
+            if(currentState.hasLost(currentState.currentPlayer)) {
+                return agent.kingDeadValue + depth;
             }
             return 0;
         }
@@ -50,9 +52,15 @@ private:
         for(Action action : actionset) {
             GameState tmp = currentState;
             tmp.apply(action);
-            double evaluation = search(tmp, depth-1, (playerTurn == P1 ? P2 : P1));
+            double evaluation = -search(tmp, depth-1);
+            if(depth == maxdepth) {
+                std::cout << action.toString() << " : " << evaluation << std::endl;
+            }
             assert(evaluation == evaluation);
-            bestEvaluation = std::max(evaluation, bestEvaluation);
+            if(evaluation >= bestEvaluation) {
+                bestEvaluation = evaluation;
+                if(depth == maxdepth) bestAction = action;
+            }
         }
             
         assert(bestEvaluation == bestEvaluation);

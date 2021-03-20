@@ -34,6 +34,7 @@ std::string GameState::niceToString() const {
 }
 
 bool GameState::allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
+    if(nbTurns >= maxTurns) return false;
     if(hasWon(P1) || hasWon(P2)) return false;
     if(a.valid() == false) return false;
     if(b.valid() == false) return false;
@@ -80,6 +81,7 @@ bool GameState::move(PieceType pt, Color c, Pos a, Pos b) {
 }
 
 bool GameState::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const {
+    if(nbTurns >= maxTurns) return false;
     if(hasWinner()) return false;
     if(a.valid() == false) return false;
     const Piece dst = board[a.idx()];

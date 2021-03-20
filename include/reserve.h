@@ -12,6 +12,21 @@ struct Reserve {
     std::array<Piece, 6> reserve;
     uint8_t size;
 
+    Reserve() :
+        reserve(),
+        size(0)
+    { }
+
+    Reserve(const std::string& res) :
+        reserve(),
+        size(0)
+    {
+        for(size_t i = 0; i < res.size(); ++i) {
+            push(Piece(res[i]));
+            if(size == 6) break;
+        }
+    }
+
     void push(const Piece p) {
         reserve[size] = p;
         reserve[size].setColor(c);

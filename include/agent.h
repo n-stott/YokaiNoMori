@@ -7,17 +7,18 @@
 #include <array>
 #include <iostream>
 #include <limits>
+#include <cmath>
 
 struct Agent {
 
     struct score {
-        double s1 = 0;
-        double s2 = 0;
+        double s1 = 0; // estimated score of p1
+        double s2 = 0; // estimated score of p2
+        double p = 0;  // penalty for p1 (non symetric)
 
-        double value(Color player) const { return (player == Color::P1 ? s1-s2 : s2-s1); }
+        double value() const { return s1-s2+p; }
     };
 
-    Color player;
     size_t nbEvals;
 
     // scores
@@ -31,21 +32,26 @@ struct Agent {
     double kingEscapesValue;
     double kingDistanceValue;
     double kingDeadValue;
+    double endGamePenalty;
 
-    Agent(Color player) : 
-        player(player),
+    Agent() : 
         nbEvals(0),
         boardValue{0, 0, 5, 3, 1, 4},
-        reserveValue{0, 0, 5, 3, 1, 0},
+        reserveValue{0, 1000, 10, 6, 2, 0},
         occupiedValue(1),
-        controlledValue(1),
+        controlledValue(0.5),
         disputedValue(0),
-        dangerValue(-2),
+        dangerValue(-0.5),
         kingAttackedValue(-5),
         kingEscapesValue(1),
         kingDistanceValue(1),
-        kingDeadValue(-std::numeric_limits<double>::infinity())
+        kingDeadValue(-10000),
+        endGamePenalty(-50)
     { }
+
+    ~Agent() {
+        std::cout << "Agent has evaluated : " << nbEvals << " positions" << std::endl;
+    }
 
     score evaluate(const GameState& state) {
         ++nbEvals;
@@ -72,6 +78,8 @@ struct Agent {
         s.s2 += (sa.hasKing2() ? 0 : kingDeadValue);
         for(size_t i = 0; i < 6; ++i) s.s2 += boardValue[i] * sa.onBoard2[i];
         for(size_t i = 0; i < 6; ++i) s.s2 += reserveValue[i] * sa.inReserve2[i];
+
+        s.p = endGamePenalty * (1.0*state.nbTurns/state.maxTurns) * (1.0*state.nbTurns/state.maxTurns);
 
         return s;
     }

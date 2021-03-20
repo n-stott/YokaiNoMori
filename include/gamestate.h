@@ -16,12 +16,25 @@ struct GameState {
     Reserve<P1> reserve1;
     Reserve<P2> reserve2;
     Color currentPlayer;
+    uint8_t nbTurns;
+    uint8_t maxTurns;
 
     GameState() : 
         board(),
         reserve1(),
         reserve2(),
-        currentPlayer(P1)
+        currentPlayer(P1),
+        nbTurns(0),
+        maxTurns(100)
+    { }
+
+    GameState(const std::string& sboard, const std::string& sres1, const std::string& sres2, Color player) :
+        board(sboard),
+        reserve1(sres1),
+        reserve2(sres2),
+        currentPlayer(player),
+        nbTurns(0),
+        maxTurns(100)
     { }
 
     std::string toString() const;
@@ -52,11 +65,12 @@ public:
 
     void swapPlayer() {
         currentPlayer = (currentPlayer == P1 ? P2 : P1);
+        ++nbTurns;
     }
 
 };
 
 
-static_assert(sizeof(GameState) == 27);
+static_assert(sizeof(GameState) == 29);
 
 #endif
