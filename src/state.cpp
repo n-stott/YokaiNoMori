@@ -61,9 +61,9 @@ bool State::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
 
 }
 
-void State::move(PieceType pt, Color c, Pos a, Pos b) {
-    assert(allowedMove(pt, c, a, b));
-    assert(allowedOffset(pt, c, a, b));
+bool State::move(PieceType pt, Color c, Pos a, Pos b) {
+    if(!allowedMove(pt, c, a, b)) return false;
+    if(!allowedOffset(pt, c, a, b)) return false;
     const Piece src = board[a.idx()]; 
     const Piece dst = board[b.idx()];
     if(dst.empty() == false) {
@@ -76,10 +76,11 @@ void State::move(PieceType pt, Color c, Pos a, Pos b) {
     board[a.idx()] = Piece();
     board[b.idx()] = src;
     swapPlayer();
+    return true;
 }
 
 bool State::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const {
-    if(hasWon(P1) || hasWon(P2)) return false;
+    if(hasWinner()) return false;
     if(a.valid() == false) return false;
     const Piece dst = board[a.idx()];
     if(dst.empty() == false) return false;
@@ -102,8 +103,8 @@ bool State::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) cons
     return true;
 }
 
-void State::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
-    assert(allowedDrop(pt, c, posInReserve, a));
+bool State::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
+    if(!allowedDrop(pt, c, posInReserve, a)) return false;
     if(c == P1) {
         const Piece src = reserve1.pop(posInReserve);
         board[a.idx()] = src;
@@ -113,6 +114,7 @@ void State::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
         board[a.idx()] = src;
     }
     swapPlayer();
+    return true;
 }
 
 

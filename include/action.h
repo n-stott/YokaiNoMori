@@ -40,7 +40,7 @@ struct Action {
         if(type == Move) {
             message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();
         } else {
-            message += "drops " + (std::string()+(char)p.toChar()) + " on " + src.toString();
+            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)reservePos) + " on " + dst.toString();
         }
         return message;
     }
