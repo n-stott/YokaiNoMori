@@ -51,4 +51,6 @@ private:
 
 };
 
+static_assert(sizeof(Piece) == 1);
+
 #endif

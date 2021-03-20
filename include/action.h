@@ -13,6 +13,28 @@ struct Action {
     Pos dst;
     uint8_t reservePos;
 
+    static Action move(Piece p, Pos src, Pos dst) {
+        return Action{p, ActionType::Move, src, dst, 0};
+    }
+
+    static Action drop(Piece p, uint8_t rpos, Pos dst) {
+        return Action{p, ActionType::Drop, Pos(), dst, rpos};
+    }
+
+    std::string toString() const {
+        std::string message;
+        message += "Player " + std::to_string(p.color());
+        message += " ";
+        if(type == Move) {
+            message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();
+        } else {
+            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)reservePos) + " on " + dst.toString();
+        }
+        return message;
+    }
+
+private:
+
     Action() :
         p(),
         type(ActionType::Drop),
@@ -32,19 +54,9 @@ struct Action {
         dst(dst),
         reservePos(reservePos)
     { }
-
-    std::string toString() const {
-        std::string message;
-        message += "Player " + std::to_string(p.color());
-        message += " ";
-        if(type == Move) {
-            message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();
-        } else {
-            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)reservePos) + " on " + dst.toString();
-        }
-        return message;
-    }
 };
+
+static_assert(sizeof(Action) == 5);
 
 struct ActionSet {
     std::vector<Action> actions;

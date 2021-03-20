@@ -1,8 +1,8 @@
-#include "state.h"
+#include "gamestate.h"
 #include "allowedmove.h"
 #include <algorithm>
 
-std::string State::toString() const {
+std::string GameState::toString() const {
     std::string s;
     for(Piece p : board) s+=p.toChar();
     s+='|';
@@ -12,7 +12,7 @@ std::string State::toString() const {
     return s;
 }
 
-std::string State::niceToString() const {
+std::string GameState::niceToString() const {
     std::string s;
     s += "-----------------\n";
     s+="Player B | ";
@@ -33,7 +33,7 @@ std::string State::niceToString() const {
     return s;
 }
 
-bool State::allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
+bool GameState::allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
     if(hasWon(P1) || hasWon(P2)) return false;
     if(a.valid() == false) return false;
     if(b.valid() == false) return false;
@@ -50,7 +50,7 @@ bool State::allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
     return true;
 }
 
-bool State::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
+bool GameState::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
     if(a.valid() == false) return false;
     if(b.valid() == false) return false;
     if(pt == NoType) return false;
@@ -61,7 +61,7 @@ bool State::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
 
 }
 
-bool State::move(PieceType pt, Color c, Pos a, Pos b) {
+bool GameState::move(PieceType pt, Color c, Pos a, Pos b) {
     if(!allowedMove(pt, c, a, b)) return false;
     if(!allowedOffset(pt, c, a, b)) return false;
     const Piece src = board[a.idx()]; 
@@ -79,7 +79,7 @@ bool State::move(PieceType pt, Color c, Pos a, Pos b) {
     return true;
 }
 
-bool State::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const {
+bool GameState::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const {
     if(hasWinner()) return false;
     if(a.valid() == false) return false;
     const Piece dst = board[a.idx()];
@@ -103,7 +103,7 @@ bool State::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) cons
     return true;
 }
 
-bool State::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
+bool GameState::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
     if(!allowedDrop(pt, c, posInReserve, a)) return false;
     if(c == P1) {
         const Piece src = reserve1.pop(posInReserve);
@@ -118,7 +118,7 @@ bool State::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
 }
 
 
-bool State::hasWon(Color player) const {
+bool GameState::hasWon(Color player) const {
     if(player == Color::P1) {
         return std::any_of(reserve1.begin(), reserve1.end(), [](Piece p){ return p.type() == PieceType::King; });
     } else {
@@ -126,7 +126,7 @@ bool State::hasWon(Color player) const {
     }
 }
 
-bool State::hasLost(Color player) const {
+bool GameState::hasLost(Color player) const {
     if(player == Color::P1) {
         return hasWon(Color::P2);
     } else {
@@ -134,7 +134,7 @@ bool State::hasLost(Color player) const {
     }
 }
 
-ActionSet State::allowedActions() const {
+ActionSet GameState::allowedActions() const {
     ActionSet actions;
     actions.reserve(64);
 
@@ -147,8 +147,7 @@ ActionSet State::allowedActions() const {
         for(Pos dst : p.moveSet(src)) {
             if(dst.valid() == false) continue;
             if(allowedMove(p.type(), p.color(), src, dst) == false) continue;
-            Action action{p, Move, src, dst, 0};
-            actions.push_back(action);
+            actions.push_back(Action::move(p, src, dst));
         }
     }
     if(currentPlayer == P1) {
@@ -158,8 +157,7 @@ ActionSet State::allowedActions() const {
                 const Pos dst(i);
                 if(dst.valid() == false) continue;
                 if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
-                Action action{p, Drop, dst, dst, k};
-                actions.push_back(action);
+                actions.push_back(Action::drop(p, k, dst));
             }
         }
     }
@@ -170,8 +168,7 @@ ActionSet State::allowedActions() const {
                 const Pos dst(i);
                 if(dst.valid() == false) continue;
                 if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
-                Action action{p, Drop, dst, dst, k};
-                actions.push_back(action);
+                actions.push_back(Action::drop(p, k, dst));
             }
         }
     }

@@ -2,7 +2,7 @@
 #define NODE_H
 
 #include <vector>
-#include "state.h"
+#include "gamestate.h"
 #include "enums.h"
 #include "action.h"
 
@@ -10,7 +10,7 @@ struct Tree;
 
 struct Node {
 
-    State value;
+    GameState value;
     Tree* tree;
     int depth;
     ActionSet actions;
@@ -25,7 +25,7 @@ struct Node {
         children()
     { }
 
-    Node(Tree* tree, const State& s, int depth) :
+    Node(Tree* tree, const GameState& s, int depth) :
         value(s),
         tree(tree),
         depth(depth),

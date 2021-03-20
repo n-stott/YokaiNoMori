@@ -1,4 +1,4 @@
-#include "state.h"
+#include "gamestate.h"
 #include "node.h"
 #include "tree.h"
 #include "agent.h"
@@ -6,7 +6,7 @@
 #include <iostream>
 
 void test1() {
-    State s;
+    GameState s;
     std::cout << s.niceToString() << '\n';
     auto aa1 = s.allowedActions();
     std::cout << aa1.toString() << '\n';

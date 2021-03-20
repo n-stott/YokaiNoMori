@@ -8,7 +8,7 @@
 
 struct Pos {
 
-    using value = int16_t;
+    using value = int8_t;
     value pos;
 
     constexpr Pos() : pos(-1) { }
@@ -33,6 +33,8 @@ struct Pos {
         return s;
     }
 };
+
+static_assert(sizeof(Pos) == 1);
 
 
 #endif

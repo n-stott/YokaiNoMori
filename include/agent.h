@@ -47,7 +47,7 @@ struct Agent {
         kingDeadValue(-std::numeric_limits<double>::infinity())
     { }
 
-    score evaluate(const State& state) {
+    score evaluate(const GameState& state) {
         ++nbEvals;
         StateAnalysis sa(state);
         score s;

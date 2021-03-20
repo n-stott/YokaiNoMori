@@ -1,7 +1,7 @@
 #ifndef BOARDANALYSIS_H
 #define BOARDANALYSIS_H
 
-#include "state.h"
+#include "gamestate.h"
 #include "allowedmove.h"
 #include <bitset>
 #include <cassert>
@@ -30,7 +30,7 @@ struct StateAnalysis {
     std::array<short, 6> inReserve2;
 
 
-    StateAnalysis(const State& state) :
+    StateAnalysis(const GameState& state) :
         occupied1(),
         occupied2(),
         controlled1(),

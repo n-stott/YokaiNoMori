@@ -3,7 +3,7 @@
 #include "enums.h"
 #include <optional>
 #include <string>
-#include "state.h"
+#include "gamestate.h"
 
 std::optional<ActionType> readActionType() {
     std::string command;
@@ -85,7 +85,7 @@ std::optional<Action> readAction(Color player) {
         std::optional<Pos> dst = readBoardPosition();
         if(!dst) return std::nullopt;
 
-        return std::make_optional(Action(Piece(piece.value(), player), command.value(), src.value(), dst.value(), -1));
+        return std::make_optional(Action::move(Piece(piece.value(), player), src.value(), dst.value()));
     }
 
     if(command.value() == ActionType::Drop) {
@@ -98,7 +98,7 @@ std::optional<Action> readAction(Color player) {
         std::optional<Pos> dst = readBoardPosition();
         if(!dst) return std::nullopt;
 
-        return std::make_optional(Action(Piece(piece.value(), player), command.value(), Pos(), dst.value(), src.value()));
+        return std::make_optional(Action::drop(Piece(piece.value(), player), src.value(), dst.value()));
     }
     return std::nullopt;
 }
@@ -108,7 +108,7 @@ std::optional<Action> readAction(Color player) {
 
 int main() {
 
-    State state;
+    GameState state;
 
     while(!state.hasWinner()) {
 

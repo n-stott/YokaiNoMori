@@ -1,20 +1,21 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#include "state.h"
+#include "gamestate.h"
 #include "action.h"
 #include "agent.h"
 #include <limits>
+#include <optional>
 
 struct Search {
 
-    State& root;
-    Action bestAction;
-    Action tmpBestAction;
+    GameState& root;
+    std::optional<Action> bestAction;
+    std::optional<Action> tmpBestAction;
 
     Agent& agent;
 
-    Search(State& root, Agent& agent) :
+    Search(GameState& root, Agent& agent) :
         root(root),
         bestAction(),
         tmpBestAction(),
@@ -27,7 +28,7 @@ struct Search {
 
 private:
 
-    double search(State currentState, int depth, Color playerTurn) {
+    double search(GameState currentState, int depth, Color playerTurn) {
         if(depth == 0) {
             Agent::score score = agent.evaluate(currentState);
             double eval = score.value(playerTurn);
@@ -47,7 +48,7 @@ private:
 
         double bestEvaluation = -std::numeric_limits<double>::infinity();
         for(Action action : actionset) {
-            State tmp = currentState;
+            GameState tmp = currentState;
             tmp.apply(action);
             double evaluation = search(tmp, depth-1, (playerTurn == P1 ? P2 : P1));
             assert(evaluation == evaluation);

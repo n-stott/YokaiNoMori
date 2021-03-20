@@ -1,5 +1,5 @@
-#ifndef STATE_H
-#define STATE_H
+#ifndef GAMESTATE_H
+#define GAMESTATE_H
 
 #include "action.h"
 #include "board.h"
@@ -11,13 +11,13 @@
 #include <vector>
 #include <iostream>
 
-struct State {
+struct GameState {
     Board board;
     Reserve<P1> reserve1;
     Reserve<P2> reserve2;
     Color currentPlayer;
 
-    State() : 
+    GameState() : 
         board(),
         reserve1(),
         reserve2(),
@@ -57,7 +57,6 @@ public:
 };
 
 
-static_assert(sizeof(State) == 27);
-static_assert(sizeof(State) <= 32); // fit two states on a cache line ?
+static_assert(sizeof(GameState) == 27);
 
 #endif

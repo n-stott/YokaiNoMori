@@ -8,7 +8,7 @@ void Node::computeChildren() {
     actions = value.allowedActions();
     children.clear();
     for(Action action : actions) {
-        State s = value;
+        GameState s = value;
         if(action.type == Move) {
             s.move(action.p.type(), action.p.color(), action.src, action.dst);
         }
