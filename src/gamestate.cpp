@@ -66,16 +66,24 @@ bool GameState::move(PieceType pt, Color c, Pos a, Pos b) {
     if(!allowedMove(pt, c, a, b)) return false;
     if(!allowedOffset(pt, c, a, b)) return false;
     const Piece src = board[a.idx()]; 
-    const Piece dst = board[b.idx()];
+    Piece dst = board[b.idx()];
     if(dst.empty() == false) {
         if(c == P1) {
+            dst.demote();
             reserve1.push(dst);
         } else {
+            dst.demote();
             reserve2.push(dst);
         }
     }
     board[a.idx()] = Piece();
     board[b.idx()] = src;
+    if(c == P1 && b.idx()/3 == 0) {
+        board[b.idx()].promote();
+    }
+    if(c == P2 && b.idx()/3 == 3) {
+        board[b.idx()].promote();
+    }
     swapPlayer();
     return true;
 }

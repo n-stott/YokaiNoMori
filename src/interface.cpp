@@ -4,6 +4,10 @@
 #include <optional>
 #include <string>
 #include "gamestate.h"
+#include "agent.h"
+#include "search.h"
+#include <iostream>
+#include <cstring>
 
 std::optional<ActionType> readActionType() {
     std::string command;
@@ -104,23 +108,76 @@ std::optional<Action> readAction(Color player) {
 }
 
 
+void oneVsOne() {
+    GameState state;
+    while(!state.hasWinner()) {
+        std::cout << state.niceToString() << std::endl;
+        std::cout << "Turn of player : " << (state.currentPlayer == P1 ? "A" : "B") << std::endl;
+        std::optional<Action> action = readAction(state.currentPlayer);
+        if(action) {
+            std::cout << action.value().toString() << std::endl;
+            bool success = state.apply(action.value());
+            std::cout << "move valid : " << success << std::endl;
+        }
+    }
+}
 
+void oneVsAi() {
 
-// int main() {
+    int depth = 6;
+    try {
+        int newdepth = 5;
+        std::cout << "Select difficulty (1--10) : ";
+        std::cin >> newdepth;
+        depth = std::max(0, std::min(10, newdepth));
+    } catch(...) {
+        depth = 6;
+    }
 
-//     GameState state;
+    GameState state;
+    Agent agent;
+    const Search::Mode mode = Search::AlphaBeta; 
 
-//     while(!state.hasWinner()) {
+    while(!state.hasWinner()) {
 
-//         std::cout << state.niceToString() << std::endl;
+        std::cout << state.niceToString() << std::endl;
         
-//         std::cout << "Turn of player : " << (state.currentPlayer == P1 ? "A" : "B") << std::endl;
-//         std::optional<Action> action = readAction(state.currentPlayer);
-//         if(action) {
-//             std::cout << action.value().toString() << std::endl;
-//             bool success = state.apply(action.value());
-//             std::cout << "move valid : " << success << std::endl;
-//         }
-//     }
+        std::cout << "Turn of player : " << (state.currentPlayer == P1 ? "A" : "B") << std::endl;
 
-// }
+        if(state.currentPlayer == P1) {
+            std::optional<Action> action = readAction(state.currentPlayer);
+            if(action) {
+                std::cout << action.value().toString() << std::endl;
+                bool success = state.apply(action.value());
+                std::cout << "move valid : " << success << std::endl;
+            }
+        } else {
+            std::optional<Action> action;
+            Search search(state, agent, depth);
+            search.run(mode);
+            action = search.bestAction;
+            if(action) {
+                state.apply(action.value());
+            } else {
+                std::cout << "Player " << (int)state.currentPlayer << " did not find a suitable action" << std::endl;
+                break;
+            }           
+        }
+
+    }
+
+}
+
+int main(int argc, char** argv) {
+    std::cout << "Select game mode : 1v1, 1vAi or test" << std::endl;
+    if(argc != 2) return 0;
+    if(std::strcmp(argv[1], "1v1") == 0) {
+        std::cout << "Starting 1v1 mode" << std::endl;
+        oneVsOne();
+    }
+    if(std::strcmp(argv[1], "1vAi") == 0) {
+        std::cout << "Starting 1vAi mode" << std::endl;
+        oneVsAi();
+    }
+    return 0;
+}

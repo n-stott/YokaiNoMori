@@ -37,6 +37,8 @@ public:
     
     constexpr PieceType type() const noexcept { return (PieceType)(data_ & 0b0000111); }
     constexpr Color color() const noexcept    { return (Color)(data_ >> 3); }
+
+    constexpr void setType(PieceType t) noexcept { data_ = (data_ & 0b11111000) | t; }
     constexpr void setColor(Color c) noexcept { data_ = (data_ & 0b00000111) | (c << 3); }
 
     constexpr char toChar() const noexcept {
@@ -48,6 +50,14 @@ public:
         if(type() == SuperPawn) ret = 's';
         if(color() == P2) ret -= 32;
         return ret;
+    }
+
+    constexpr void promote() noexcept {
+        if(type() == Pawn) setType(SuperPawn);
+    }
+
+    constexpr void demote() noexcept {
+        if(type() == SuperPawn) setType(Pawn);
     }
 
     const AllowedMove::move_sets& moveSets() const {

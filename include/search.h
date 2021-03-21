@@ -24,11 +24,25 @@ struct Search {
         agent(agent)
     { }
 
-    double run() {
-        return search(root, maxdepth);
+    enum Mode {
+        PureMinimax,
+        AlphaBeta
+    };
+
+    double run(Mode mode) {
+        if(mode == PureMinimax) {
+            return search(root, maxdepth);
+        }
+        if(mode == AlphaBeta) {
+            double inf = std::numeric_limits<double>::infinity();
+            return alphaBetaSearch(root, maxdepth, -inf, inf);
+        }
+        return 0.0;
     }
 
 private:
+
+    static constexpr double discount = 0.98;
 
     double search(GameState currentState, int depth) {
         if(depth == 0) {
@@ -52,12 +66,12 @@ private:
         for(Action action : actionset) {
             GameState tmp = currentState;
             tmp.apply(action);
-            double evaluation = -search(tmp, depth-1);
+            double evaluation = -discount*search(tmp, depth-1);
             if(depth == maxdepth) {
                 std::cout << action.toString() << " : " << evaluation << std::endl;
             }
             assert(evaluation == evaluation);
-            if(evaluation >= bestEvaluation) {
+            if(evaluation > bestEvaluation) {
                 bestEvaluation = evaluation;
                 if(depth == maxdepth) bestAction = action;
             }
@@ -65,6 +79,47 @@ private:
             
         assert(bestEvaluation == bestEvaluation);
         return bestEvaluation;
+    }
+
+
+    double alphaBetaSearch(GameState currentState, int depth, double alpha, double beta) {
+        if(depth == 0) {
+            Agent::score score = agent.evaluate(currentState);
+            double eval = score.value();
+            assert(eval == eval);
+            return eval;
+        }
+        ActionSet actionset = currentState.allowedActions();
+        if(actionset.empty()) {
+            if(currentState.hasWon(currentState.currentPlayer)) {
+                return -agent.kingDeadValue + 0*depth;
+            }
+            if(currentState.hasLost(currentState.currentPlayer)) {
+                return agent.kingDeadValue - 0*depth;
+            }
+            return 0;
+        }
+
+        double bestEvaluation = -std::numeric_limits<double>::infinity();
+        for(Action action : actionset) {
+            GameState tmp = currentState;
+            tmp.apply(action);
+            double evaluation = -discount*alphaBetaSearch(tmp, depth-1, -beta, -alpha);
+            if(depth == maxdepth) {
+                // std::cout << action.toString() << " : " << evaluation << std::endl;
+            }
+            assert(evaluation == evaluation);
+            if(evaluation > beta) {
+                return beta;
+            }
+            if(evaluation > alpha) {
+                alpha = evaluation;
+                if(depth == maxdepth) bestAction = action;
+            }
+        }
+            
+        assert(alpha == alpha);
+        return alpha;
     }
 
 };

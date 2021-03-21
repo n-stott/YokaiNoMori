@@ -64,7 +64,7 @@ void test4() {
     Agent agent;
     Node t0(&tree);
     Search search(t0.value, agent, 7);
-    double value = search.run();
+    double value = search.run(Search::PureMinimax);
     std::cout << value << std::endl;
     std::cout << "evals : " << agent.nbEvals << std::endl;
     std::cout << "Best move : " << search.bestAction.value().toString() << std::endl;
@@ -77,7 +77,7 @@ void test5() {
     Agent agent1;
     int depth = 1;
     Search search1(game, agent1, depth);
-    search1.run();
+    search1.run(Search::PureMinimax);
     std::optional<Action> action = search1.bestAction;
     if(action) {
         std::cout << action.value().toString() << std::endl;
@@ -99,42 +99,55 @@ void test7() {
 }
 
 void test8() {
-    GameState game;
-    Agent agent1;
-    Agent agent2;
-
-    int depth = 7;
-
-    while(!game.hasWinner()) {
-        std::cout << game.niceToString() << std::endl;
-        std::cout << "Turn of player : " << (game.currentPlayer == P1 ? "A" : "B") << std::endl;
-        std::optional<Action> action;
-        if(game.currentPlayer == P1) {
-            Search search1(game, agent1, depth);
-            search1.run();
-            action = search1.bestAction;
-        }
-        if(game.currentPlayer == P2) {
-            Search search2(game, agent2, depth);
-            search2.run();
-            action = search2.bestAction;
-        }
-        if(action) {
-            std::cout << action.value().toString() << std::endl;
-            game.apply(action.value());
-        } else {
-            std::cout << "Player " << (int)game.currentPlayer << " did not find a suitable action" << std::endl;
-            break;
-        }
-    }
+    GameState game("eerKekeReTee", "stp", "", P2);
+    std::cout << game.niceToString() << std::endl;
+    Agent agent;
+    int depth = 6;
+    Search::Mode mode = Search::PureMinimax; 
+    Search search(game, agent, depth);
+    search.run(mode);
 }
 
-int main() {
-    // test1();
-    // test2();
-    // test3();
-    // test4();
-    // test5();
-    // test6();
-    test8();
-}
+// void test8() {
+//     GameState game;
+//     Agent agent1;
+//     Agent agent2;
+
+//     int depth = 6;
+//     // Search::Mode mode = Search::PureMinimax;
+//     Search::Mode mode = Search::AlphaBeta; 
+
+//     while(!game.hasWinner()) {
+//         std::cout << game.niceToString() << std::endl;
+//         std::cout << "Turn of player : " << (game.currentPlayer == P1 ? "A" : "B") << std::endl;
+//         std::optional<Action> action;
+//         if(game.currentPlayer == P1) {
+//             Search search1(game, agent1, depth);
+//             search1.run(mode);
+//             action = search1.bestAction;
+//         }
+//         if(game.currentPlayer == P2) {
+//             Search search2(game, agent2, depth);
+//             search2.run(mode);
+//             action = search2.bestAction;
+//         }
+//         if(action) {
+//             std::cout << action.value().toString() << std::endl;
+//             game.apply(action.value());
+//         } else {
+//             std::cout << "Player " << (int)game.currentPlayer << " did not find a suitable action" << std::endl;
+//             break;
+//         }
+//     }
+// }
+
+// int main() {
+//     // test1();
+//     // test2();
+//     // test3();
+//     // test4();
+//     // test5();
+//     // test6();
+//     // test7();
+//     test8();
+// }
