@@ -5,7 +5,7 @@
 #include <string>
 #include "gamestate.h"
 #include "agent.h"
-#include "search.h"
+#include "minimax.h"
 #include <iostream>
 #include <cstring>
 
@@ -123,7 +123,6 @@ void oneVsOne() {
 }
 
 void oneVsAi() {
-
     int depth = 6;
     try {
         int newdepth = 5;
@@ -136,7 +135,8 @@ void oneVsAi() {
 
     GameState state;
     Agent agent;
-    const Search::Mode mode = Search::AlphaBeta; 
+    // const Minimax::Mode mode = Minimax::AlphaBeta; 
+    const Minimax::Mode mode = Minimax::PureMinimax; 
 
     while(!state.hasWinner()) {
 
@@ -153,7 +153,7 @@ void oneVsAi() {
             }
         } else {
             std::optional<Action> action;
-            Search search(state, agent, depth);
+            Minimax search(state, agent, depth);
             search.run(mode);
             action = search.bestAction;
             if(action) {
@@ -163,21 +163,65 @@ void oneVsAi() {
                 break;
             }           
         }
-
     }
+}
 
+
+void aivsAi() {
+    GameState game;
+    Agent agent1;
+    Agent agent2;
+
+    int depth = 6;
+    try {
+        int newdepth = 5;
+        std::cout << "Select difficulty (1--10) : ";
+        std::cin >> newdepth;
+        depth = std::max(0, std::min(10, newdepth));
+    } catch(...) {
+        depth = 6;
+    }
+    const Minimax::Mode mode = Minimax::AlphaBeta; 
+    // const Minimax::Mode mode = Minimax::PureMinimax; 
+
+    while(!game.hasWinner()) {
+        std::cout << game.niceToString() << std::endl;
+        std::cout << "Turn of player : " << (game.currentPlayer == P1 ? "A" : "B") << std::endl;
+        std::optional<Action> action;
+        if(game.currentPlayer == P1) {
+            Minimax search1(game, agent1, depth);
+            search1.run(mode);
+            action = search1.bestAction;
+        }
+        if(game.currentPlayer == P2) {
+            Minimax search2(game, agent2, depth);
+            search2.run(mode);
+            action = search2.bestAction;
+        }
+        if(action) {
+            std::cout << action.value().toString() << std::endl;
+            game.apply(action.value());
+        } else {
+            std::cout << "Player " << (int)game.currentPlayer << " did not find a suitable action" << std::endl;
+            break;
+        }
+    }
 }
 
 int main(int argc, char** argv) {
-    std::cout << "Select game mode : 1v1, 1vAi or test" << std::endl;
+    std::cout << "Select game mode : 1v1, 1vAI or test" << std::endl;
     if(argc != 2) return 0;
     if(std::strcmp(argv[1], "1v1") == 0) {
         std::cout << "Starting 1v1 mode" << std::endl;
         oneVsOne();
     }
-    if(std::strcmp(argv[1], "1vAi") == 0) {
-        std::cout << "Starting 1vAi mode" << std::endl;
+    if(std::strcmp(argv[1], "1vAI") == 0) {
+        std::cout << "Starting 1vAI mode" << std::endl;
         oneVsAi();
+    }
+    if(std::strcmp(argv[1], "AIvAI") == 0) {
+        std::cout << "Starting AIvAI mode" << std::endl;
+        aivsAi();
     }
     return 0;
 }

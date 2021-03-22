@@ -2,13 +2,14 @@
 #define SEARCH_H
 
 #include "gamestate.h"
+#include "actionordering.h"
 #include "action.h"
 #include "agent.h"
 #include <limits>
 #include <optional>
 #include <iostream>
 
-struct Search {
+struct Minimax {
 
     int maxdepth;
     GameState& root;
@@ -16,7 +17,7 @@ struct Search {
     double bestScore;
     Agent& agent;
 
-    Search(GameState& root, Agent& agent, int maxdepth) :
+    Minimax(GameState& root, Agent& agent, int maxdepth) :
         maxdepth(maxdepth),
         root(root),
         bestAction(),
@@ -42,7 +43,7 @@ struct Search {
 
 private:
 
-    static constexpr double discount = 0.98;
+    static constexpr double discount = 1; //0.98;
 
     double search(GameState currentState, int depth) {
         if(depth == 0) {
@@ -52,12 +53,14 @@ private:
             return eval;
         }
         ActionSet actionset = currentState.allowedActions();
+        ActionOrdering orderer(actionset, currentState);
+        orderer.sort();
         if(actionset.empty()) {
             if(currentState.hasWon(currentState.currentPlayer)) {
-                return -agent.kingDeadValue - depth;
+                return -agent.kingDeadValue;
             }
             if(currentState.hasLost(currentState.currentPlayer)) {
-                return agent.kingDeadValue + depth;
+                return agent.kingDeadValue;
             }
             return 0;
         }
@@ -90,6 +93,8 @@ private:
             return eval;
         }
         ActionSet actionset = currentState.allowedActions();
+        ActionOrdering orderer(actionset, currentState);
+        orderer.sort();
         if(actionset.empty()) {
             if(currentState.hasWon(currentState.currentPlayer)) {
                 return -agent.kingDeadValue + 0*depth;
@@ -106,7 +111,7 @@ private:
             tmp.apply(action);
             double evaluation = -discount*alphaBetaSearch(tmp, depth-1, -beta, -alpha);
             if(depth == maxdepth) {
-                // std::cout << action.toString() << " : " << evaluation << std::endl;
+                std::cout << action.toString() << " : " << evaluation << std::endl;
             }
             assert(evaluation == evaluation);
             if(evaluation > beta) {

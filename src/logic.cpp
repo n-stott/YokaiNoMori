@@ -2,7 +2,7 @@
 #include "node.h"
 #include "tree.h"
 #include "agent.h"
-#include "search.h"
+#include "minimax.h"
 #include <iostream>
 
 void test1() {
@@ -63,8 +63,8 @@ void test4() {
     Tree tree;
     Agent agent;
     Node t0(&tree);
-    Search search(t0.value, agent, 7);
-    double value = search.run(Search::PureMinimax);
+    Minimax search(t0.value, agent, 7);
+    double value = search.run(Minimax::PureMinimax);
     std::cout << value << std::endl;
     std::cout << "evals : " << agent.nbEvals << std::endl;
     std::cout << "Best move : " << search.bestAction.value().toString() << std::endl;
@@ -76,8 +76,8 @@ void test5() {
 
     Agent agent1;
     int depth = 1;
-    Search search1(game, agent1, depth);
-    search1.run(Search::PureMinimax);
+    Minimax search1(game, agent1, depth);
+    search1.run(Minimax::PureMinimax);
     std::optional<Action> action = search1.bestAction;
     if(action) {
         std::cout << action.value().toString() << std::endl;
@@ -103,8 +103,8 @@ void test8() {
     std::cout << game.niceToString() << std::endl;
     Agent agent;
     int depth = 6;
-    Search::Mode mode = Search::PureMinimax; 
-    Search search(game, agent, depth);
+    Minimax::Mode mode = Minimax::PureMinimax; 
+    Minimax search(game, agent, depth);
     search.run(mode);
 }
 
@@ -114,20 +114,20 @@ void test8() {
 //     Agent agent2;
 
 //     int depth = 6;
-//     // Search::Mode mode = Search::PureMinimax;
-//     Search::Mode mode = Search::AlphaBeta; 
+//     // Minimax::Mode mode = Minimax::PureMinimax;
+//     Minimax::Mode mode = Minimax::AlphaBeta; 
 
 //     while(!game.hasWinner()) {
 //         std::cout << game.niceToString() << std::endl;
 //         std::cout << "Turn of player : " << (game.currentPlayer == P1 ? "A" : "B") << std::endl;
 //         std::optional<Action> action;
 //         if(game.currentPlayer == P1) {
-//             Search search1(game, agent1, depth);
+//             Minimax search1(game, agent1, depth);
 //             search1.run(mode);
 //             action = search1.bestAction;
 //         }
 //         if(game.currentPlayer == P2) {
-//             Search search2(game, agent2, depth);
+//             Minimax search2(game, agent2, depth);
 //             search2.run(mode);
 //             action = search2.bestAction;
 //         }

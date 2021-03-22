@@ -67,6 +67,8 @@ struct ActionSet {
         return message;
     }
 
+    size_t size() const { return actions.size(); }
+
     void push_back(const Action& action) {
         actions.push_back(action);
     }
@@ -78,6 +80,9 @@ struct ActionSet {
     void reserve(size_t size) {
         actions.reserve(size);
     }
+
+    const Action& operator[](size_t i) const { return actions[i]; }
+    Action& operator[](size_t i) { return actions[i]; }
 
     using const_iterator = std::vector<Action>::const_iterator;
 
