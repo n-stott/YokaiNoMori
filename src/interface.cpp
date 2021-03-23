@@ -122,21 +122,20 @@ void oneVsOne() {
     }
 }
 
+template<Mode mode>
 void oneVsAi() {
     int depth = 6;
     try {
         int newdepth = 5;
-        std::cout << "Select difficulty (1--10) : ";
+        std::cout << "Select difficulty (1--20) : ";
         std::cin >> newdepth;
-        depth = std::max(0, std::min(10, newdepth));
+        depth = std::max(0, std::min(20, newdepth));
     } catch(...) {
         depth = 6;
     }
 
     GameState state;
     Agent agent;
-    // const Minimax::Mode mode = Minimax::AlphaBeta; 
-    const Minimax::Mode mode = Minimax::PureMinimax; 
 
     while(!state.hasWinner()) {
 
@@ -153,8 +152,8 @@ void oneVsAi() {
             }
         } else {
             std::optional<Action> action;
-            Minimax search(state, agent, depth);
-            search.run(mode);
+            Minimax<mode> search(state, agent, depth);
+            search.run();
             action = search.bestAction;
             if(action) {
                 state.apply(action.value());
@@ -167,6 +166,7 @@ void oneVsAi() {
 }
 
 
+template<Mode mode>
 void aivsAi() {
     GameState game;
     Agent agent1;
@@ -175,27 +175,25 @@ void aivsAi() {
     int depth = 6;
     try {
         int newdepth = 5;
-        std::cout << "Select difficulty (1--10) : ";
+        std::cout << "Select difficulty (1--20) : ";
         std::cin >> newdepth;
-        depth = std::max(0, std::min(10, newdepth));
+        depth = std::max(0, std::min(20, newdepth));
     } catch(...) {
         depth = 6;
     }
-    const Minimax::Mode mode = Minimax::AlphaBeta; 
-    // const Minimax::Mode mode = Minimax::PureMinimax; 
 
     while(!game.hasWinner()) {
         std::cout << game.niceToString() << std::endl;
         std::cout << "Turn of player : " << (game.currentPlayer == P1 ? "A" : "B") << std::endl;
         std::optional<Action> action;
         if(game.currentPlayer == P1) {
-            Minimax search1(game, agent1, depth);
-            search1.run(mode);
+            Minimax<mode> search1(game, agent1, depth);
+            search1.run();
             action = search1.bestAction;
         }
         if(game.currentPlayer == P2) {
-            Minimax search2(game, agent2, depth);
-            search2.run(mode);
+            Minimax<mode> search2(game, agent2, depth);
+            search2.run();
             action = search2.bestAction;
         }
         if(action) {
@@ -209,7 +207,7 @@ void aivsAi() {
 }
 
 int main(int argc, char** argv) {
-    std::cout << "Select game mode : 1v1, 1vAI or test" << std::endl;
+    std::cout << "Select game mode : 1v1, 1vAI or AIvAI" << std::endl;
     if(argc != 2) return 0;
     if(std::strcmp(argv[1], "1v1") == 0) {
         std::cout << "Starting 1v1 mode" << std::endl;
@@ -217,11 +215,12 @@ int main(int argc, char** argv) {
     }
     if(std::strcmp(argv[1], "1vAI") == 0) {
         std::cout << "Starting 1vAI mode" << std::endl;
-        oneVsAi();
+        oneVsAi<AlphaBeta>();
     }
     if(std::strcmp(argv[1], "AIvAI") == 0) {
         std::cout << "Starting AIvAI mode" << std::endl;
-        aivsAi();
+        aivsAi<PureMinimax>();
+        // aivsAi<AlphaBeta>();
     }
     return 0;
 }

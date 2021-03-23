@@ -9,6 +9,13 @@
 #include <optional>
 #include <iostream>
 
+
+enum Mode {
+    PureMinimax,
+    AlphaBeta
+};
+
+template<Mode mode>
 struct Minimax {
 
     int maxdepth;
@@ -25,12 +32,8 @@ struct Minimax {
         agent(agent)
     { }
 
-    enum Mode {
-        PureMinimax,
-        AlphaBeta
-    };
 
-    double run(Mode mode) {
+    double run() {
         if(mode == PureMinimax) {
             return search(root, maxdepth);
         }
@@ -43,7 +46,9 @@ struct Minimax {
 
 private:
 
-    static constexpr double discount = 1; //0.98;
+    static constexpr double applyBias(double v) {
+        return v;
+    }
 
     double search(GameState currentState, int depth) {
         if(depth == 0) {
@@ -69,7 +74,7 @@ private:
         for(Action action : actionset) {
             GameState tmp = currentState;
             tmp.apply(action);
-            double evaluation = -discount*search(tmp, depth-1);
+            double evaluation = applyBias(-search(tmp, depth-1));
             if(depth == maxdepth) {
                 std::cout << action.toString() << " : " << evaluation << std::endl;
             }
@@ -97,10 +102,10 @@ private:
         orderer.sort();
         if(actionset.empty()) {
             if(currentState.hasWon(currentState.currentPlayer)) {
-                return -agent.kingDeadValue + 0*depth;
+                return -agent.kingDeadValue;
             }
             if(currentState.hasLost(currentState.currentPlayer)) {
-                return agent.kingDeadValue - 0*depth;
+                return agent.kingDeadValue;
             }
             return 0;
         }
@@ -109,7 +114,7 @@ private:
         for(Action action : actionset) {
             GameState tmp = currentState;
             tmp.apply(action);
-            double evaluation = -discount*alphaBetaSearch(tmp, depth-1, -beta, -alpha);
+            double evaluation = applyBias(-alphaBetaSearch(tmp, depth-1, -beta, -alpha));
             if(depth == maxdepth) {
                 std::cout << action.toString() << " : " << evaluation << std::endl;
             }

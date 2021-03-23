@@ -23,7 +23,7 @@ public:
     constexpr bool empty() const noexcept { return size_ == 0; }
 
     constexpr const T* begin() const noexcept { return data_.data(); }
-    constexpr const T* end() const noexcept { return data_.data() + size_; }
+    constexpr const T* end() const noexcept { return begin() + size_; }
 
     constexpr const T& operator[](unsigned int i) const { return data_[i]; }
 
