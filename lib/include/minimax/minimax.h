@@ -1,10 +1,6 @@
-#ifndef SEARCH_H
-#define SEARCH_H
+#ifndef MINIMAX_H
+#define MINIMAX_H
 
-#include "gamestate.h"
-#include "actionordering.h"
-#include "action.h"
-#include "agent.h"
 #include <limits>
 #include <optional>
 #include <iostream>
@@ -15,7 +11,7 @@ enum Mode {
     AlphaBeta
 };
 
-template<Mode mode>
+template<Mode mode, typename Action, typename GameState, typename Agent, typename ActionOrdering>
 struct Minimax {
 
     int maxdepth;
@@ -38,7 +34,7 @@ struct Minimax {
             return search(root, maxdepth);
         }
         if(mode == AlphaBeta) {
-            double inf = std::numeric_limits<double>::infinity();
+            const double inf = std::numeric_limits<double>::infinity();
             return alphaBetaSearch(root, maxdepth, -inf, inf);
         }
         return 0.0;
@@ -52,23 +48,24 @@ private:
 
     double search(GameState currentState, int depth) {
         if(depth == 0) {
-            Agent::score score = agent.evaluate(currentState);
+            typename Agent::score score = agent.evaluate(currentState);
             double eval = score.value();
             assert(eval == eval);
             return eval;
         }
         ActionSet actionset = currentState.allowedActions();
-        ActionOrdering orderer(actionset, currentState);
-        orderer.sort();
         if(actionset.empty()) {
             if(currentState.hasWon(currentState.currentPlayer)) {
-                return -agent.kingDeadValue;
+                return +std::numeric_limits<double>::infinity();
+            } else if(currentState.hasLost(currentState.currentPlayer)) {
+                return -std::numeric_limits<double>::infinity();
             }
-            if(currentState.hasLost(currentState.currentPlayer)) {
-                return agent.kingDeadValue;
-            }
+            assert(false);
             return 0;
         }
+
+        ActionOrdering orderer(actionset, currentState);
+        orderer.sort();
 
         double bestEvaluation = -std::numeric_limits<double>::infinity();
         for(Action action : actionset) {
@@ -92,7 +89,7 @@ private:
 
     double alphaBetaSearch(GameState currentState, int depth, double alpha, double beta) {
         if(depth == 0) {
-            Agent::score score = agent.evaluate(currentState);
+            typename Agent::score score = agent.evaluate(currentState);
             double eval = score.value();
             assert(eval == eval);
             return eval;

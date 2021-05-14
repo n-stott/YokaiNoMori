@@ -1,11 +1,12 @@
 #include <iostream>
 #include "action.h"
+#include "actionordering.h"
 #include "enums.h"
 #include <optional>
 #include <string>
 #include "gamestate.h"
 #include "agent.h"
-#include "minimax.h"
+#include "minimax/minimax.h"
 #include <iostream>
 #include <cstring>
 
@@ -137,6 +138,8 @@ void oneVsAi() {
     GameState state;
     Agent agent;
 
+    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
+
     while(!state.hasWinner()) {
 
         std::cout << state.niceToString() << std::endl;
@@ -152,7 +155,7 @@ void oneVsAi() {
             }
         } else {
             std::optional<Action> action;
-            Minimax<mode> search(state, agent, depth);
+            MyMinimax search(state, agent, depth);
             search.run();
             action = search.bestAction;
             if(action) {
@@ -182,17 +185,19 @@ void aivsAi() {
         depth = 6;
     }
 
+    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
+
     while(!game.hasWinner()) {
         std::cout << game.niceToString() << std::endl;
         std::cout << "Turn of player : " << (game.currentPlayer == P1 ? "A" : "B") << std::endl;
         std::optional<Action> action;
         if(game.currentPlayer == P1) {
-            Minimax<mode> search1(game, agent1, depth);
+            MyMinimax search1(game, agent1, depth);
             search1.run();
             action = search1.bestAction;
         }
         if(game.currentPlayer == P2) {
-            Minimax<mode> search2(game, agent2, depth);
+            MyMinimax search2(game, agent2, depth);
             search2.run();
             action = search2.bestAction;
         }

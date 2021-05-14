@@ -2,7 +2,9 @@
 #include "node.h"
 #include "tree.h"
 #include "agent.h"
-#include "minimax.h"
+#include "actionordering.h"
+#include "action.h"
+#include "minimax/minimax.h"
 #include <iostream>
 
 void test1() {
@@ -63,7 +65,7 @@ void test4() {
     Tree tree;
     Agent agent;
     Node t0(&tree);
-    Minimax<PureMinimax> search(t0.value, agent, 7);
+    Minimax<PureMinimax, Action, GameState, Agent, ActionOrdering> search(t0.value, agent, 7);
     double value = search.run();
     std::cout << value << std::endl;
     std::cout << "evals : " << agent.nbEvals << std::endl;
@@ -76,7 +78,7 @@ void test5() {
 
     Agent agent1;
     int depth = 1;
-    Minimax<PureMinimax> search1(game, agent1, depth);
+    Minimax<PureMinimax, Action, GameState, Agent, ActionOrdering> search1(game, agent1, depth);
     search1.run();
     std::optional<Action> action = search1.bestAction;
     if(action) {
@@ -103,7 +105,7 @@ void test8() {
     std::cout << game.niceToString() << std::endl;
     Agent agent;
     int depth = 6;
-    Minimax<PureMinimax> search(game, agent, depth);
+    Minimax<PureMinimax, Action, GameState, Agent, ActionOrdering> search(game, agent, depth);
     search.run();
 }
 
