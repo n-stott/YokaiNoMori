@@ -5,6 +5,7 @@
 #include "pos.h"
 #include <string>
 #include "piece.h"
+#include <vector>
 
 struct Action {
     Piece p;
