@@ -3,23 +3,23 @@
 
 #include "enums.h"
 #include "pos.h"
-#include <string>
 #include "piece.h"
+#include <string>
 #include <vector>
+#include <utility>
 
 struct Action {
     Piece p;
     ActionType type;
     Pos src;
     Pos dst;
-    uint8_t reservePos;
 
     static Action move(Piece p, Pos src, Pos dst) {
-        return Action{p, ActionType::Move, src, dst, 0};
+        return Action{p, ActionType::Move, src, dst};
     }
 
-    static Action drop(Piece p, uint8_t rpos, Pos dst) {
-        return Action{p, ActionType::Drop, Pos(), dst, rpos};
+    static Action drop(Piece p, Pos dst) {
+        return Action{p, ActionType::Drop, Pos{0}, dst};
     }
 
     std::string toString() const {
@@ -29,35 +29,15 @@ struct Action {
         if(type == Move) {
             message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();
         } else {
-            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)reservePos) + " on " + dst.toString();
+            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)src.pos) + " on " + dst.toString();
         }
         return message;
     }
-
-private:
-
-    Action() :
-        p(),
-        type(ActionType::Drop),
-        src(),
-        dst(),
-        reservePos(-1)
-    { }
-
-    Action( Piece p,
-            ActionType type,
-            Pos src,
-            Pos dst,
-            uint8_t reservePos) :
-        p(p),
-        type(type),
-        src(src),
-        dst(dst),
-        reservePos(reservePos)
-    { }
 };
 
-static_assert(sizeof(Action) == 5);
+static_assert(sizeof(Action) == 4);
+
+using aspair = std::pair<Action, double>;
 
 struct ActionSet {
     std::vector<Action> actions;
@@ -76,6 +56,10 @@ struct ActionSet {
 
     bool empty() const {
         return actions.empty();
+    }
+
+    void clear() {
+        actions.clear();
     }
 
     void reserve(size_t size) {

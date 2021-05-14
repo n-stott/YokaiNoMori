@@ -3,9 +3,9 @@
 
 #include "stateanalysis.h"
 #include "enums.h"
+#include "minimax/logger.h"
 #include <algorithm>
 #include <array>
-#include <iostream>
 #include <limits>
 #include <cmath>
 
@@ -50,7 +50,7 @@ struct Agent {
     { }
 
     ~Agent() {
-        std::cout << "Agent has evaluated : " << nbEvals << " positions" << std::endl;
+        Logger::log(Verb::Dev, [&](){ return "Agent has evaluated : " + std::to_string(nbEvals) + " positions"; });
     }
 
     score evaluate(const GameState& state) {

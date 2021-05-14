@@ -7,7 +7,7 @@
 #include "gamestate.h"
 #include "agent.h"
 #include "minimax/minimax.h"
-#include <iostream>
+#include "minimax/logger.h"
 #include <cstring>
 
 std::optional<ActionType> readActionType() {
@@ -103,7 +103,7 @@ std::optional<Action> readAction(Color player) {
         std::optional<Pos> dst = readBoardPosition();
         if(!dst) return std::nullopt;
 
-        return std::make_optional(Action::drop(Piece(piece.value(), player), src.value(), dst.value()));
+        return std::make_optional(Action::drop(Piece(piece.value(), player), dst.value()));
     }
     return std::nullopt;
 }
@@ -112,8 +112,14 @@ std::optional<Action> readAction(Color player) {
 void oneVsOne() {
     GameState state;
     while(!state.hasWinner()) {
-        std::cout << state.niceToString() << std::endl;
-        std::cout << "Turn of player : " << (state.currentPlayer == P1 ? "A" : "B") << std::endl;
+        Logger::log(Verb::Std, [&]() {
+            std::string s;
+            s += state.niceToString() + '\n';
+            s += "Turn of player : ";
+            s += (state.currentPlayer == P1 ? "A" : "B");
+            s += '\n';
+            return s;
+        });
         std::optional<Action> action = readAction(state.currentPlayer);
         if(action) {
             std::cout << action.value().toString() << std::endl;
@@ -138,7 +144,9 @@ void oneVsAi() {
     GameState state;
     Agent agent;
 
-    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
+    ResourcePool pool;
+
+    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering, ResourcePool>;
 
     while(!state.hasWinner()) {
 
@@ -155,7 +163,7 @@ void oneVsAi() {
             }
         } else {
             std::optional<Action> action;
-            MyMinimax search(state, agent, depth);
+            MyMinimax search(&pool, state, agent, depth);
             search.run();
             action = search.bestAction;
             if(action) {
@@ -185,24 +193,33 @@ void aivsAi() {
         depth = 6;
     }
 
-    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
+    ResourcePool pool;
+
+    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering, ResourcePool>;
 
     while(!game.hasWinner()) {
-        std::cout << game.niceToString() << std::endl;
-        std::cout << "Turn of player : " << (game.currentPlayer == P1 ? "A" : "B") << std::endl;
+        Logger::log(Verb::Std,
+            [&]() {
+                std::string s;
+                s += game.niceToString() + '\n';
+                s += "Turn of player : ";
+                s += (game.currentPlayer == P1 ? "A" : "B");
+                s += '\n';
+                return s;
+            });
         std::optional<Action> action;
         if(game.currentPlayer == P1) {
-            MyMinimax search1(game, agent1, depth);
+            MyMinimax search1(&pool, game, agent1, depth);
             search1.run();
             action = search1.bestAction;
         }
         if(game.currentPlayer == P2) {
-            MyMinimax search2(game, agent2, depth);
+            MyMinimax search2(&pool, game, agent2, depth);
             search2.run();
             action = search2.bestAction;
         }
         if(action) {
-            std::cout << action.value().toString() << std::endl;
+            Logger::log(Verb::Std, [&]() { return action.value().toString(); });
             game.apply(action.value());
         } else {
             std::cout << "Player " << (int)game.currentPlayer << " did not find a suitable action" << std::endl;

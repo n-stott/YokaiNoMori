@@ -4,6 +4,7 @@
 #include "gamestate.h"
 #include "stateanalysis.h"
 #include "action.h"
+#include "minimax/resourcepool.h"
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -11,32 +12,42 @@
 
 struct ActionOrdering {
 
-    std::vector<double> scores;
-    ActionSet& actions;
+    ResourcePool* pool_;
+    ActionSet* const actions;
+    Pool<std::vector<double>>::element scoresElem;
 
-    ActionOrdering(ActionSet& actions, const GameState& state) :
+    ActionOrdering(ActionSet* actions, const GameState& state, ResourcePool* pool) :
+        pool_(pool),
         actions(actions),
-        scores()
+        scoresElem(pool_->scores.get())
     {
         StateAnalysis analyzer(state);
-        scores.reserve(actions.size());
-        for(const Action& action : actions) {
-            if(action.p.color() == P1) scores.push_back(score1(action, state, analyzer));
-            if(action.p.color() == P2) scores.push_back(score2(action, state, analyzer));
+        std::vector<double>* scores = scoresElem.get();
+        scores->clear();
+        scores->reserve(actions->size());
+        for(const Action& action : *actions) {
+            if(action.p.color() == P1) scores->push_back(score1(action, state, analyzer));
+            if(action.p.color() == P2) scores->push_back(score2(action, state, analyzer));
         }
     }
 
     void sort() {
-        using aspair = std::pair<Action, double>;
-        std::vector<aspair> actionScores;
-        size_t size = scores.size();
+        ActionSet& actionset = *actions;
+
+        Pool<std::vector<aspair>>::element aspairelem = pool_->actionscores.get();
+        std::vector<aspair>& actionScores = *(aspairelem.get());
+
+        const std::vector<double>& scores = *(scoresElem.get());
+
+        const size_t size = scores.size();
+        actionScores.clear();
         actionScores.reserve(size);
         for(size_t i = 0; i < size; ++i) {
-            actionScores.emplace_back(std::make_pair(actions[i], scores[i]));
+            actionScores.emplace_back(std::make_pair(actionset[i], scores[i]));
         }
         std::sort(actionScores.begin(), actionScores.end(), [](const aspair& a, const aspair& b) { return a.second > b.second; });
         for(size_t i = 0; i < size; ++i) {
-            actions[i] = actionScores[i].first;
+            actionset[i] = actionScores[i].first;
         }
     }
 

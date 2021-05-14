@@ -8,7 +8,7 @@
 
 struct Pos {
 
-    using value = int8_t;
+    using value = uint8_t;
     value pos;
 
     constexpr Pos() : pos(-1) { }

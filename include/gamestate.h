@@ -9,7 +9,6 @@
 #include <array>
 #include <string>
 #include <vector>
-#include <iostream>
 
 struct GameState {
     Board board;
@@ -39,23 +38,23 @@ struct GameState {
 
     std::string toString() const;
     std::string niceToString() const;
-    ActionSet allowedActions() const;
+    void fillAllowedActions(ActionSet*) const;
 
     bool apply(Action action) {
         if(action.type == Move) {
             return move(action.p.type(), action.p.color(), action.src, action.dst);
         }
         else {
-            return drop(action.p.type(), action.p.color(), action.reservePos, action.dst);
+            return drop(action.p.type(), action.p.color(), action.dst);
         }
     }
     
 public:
 
     bool allowedMove(PieceType pt, Color c, Pos a, Pos b) const;
-    bool allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const;
+    bool allowedDrop(PieceType pt, Color c, uint8_t& posInReserve, Pos a) const;
     bool move(PieceType pt, Color c, Pos a, Pos b);
-    bool drop(PieceType pt, Color c, uint8_t posInReserve, Pos a);
+    bool drop(PieceType pt, Color c, Pos a);
     static bool allowedOffset(PieceType pt, Color c, Pos a, Pos b);
 
     bool hasWon(Color player) const;

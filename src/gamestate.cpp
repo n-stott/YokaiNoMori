@@ -1,13 +1,14 @@
 #include "gamestate.h"
 #include "allowedmove.h"
 #include <algorithm>
+#include <bitset>
 
 std::string GameState::toString() const {
     std::string s;
     for(Piece p : board) s+=p.toChar();
-    s+='|';
+    s += '|';
     s += reserve1.toString();
-    s+='|';
+    s += '|';
     s += reserve2.toString();
     return s;
 }
@@ -15,18 +16,18 @@ std::string GameState::toString() const {
 std::string GameState::niceToString() const {
     std::string s;
     s += "-----------------\n";
-    s+="Player B | ";
+    s += "Player B | ";
     s += reserve2.toString();
-    s+='\n';
+    s += '\n';
     s += "-----------------";
     for(short i = 0; i < 12; ++i) {
-        if(i%3 == 0) s+='\n' + std::to_string(1+i/3) + ' ';
+        if(i%3 == 0) s += '\n' + std::to_string(1+i/3) + ' ';
         s += board[i].toChar();
     }
     s += '\n';
     s += "  ABC\n";
     s += "-----------------\n";
-    s+="Player a | ";
+    s += "Player a | ";
     s += reserve1.toString();
     s += '\n';
     s += "-----------------";
@@ -88,7 +89,7 @@ bool GameState::move(PieceType pt, Color c, Pos a, Pos b) {
     return true;
 }
 
-bool GameState::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) const {
+bool GameState::allowedDrop(PieceType pt, Color c, uint8_t& posInReserve, Pos a) const {
     if(nbTurns >= maxTurns) return false;
     if(hasWinner()) return false;
     if(a.valid() == false) return false;
@@ -97,6 +98,9 @@ bool GameState::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) 
     if(pt == NoType) return false;
     if(c != P1 && c != P2) return false;
     if(c == P1) {
+        auto pos = std::find_if(reserve1.begin(), reserve1.end(), [&](Piece p) { return p.type() == pt; });
+        if(pos == reserve1.end()) return false;
+        posInReserve = std::distance(reserve1.begin(), pos);
         if(posInReserve >= reserve1.size) return false;
         const Piece src = reserve1[posInReserve];
         if(src.type() != pt) return false;
@@ -104,6 +108,9 @@ bool GameState::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) 
         if(src.type() == King || src.type() == SuperPawn) return false;
     }
     if(c == P2) {
+        auto pos = std::find_if(reserve2.begin(), reserve2.end(), [&](Piece p) { return p.type() == pt; });
+        if(pos == reserve2.end()) return false;
+        posInReserve = std::distance(reserve2.begin(), pos);
         if(posInReserve >= reserve2.size) return false;
         const Piece src = reserve2[posInReserve];
         if(src.type() != pt) return false;
@@ -113,7 +120,8 @@ bool GameState::allowedDrop(PieceType pt, Color c, uint8_t posInReserve, Pos a) 
     return true;
 }
 
-bool GameState::drop(PieceType pt, Color c, uint8_t posInReserve, Pos a) {
+bool GameState::drop(PieceType pt, Color c, Pos a) {
+    uint8_t posInReserve = -1;
     if(!allowedDrop(pt, c, posInReserve, a)) return false;
     if(c == P1) {
         const Piece src = reserve1.pop(posInReserve);
@@ -144,11 +152,11 @@ bool GameState::hasLost(Color player) const {
     }
 }
 
-ActionSet GameState::allowedActions() const {
-    ActionSet actions;
-    actions.reserve(64);
+void GameState::fillAllowedActions(ActionSet* actions) const {
+    actions->clear();
+    actions->reserve(64);
 
-    if(hasWon(currentPlayer) || hasLost(currentPlayer)) return actions;
+    if(hasWon(currentPlayer) || hasLost(currentPlayer)) return;
 
     for(Pos::value i = 0; i < 12; ++i) {
         const Piece p = board[i];
@@ -157,30 +165,35 @@ ActionSet GameState::allowedActions() const {
         for(Pos dst : p.moveSet(src)) {
             if(dst.valid() == false) continue;
             if(allowedMove(p.type(), p.color(), src, dst) == false) continue;
-            actions.push_back(Action::move(p, src, dst));
+            actions->push_back(Action::move(p, src, dst));
         }
     }
     if(currentPlayer == P1) {
+        std::bitset<6> typeVisited(false);
         for(uint8_t k = 0; k < reserve1.size; ++k) {
             const Piece p = reserve1[k];
+            if(typeVisited[p.type()]) continue;
+            typeVisited[p.type()] = 1;
             for(Pos::value i = 0; i < 12; ++i) {
                 const Pos dst(i);
                 if(dst.valid() == false) continue;
                 if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
-                actions.push_back(Action::drop(p, k, dst));
+                actions->push_back(Action::drop(p, dst));
             }
         }
     }
     else {
+        std::bitset<6> typeVisited(false);
         for(uint8_t k = 0; k < reserve2.size; ++k) {
             const Piece p = reserve2[k];
+            if(typeVisited[p.type()]) continue;
+            typeVisited[p.type()] = 1;
             for(Pos::value i = 0; i < 12; ++i) {
                 const Pos dst(i);
                 if(dst.valid() == false) continue;
                 if(allowedDrop(p.type(), p.color(), k, dst) == false) continue;
-                actions.push_back(Action::drop(p, k, dst));
+                actions->push_back(Action::drop(p, dst));
             }
         }
     }
-    return actions;
 }
