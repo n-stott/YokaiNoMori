@@ -130,16 +130,8 @@ void oneVsOne() {
 }
 
 template<Mode mode>
-void oneVsAi() {
-    int depth = 6;
-    try {
-        int newdepth = 5;
-        std::cout << "Select difficulty (1--20) : ";
-        std::cin >> newdepth;
-        depth = std::max(0, std::min(20, newdepth));
-    } catch(...) {
-        depth = 6;
-    }
+void oneVsAi(int depth) {
+    depth = std::max(0, std::min(20, depth));
 
     GameState state;
     Agent agent;
@@ -178,20 +170,13 @@ void oneVsAi() {
 
 
 template<Mode mode>
-void aivsAi() {
+void aivsAi(int depth1, int depth2) {
     GameState game;
     Agent agent1;
     Agent agent2;
 
-    int depth = 6;
-    try {
-        int newdepth = 5;
-        std::cout << "Select difficulty (1--20) : ";
-        std::cin >> newdepth;
-        depth = std::max(0, std::min(20, newdepth));
-    } catch(...) {
-        depth = 6;
-    }
+    depth1 = std::max(0, std::min(20, depth1));
+    depth2 = std::max(0, std::min(20, depth2));
 
     ResourcePool pool;
 
@@ -209,12 +194,12 @@ void aivsAi() {
             });
         std::optional<Action> action;
         if(game.currentPlayer == P1) {
-            MyMinimax search1(&pool, game, agent1, depth);
+            MyMinimax search1(&pool, game, agent1, depth1);
             search1.run();
             action = search1.bestAction;
         }
         if(game.currentPlayer == P2) {
-            MyMinimax search2(&pool, game, agent2, depth);
+            MyMinimax search2(&pool, game, agent2, depth2);
             search2.run();
             action = search2.bestAction;
         }
@@ -222,27 +207,47 @@ void aivsAi() {
             Logger::log(Verb::Std, [&]() { return action.value().toString(); });
             game.apply(action.value());
         } else {
-            std::cout << "Player " << (int)game.currentPlayer << " did not find a suitable action" << std::endl;
+            std::cout << "Player " << ('A'+(int)game.currentPlayer) << " did not find a suitable action" << std::endl;
             break;
         }
     }
+
+    
+    Logger::log(Verb::Std, [&]() {
+        if(game.hasWon(Color::P1)) {
+            return "Player A has won";
+        } else {
+            return "Player B has won";
+        }
+    });
+
 }
 
 int main(int argc, char** argv) {
-    std::cout << "Select game mode : 1v1, 1vAI or AIvAI" << std::endl;
-    if(argc != 2) return 0;
+    if(argc <= 1) return 0;
     if(std::strcmp(argv[1], "1v1") == 0) {
         std::cout << "Starting 1v1 mode" << std::endl;
         oneVsOne();
     }
     if(std::strcmp(argv[1], "1vAI") == 0) {
-        std::cout << "Starting 1vAI mode" << std::endl;
-        oneVsAi<AlphaBeta>();
+        if(argc <= 2) {
+            std::cout << "Usage : exe 1vAI depth" << std::endl;
+            return 0;
+        }
+        int depth = std::atoi(argv[2]);
+        std::cout << "Starting 1vAI mode vs depth : " << depth << std::endl;
+        oneVsAi<AlphaBeta>(depth);
     }
     if(std::strcmp(argv[1], "AIvAI") == 0) {
-        std::cout << "Starting AIvAI mode" << std::endl;
-        aivsAi<PureMinimax>();
-        // aivsAi<AlphaBeta>();
+        if(argc <= 3) {
+            std::cout << "Usage : exe AIvAI depth1 depth2" << std::endl;
+            return 0;
+        }
+        int d1 = std::atoi(argv[2]);
+        int d2 = std::atoi(argv[3]);
+        std::cout << "Starting AIvAI mode with depths : " << d1 << " vs " << d2 << std::endl;
+        // aivsAi<PureMinimax>(d1, d2);
+        aivsAi<AlphaBeta>(d1, d2);
     }
     return 0;
 }

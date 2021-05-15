@@ -3,6 +3,7 @@
 
 #include "gamestate.h"
 #include "allowedmove.h"
+#include "common/smallvalueset.h"
 #include <bitset>
 #include <cassert>
 #include <array>

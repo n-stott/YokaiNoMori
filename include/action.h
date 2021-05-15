@@ -24,7 +24,8 @@ struct Action {
 
     std::string toString() const {
         std::string message;
-        message += "Player " + std::to_string(p.color());
+        message += "Player ";
+        message += ('A'+(unsigned char)p.color()-1);
         message += " ";
         if(type == Move) {
             message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();

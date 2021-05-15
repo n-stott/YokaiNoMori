@@ -2,7 +2,6 @@
 #define MINIMAX_H
 
 #include "logger.h"
-#include "resourcepool.h"
 #include <limits>
 #include <optional>
 
@@ -66,6 +65,7 @@ private:
             } else if(currentState.hasLost(currentState.currentPlayer)) {
                 return -std::numeric_limits<double>::infinity();
             }
+            if(currentState.nbTurns == currentState.maxTurns) return 0;
             assert(false);
             return 0;
         }

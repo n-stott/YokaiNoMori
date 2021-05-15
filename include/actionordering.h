@@ -4,7 +4,7 @@
 #include "gamestate.h"
 #include "stateanalysis.h"
 #include "action.h"
-#include "minimax/resourcepool.h"
+#include "resourcepool.h"
 #include <vector>
 #include <utility>
 #include <algorithm>

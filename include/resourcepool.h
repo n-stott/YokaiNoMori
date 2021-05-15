@@ -4,6 +4,8 @@
 #include "action.h"
 #include <list>
 #include <vector>
+#include <typeinfo>
+#include "minimax/logger.h"
 
 template<typename Type>
 struct Pool {
@@ -39,6 +41,17 @@ struct Pool {
 
     element get() {
         return element(this);
+    }
+
+    ~Pool() {
+        Logger::log(Verb::Dev, [&] {
+            std::string s;
+            s += typeid(Type).name();
+            s += " :\n";
+            s += "  " + std::to_string(objects.size()) + " objects allocated\n";
+            s += "  " + std::to_string(free.size()) + " free remaining\n";
+            return s;
+        });
     }
 
 private:
