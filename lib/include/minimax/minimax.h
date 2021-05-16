@@ -11,10 +11,9 @@ enum Mode {
     AlphaBeta
 };
 
-template<Mode mode, typename Action, typename GameState, typename Agent, typename ActionOrdering, typename ResourcePool>
+template<Mode mode, typename Action, typename GameState, typename Agent, typename ActionOrdering>
 struct Minimax {
 
-    ResourcePool* pool_;
     int maxdepth;
     GameState& root;
     std::optional<Action> bestAction;
@@ -22,8 +21,7 @@ struct Minimax {
     Agent& agent;
 
 
-    Minimax(ResourcePool* pool, GameState& root, Agent& agent, int maxdepth) :
-        pool_(pool),
+    Minimax(GameState& root, Agent& agent, int maxdepth) :
         maxdepth(maxdepth),
         root(root),
         bestAction(),
@@ -56,10 +54,9 @@ private:
             assert(eval == eval);
             return eval;
         }
-        Pool<ActionSet>::element actionsetElement = pool_->actionsets.get();
-        ActionSet* actionset = actionsetElement.get();
-        currentState.fillAllowedActions(actionset);
-        if(actionset->empty()) {
+        ActionSet actionset;
+        currentState.fillAllowedActions(&actionset);
+        if(actionset.empty()) {
             if(currentState.hasWon(currentState.currentPlayer)) {
                 return +std::numeric_limits<double>::infinity();
             } else if(currentState.hasLost(currentState.currentPlayer)) {
@@ -71,12 +68,12 @@ private:
         }
 
         {
-            ActionOrdering orderer(actionset, currentState, pool_);
+            ActionOrdering orderer(&actionset, currentState);
             orderer.sort();
         }
 
         double bestEvaluation = -std::numeric_limits<double>::infinity();
-        for(Action action : *actionset) {
+        for(Action action : actionset) {
             GameState tmp = currentState;
             tmp.apply(action);
             double evaluation = applyBias(-search(tmp, depth-1));
@@ -102,16 +99,15 @@ private:
             assert(eval == eval);
             return eval;
         }
-        Pool<ActionSet>::element actionsetElement = pool_->actionsets.get();
-        ActionSet* actionset = actionsetElement.get();
-        currentState.fillAllowedActions(actionset);
+        ActionSet actionset;
+        currentState.fillAllowedActions(&actionset);
 
         {
-            ActionOrdering orderer(actionset, currentState, pool_);
+            ActionOrdering orderer(&actionset, currentState);
             orderer.sort();
         }
         
-        if(actionset->empty()) {
+        if(actionset.empty()) {
             if(currentState.hasWon(currentState.currentPlayer)) {
                 return -agent.kingDeadValue;
             }
@@ -122,7 +118,7 @@ private:
         }
 
         double bestEvaluation = -std::numeric_limits<double>::infinity();
-        for(Action action : *actionset) {
+        for(Action action : actionset) {
             GameState tmp = currentState;
             tmp.apply(action);
             double evaluation = applyBias(-alphaBetaSearch(tmp, depth-1, -beta, -alpha));

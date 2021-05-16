@@ -1,11 +1,11 @@
 #ifndef ACTION_H
 #define ACTION_H
 
+#include "staticvector.h"
 #include "enums.h"
 #include "pos.h"
 #include "piece.h"
 #include <string>
-#include <vector>
 #include <utility>
 
 struct Action {
@@ -41,7 +41,7 @@ static_assert(sizeof(Action) == 4);
 using aspair = std::pair<Action, double>;
 
 struct ActionSet {
-    std::vector<Action> actions;
+    static_vector<Action, 64> actions;
 
     std::string toString() const {
         std::string message;
@@ -70,7 +70,7 @@ struct ActionSet {
     const Action& operator[](size_t i) const { return actions[i]; }
     Action& operator[](size_t i) { return actions[i]; }
 
-    using const_iterator = std::vector<Action>::const_iterator;
+    using const_iterator = static_vector<Action, 64>::const_iterator;
 
     const_iterator begin() const { return actions.begin(); }
     const_iterator end() const { return actions.end(); }

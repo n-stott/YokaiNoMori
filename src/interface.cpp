@@ -1,4 +1,3 @@
-#include <iostream>
 #include "action.h"
 #include "actionordering.h"
 #include "enums.h"
@@ -9,6 +8,7 @@
 #include "minimax/minimax.h"
 #include "minimax/logger.h"
 #include <cstring>
+#include <iostream>
 
 std::optional<ActionType> readActionType() {
     std::string command;
@@ -122,9 +122,9 @@ void oneVsOne() {
         });
         std::optional<Action> action = readAction(state.currentPlayer);
         if(action) {
-            std::cout << action.value().toString() << std::endl;
+            Logger::log(Verb::Dev, [&]() { return action.value().toString(); });
             bool success = state.apply(action.value());
-            std::cout << "move valid : " << success << std::endl;
+            Logger::log(Verb::Dev, [&](){ return "move valid : " + std::to_string(success); });
         }
     }
 }
@@ -136,32 +136,34 @@ void oneVsAi(int depth) {
     GameState state;
     Agent agent;
 
-    ResourcePool pool;
-
-    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering, ResourcePool>;
+    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
 
     while(!state.hasWinner()) {
-
-        std::cout << state.niceToString() << std::endl;
-        
-        std::cout << "Turn of player : " << (state.currentPlayer == P1 ? "A" : "B") << std::endl;
+        Logger::log(Verb::Std, [&]() { return state.niceToString(); });
+        Logger::log(Verb::Std, [&]() { return std::string{"Turn of player : "} + (state.currentPlayer == P1 ? "A" : "B"); });
 
         if(state.currentPlayer == P1) {
             std::optional<Action> action = readAction(state.currentPlayer);
             if(action) {
-                std::cout << action.value().toString() << std::endl;
+                Logger::log(Verb::Dev, [&]() { return action.value().toString(); });
                 bool success = state.apply(action.value());
-                std::cout << "move valid : " << success << std::endl;
+                Logger::log(Verb::Dev, [&](){ return "move valid : " + std::to_string(success); });
             }
         } else {
             std::optional<Action> action;
-            MyMinimax search(&pool, state, agent, depth);
+            MyMinimax search(state, agent, depth);
             search.run();
             action = search.bestAction;
             if(action) {
                 state.apply(action.value());
             } else {
-                std::cout << "Player " << (int)state.currentPlayer << " did not find a suitable action" << std::endl;
+            Logger::log(Verb::Std, [&]() {
+                std::string s;
+                s += "Player ";
+                s += (char)('A'+(int)state.currentPlayer);
+                s += " did not find a suitable action";
+                return s;
+            });
                 break;
             }           
         }
@@ -178,9 +180,7 @@ void aivsAi(int depth1, int depth2) {
     depth1 = std::max(0, std::min(20, depth1));
     depth2 = std::max(0, std::min(20, depth2));
 
-    ResourcePool pool;
-
-    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering, ResourcePool>;
+    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
 
     while(!game.hasWinner()) {
         Logger::log(Verb::Std,
@@ -194,12 +194,12 @@ void aivsAi(int depth1, int depth2) {
             });
         std::optional<Action> action;
         if(game.currentPlayer == P1) {
-            MyMinimax search1(&pool, game, agent1, depth1);
+            MyMinimax search1(game, agent1, depth1);
             search1.run();
             action = search1.bestAction;
         }
         if(game.currentPlayer == P2) {
-            MyMinimax search2(&pool, game, agent2, depth2);
+            MyMinimax search2(game, agent2, depth2);
             search2.run();
             action = search2.bestAction;
         }
@@ -207,7 +207,13 @@ void aivsAi(int depth1, int depth2) {
             Logger::log(Verb::Std, [&]() { return action.value().toString(); });
             game.apply(action.value());
         } else {
-            std::cout << "Player " << ('A'+(int)game.currentPlayer) << " did not find a suitable action" << std::endl;
+            Logger::log(Verb::Std, [&]() {
+                std::string s;
+                s += "Player ";
+                s += (char)('A'+(int)game.currentPlayer);
+                s += " did not find a suitable action";
+                return s;
+            });
             break;
         }
     }
@@ -226,26 +232,36 @@ void aivsAi(int depth1, int depth2) {
 int main(int argc, char** argv) {
     if(argc <= 1) return 0;
     if(std::strcmp(argv[1], "1v1") == 0) {
-        std::cout << "Starting 1v1 mode" << std::endl;
+        Logger::log(Verb::Std, [](){
+            return "Starting 1v1 mode";
+        });
         oneVsOne();
     }
     if(std::strcmp(argv[1], "1vAI") == 0) {
         if(argc <= 2) {
-            std::cout << "Usage : exe 1vAI depth" << std::endl;
+            Logger::log(Verb::Std, [](){
+                return "Usage : exe 1vAI depth";
+            });
             return 0;
         }
         int depth = std::atoi(argv[2]);
-        std::cout << "Starting 1vAI mode vs depth : " << depth << std::endl;
+        Logger::log(Verb::Std, [&](){
+            return "Starting 1vAI mode vs depth : " + std::to_string(depth);
+        });
         oneVsAi<AlphaBeta>(depth);
     }
     if(std::strcmp(argv[1], "AIvAI") == 0) {
         if(argc <= 3) {
-            std::cout << "Usage : exe AIvAI depth1 depth2" << std::endl;
+            Logger::log(Verb::Std, [](){
+                return "Usage : exe AIvAI depth1 depth2";
+            });
             return 0;
         }
         int d1 = std::atoi(argv[2]);
         int d2 = std::atoi(argv[3]);
-        std::cout << "Starting AIvAI mode with depths : " << d1 << " vs " << d2 << std::endl;
+        Logger::log(Verb::Std, [&](){
+            return "Starting AIvAI mode with depths : " + std::to_string(d1) + " vs " + std::to_string(d2);
+        });
         // aivsAi<PureMinimax>(d1, d2);
         aivsAi<AlphaBeta>(d1, d2);
     }

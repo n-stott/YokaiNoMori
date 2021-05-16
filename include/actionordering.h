@@ -5,6 +5,7 @@
 #include "stateanalysis.h"
 #include "action.h"
 #include "resourcepool.h"
+#include "staticvector.h"
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -12,32 +13,24 @@
 
 struct ActionOrdering {
 
-    ResourcePool* pool_;
     ActionSet* const actions;
-    Pool<std::vector<double>>::element scoresElem;
+    static_vector<double, 64> scores;
 
-    ActionOrdering(ActionSet* actions, const GameState& state, ResourcePool* pool) :
-        pool_(pool),
-        actions(actions),
-        scoresElem(pool_->scores.get())
+    ActionOrdering(ActionSet* actions, const GameState& state) :
+        actions(actions)
     {
         StateAnalysis analyzer(state);
-        std::vector<double>* scores = scoresElem.get();
-        scores->clear();
-        scores->reserve(actions->size());
+        scores.clear();
+        scores.reserve(actions->size());
         for(const Action& action : *actions) {
-            if(action.p.color() == P1) scores->push_back(score1(action, state, analyzer));
-            if(action.p.color() == P2) scores->push_back(score2(action, state, analyzer));
+            if(action.p.color() == P1) scores.push_back(score1(action, state, analyzer));
+            if(action.p.color() == P2) scores.push_back(score2(action, state, analyzer));
         }
     }
 
     void sort() {
         ActionSet& actionset = *actions;
-
-        Pool<std::vector<aspair>>::element aspairelem = pool_->actionscores.get();
-        std::vector<aspair>& actionScores = *(aspairelem.get());
-
-        const std::vector<double>& scores = *(scoresElem.get());
+        static_vector<aspair, 64> actionScores;
 
         const size_t size = scores.size();
         actionScores.clear();

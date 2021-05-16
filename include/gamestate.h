@@ -8,7 +8,6 @@
 
 #include <array>
 #include <string>
-#include <vector>
 
 struct GameState {
     Board board;
