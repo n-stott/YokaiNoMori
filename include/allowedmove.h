@@ -17,28 +17,44 @@ struct AllowedMove {
     using move_sets = static_vector<move_set, 12>;
 
     static constexpr const move_sets& get(Color player, PieceType piece) {
-        if(piece == PieceType::King) {
-            return king;
-        } else if (piece == PieceType::Rook) {
-            return rook;
-        } else if (piece == PieceType::Tower) {
-            return tower;
-        } else if(player == Color::P1) {
-            if(piece == PieceType::Pawn) {
-                return p1Pawn;
-            } else if(piece == PieceType::SuperPawn) {
-                return p1SuperPawn;
-            }
-            assert(false);
-        } else if(player == Color::P2) {
-            if(piece == PieceType::Pawn) {
-                return p2Pawn;
-            } else if(piece == PieceType::SuperPawn) {
-                return p2SuperPawn;
-            }
-            assert(false);
+        switch(piece) {
+            case PieceType::King:
+                return king;
+            case PieceType::Rook:
+                return rook;
+            case PieceType::Tower:
+                return tower;
+            case PieceType::Pawn:
+                if(player == Color::P1) return p1Pawn;
+                else return p2Pawn;
+            case PieceType::SuperPawn:
+                if(player == Color::P1) return p1SuperPawn;
+                else return p2SuperPawn;
+            default:
+                return empty;
         }
-        return empty;
+        // if(piece == PieceType::King) {
+        //     return king;
+        // } else if (piece == PieceType::Rook) {
+        //     return rook;
+        // } else if (piece == PieceType::Tower) {
+        //     return tower;
+        // } else if(player == Color::P1) {
+        //     if(piece == PieceType::Pawn) {
+        //         return p1Pawn;
+        //     } else if(piece == PieceType::SuperPawn) {
+        //         return p1SuperPawn;
+        //     }
+        //     assert(false);
+        // } else if(player == Color::P2) {
+        //     if(piece == PieceType::Pawn) {
+        //         return p2Pawn;
+        //     } else if(piece == PieceType::SuperPawn) {
+        //         return p2SuperPawn;
+        //     }
+        //     assert(false);
+        // }
+        // return empty;
     }
 
     static constexpr move_sets empty { 

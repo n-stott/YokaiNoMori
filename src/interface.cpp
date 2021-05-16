@@ -103,7 +103,7 @@ std::optional<Action> readAction(Color player) {
         std::optional<Pos> dst = readBoardPosition();
         if(!dst) return std::nullopt;
 
-        return std::make_optional(Action::drop(Piece(piece.value(), player), dst.value()));
+        return std::make_optional(Action::drop(Piece(piece.value(), player), src.value(), dst.value()));
     }
     return std::nullopt;
 }
@@ -123,8 +123,13 @@ void oneVsOne() {
         std::optional<Action> action = readAction(state.currentPlayer);
         if(action) {
             Logger::log(Verb::Dev, [&]() { return action.value().toString(); });
+            bool ok = state.checkAction(action.value());
+            if(!ok) {
+                Logger::log(Verb::Std, [&](){ return "invalid move"; });
+                continue;
+            }
             bool success = state.apply(action.value());
-            Logger::log(Verb::Dev, [&](){ return "move valid : " + std::to_string(success); });
+            Logger::log(Verb::Dev, [&](){ return "move success : " + std::to_string(success); });
         }
     }
 }
@@ -146,8 +151,13 @@ void oneVsAi(int depth) {
             std::optional<Action> action = readAction(state.currentPlayer);
             if(action) {
                 Logger::log(Verb::Dev, [&]() { return action.value().toString(); });
+                bool ok = state.checkAction(action.value());
+                if(!ok) {
+                    Logger::log(Verb::Std, [&](){ return "invalid move"; });
+                    continue;
+                }
                 bool success = state.apply(action.value());
-                Logger::log(Verb::Dev, [&](){ return "move valid : " + std::to_string(success); });
+                Logger::log(Verb::Dev, [&](){ return "move success : " + std::to_string(success); });
             }
         } else {
             std::optional<Action> action;

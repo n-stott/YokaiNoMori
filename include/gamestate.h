@@ -44,16 +44,28 @@ struct GameState {
             return move(action.p.type(), action.p.color(), action.src, action.dst);
         }
         else {
-            return drop(action.p.type(), action.p.color(), action.dst);
+            return drop(action.p.type(), action.p.color(), action.src, action.dst);
         }
     }
     
 public:
 
+    bool checkAction(Action action) const {
+        if(action.type == Move) {
+            return checkMove(action.p.type(), action.p.color(), action.src, action.dst);
+        }
+        else {
+            return checkDrop(action.p.type(), action.p.color(), action.src, action.dst);
+        }
+    }
+
+    bool checkMove(PieceType pt, Color c, Pos a, Pos b) const;
+    bool checkDrop(PieceType pt, Color c, Pos res, Pos dst) const;
+
     bool allowedMove(PieceType pt, Color c, Pos a, Pos b) const;
     bool allowedDrop(PieceType pt, Color c, uint8_t& posInReserve, Pos a) const;
     bool move(PieceType pt, Color c, Pos a, Pos b);
-    bool drop(PieceType pt, Color c, Pos a);
+    bool drop(PieceType pt, Color c, Pos res, Pos dst);
     static bool allowedOffset(PieceType pt, Color c, Pos a, Pos b);
 
     bool hasWon(Color player) const;
