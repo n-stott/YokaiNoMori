@@ -5,9 +5,11 @@
 #include "board.h"
 #include "piece.h"
 #include "reserve.h"
+#include "gamehistory.h"
 
 #include <array>
 #include <string>
+#include <minimax/logger.h>
 
 struct GameState {
     Board board;
@@ -16,6 +18,7 @@ struct GameState {
     Color currentPlayer;
     uint8_t nbTurns;
     uint8_t maxTurns;
+    GameHistory history;
 
     GameState() : 
         board(),
@@ -23,7 +26,8 @@ struct GameState {
         reserve2(),
         currentPlayer(P1),
         nbTurns(0),
-        maxTurns(100)
+        maxTurns(150),
+        history()
     { }
 
     GameState(const std::string& sboard, const std::string& sres1, const std::string& sres2, Color player) :
@@ -32,7 +36,8 @@ struct GameState {
         reserve2(sres2),
         currentPlayer(player),
         nbTurns(0),
-        maxTurns(100)
+        maxTurns(150),
+        history()
     { }
 
     std::string toString() const;
@@ -40,12 +45,17 @@ struct GameState {
     void fillAllowedActions(ActionSet*) const;
 
     bool apply(Action action) {
+        bool res = false;
         if(action.type == Move) {
-            return move(action.p.type(), action.p.color(), action.src, action.dst);
+            res = move(action.p.type(), action.p.color(), action.src, action.dst);
         }
         else {
-            return drop(action.p.type(), action.p.color(), action.src, action.dst);
+            res = drop(action.p.type(), action.p.color(), action.src, action.dst);
         }
+        if(res) {
+            history.record(board);
+        }
+        return res;
     }
     
 public:
@@ -79,8 +89,6 @@ public:
     }
 
 };
-
-static_assert(sizeof(GameState) == 29);
 
 
 // A piece can have at most 15 different positions (12 on board, one for each reserve, one for nonexistent (SP))

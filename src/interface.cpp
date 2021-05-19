@@ -228,12 +228,17 @@ void aivsAi(int depth1, int depth2) {
         }
     }
 
+    Logger::log(Verb::Std, [&]() {
+        return game.niceToString();
+    });
     
     Logger::log(Verb::Std, [&]() {
         if(game.hasWon(Color::P1)) {
             return "Player A has won";
-        } else {
+        } else if(game.hasWon(Color::P2)) {
             return "Player B has won";
+        } else {
+            return "Draw";
         }
     });
 
@@ -258,6 +263,8 @@ int main(int argc, char** argv) {
         Logger::log(Verb::Std, [&](){
             return "Starting 1vAI mode vs depth : " + std::to_string(depth);
         });
+
+        // oneVsAi<PureMinimax>(depth);
         oneVsAi<AlphaBeta>(depth);
     }
     if(std::strcmp(argv[1], "AIvAI") == 0) {

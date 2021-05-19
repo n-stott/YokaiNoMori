@@ -16,7 +16,7 @@ struct Agent {
         double s2 = 0; // estimated score of p2
         double p = 0;  // penalty for p1 (non symetric)
 
-        double value() const { return s1-s2+p; }
+        double value(Color player) const { return (player == Color::P1 ? (s1-s2) : (s2-s1))+p; }
     };
 
     size_t nbEvals;
@@ -33,6 +33,7 @@ struct Agent {
     double kingDistanceValue;
     double kingDeadValue;
     double endGamePenalty;
+    double drawPenalty;
 
     Agent() : 
         nbEvals(0),
@@ -45,8 +46,9 @@ struct Agent {
         kingAttackedValue(-5),
         kingEscapesValue(1),
         kingDistanceValue(1),
-        kingDeadValue(-10000),
-        endGamePenalty(-50)
+        kingDeadValue(-std::numeric_limits<double>::infinity()),
+        endGamePenalty(-500),
+        drawPenalty(-5000)
     { }
 
     ~Agent() {
@@ -79,7 +81,8 @@ struct Agent {
         for(size_t i = 0; i < 6; ++i) s.s2 += boardValue[i] * sa.onBoard2[i];
         for(size_t i = 0; i < 6; ++i) s.s2 += reserveValue[i] * sa.inReserve2[i];
 
-        s.p = endGamePenalty * (1.0*state.nbTurns/state.maxTurns) * (1.0*state.nbTurns/state.maxTurns);
+        // s.p += endGamePenalty * (1.0*state.nbTurns/state.maxTurns) * (1.0*state.nbTurns/state.maxTurns);
+        s.p += drawPenalty * (state.history.count(state.board.hash()) == 3);
 
         return s;
     }

@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <string>
+#include <sstream>
 
 #define USE_LOGGER 0
 
@@ -14,7 +15,7 @@ enum class Verb {
 
 struct Logger {
 
-    static constexpr Verb verbosity = Verb::Dev;
+    static constexpr Verb verbosity = Verb::Std;
 
     template<typename Message>
     static void log(Verb v, Message message) {

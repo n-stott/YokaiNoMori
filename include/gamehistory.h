@@ -6,7 +6,7 @@
 
 struct GameHistory {
 
-    static_vector<Board::hash_t, 50> positions;
+    static_vector<Board::hash_t, 150> positions;
 
     GameHistory() { }
 

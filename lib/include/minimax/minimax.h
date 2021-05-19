@@ -31,14 +31,20 @@ struct Minimax {
 
 
     double run() {
+        const double inf = std::numeric_limits<double>::infinity();
+        double res = 0.0;
         if(mode == PureMinimax) {
-            return search(root, maxdepth);
+            res = search(root, maxdepth);
         }
         if(mode == AlphaBeta) {
-            const double inf = std::numeric_limits<double>::infinity();
-            return alphaBetaSearch(root, maxdepth, -inf, inf);
+            res = alphaBetaSearch(root, maxdepth, -inf, inf);
         }
-        return 0.0;
+        if(res == -inf) {
+            ActionSet actionset;
+            root.fillAllowedActions(&actionset);
+            bestAction = actionset[0];
+        }
+        return res;
     }
 
 private:
@@ -48,11 +54,16 @@ private:
     }
 
     double search(GameState currentState, int depth) {
-        if(depth == 0) {
-            typename Agent::score score = agent.evaluate(currentState);
-            double eval = score.value();
-            assert(eval == eval);
-            return eval;
+        {
+            double eval = 1337;
+            if(depth == 0) {
+                typename Agent::score score = agent.evaluate(currentState);
+                eval = score.value(currentState.currentPlayer);
+            }
+            if(depth == 0) {
+                assert(eval == eval);
+                return eval;
+            }
         }
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
@@ -95,7 +106,7 @@ private:
     double alphaBetaSearch(GameState currentState, int depth, double alpha, double beta) {
         if(depth == 0) {
             typename Agent::score score = agent.evaluate(currentState);
-            double eval = score.value();
+            double eval = score.value(currentState.currentPlayer);
             assert(eval == eval);
             return eval;
         }

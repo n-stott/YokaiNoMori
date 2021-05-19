@@ -4,6 +4,7 @@
 #include <array>
 #include <cassert>
 #include <initializer_list>
+#include <cstddef>
 
 template<typename T, unsigned int max_size>
 class static_vector {

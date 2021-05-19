@@ -8,12 +8,21 @@
 
 struct Board {
 
+    // Board() :
+    //     pieces({
+    //         Piece(Tower, P2), Piece(King, P2), Piece(Rook, P2),
+    //         Piece(),          Piece(Pawn, P2), Piece(),
+    //         Piece(),          Piece(Pawn, P1), Piece(),
+    //         Piece(Rook, P1),  Piece(King, P1), Piece(Tower, P1)
+    //     })
+    // { }
+
     Board() :
         pieces({
-            Piece(Tower, P2), Piece(King, P2), Piece(Rook, P2),
+            Piece(Rook, P2), Piece(King, P2), Piece(Tower, P2),
             Piece(),          Piece(Pawn, P2), Piece(),
             Piece(),          Piece(Pawn, P1), Piece(),
-            Piece(Rook, P1),  Piece(King, P1), Piece(Tower, P1)
+            Piece(Tower, P1),  Piece(King, P1), Piece(Rook, P1)
         })
     { }
 
@@ -28,6 +37,14 @@ struct Board {
 
     const Piece& operator[](int i) const { return pieces[i]; }
     Piece& operator[](int i) { return pieces[i]; }
+
+    using hash_t = unsigned int;
+
+    hash_t hash() const {
+        hash_t value = 0;
+        for(unsigned int i = 0; i < 12; ++i) value = (i > 0 ? 6 : 1) * value + static_cast<int>(pieces[i].type());
+        return value;
+    }
 
 private:
     std::array<Piece, 12> pieces;
