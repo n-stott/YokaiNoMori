@@ -18,26 +18,26 @@ struct GameState {
     Color currentPlayer;
     uint8_t nbTurns;
     uint8_t maxTurns;
-    GameHistory history;
+    GameHistory* history;
 
-    GameState() : 
+    GameState(GameHistory* history) : 
         board(),
         reserve1(),
         reserve2(),
         currentPlayer(P1),
         nbTurns(0),
         maxTurns(150),
-        history()
+        history(history)
     { }
 
-    GameState(const std::string& sboard, const std::string& sres1, const std::string& sres2, Color player) :
+    GameState(GameHistory* history, const std::string& sboard, const std::string& sres1, const std::string& sres2, Color player) :
         board(sboard),
         reserve1(sres1),
         reserve2(sres2),
         currentPlayer(player),
         nbTurns(0),
         maxTurns(150),
-        history()
+        history(history)
     { }
 
     std::string toString() const;
@@ -45,6 +45,7 @@ struct GameState {
     void fillAllowedActions(ActionSet*) const;
 
     bool apply(Action action) {
+        assert(checkAction(action));
         bool res = false;
         if(action.type == Move) {
             res = move(action.p.type(), action.p.color(), action.src, action.dst);
@@ -53,9 +54,13 @@ struct GameState {
             res = drop(action.p.type(), action.p.color(), action.src, action.dst);
         }
         if(res) {
-            history.record(board);
+            history->push(board);
         }
         return res;
+    }
+
+    void revert() {
+        history->pop();
     }
     
 public:
@@ -81,7 +86,15 @@ public:
     bool hasWon(Color player) const;
     bool hasLost(Color player) const;
 
+    bool gameOver() const {
+        return hasWinner() || hasDraw();
+    }
+
     bool hasWinner() const { return hasWon(Color::P1) || hasWon(Color::P2); }
+
+    bool hasDraw() const {
+        return history->hasDraw();
+    }
 
     void swapPlayer() {
         currentPlayer = (currentPlayer == P1 ? P2 : P1);

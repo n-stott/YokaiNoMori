@@ -122,8 +122,8 @@ bool GameState::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
 }
 
 bool GameState::move(PieceType pt, Color c, Pos a, Pos b) {
-    if(!allowedMove(pt, c, a, b)) return false;
-    if(!allowedOffset(pt, c, a, b)) return false;
+    assert(allowedMove(pt, c, a, b));
+    assert(allowedOffset(pt, c, a, b));
     const Piece src = board[a.idx()]; 
     Piece dst = board[b.idx()];
     if(dst.empty() == false) {

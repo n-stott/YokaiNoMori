@@ -3,15 +3,19 @@
 
 #include "staticvector.h"
 #include "board.h"
-
+#include <vector>
 struct GameHistory {
 
-    static_vector<Board::hash_t, 150> positions;
+    std::vector<Board::hash_t> positions;
 
     GameHistory() { }
 
-    void record(const Board& board) {
+    void push(const Board& board) {
         positions.push_back(board.hash());
+    }
+
+    void pop() {
+        positions.pop_back();
     }
 
     unsigned int count(Board::hash_t hash) const {
@@ -20,6 +24,17 @@ struct GameHistory {
             val += (h == hash);
         }
         return val;
+    }
+
+    bool hasDraw() const {
+        // We only need to check if the last move was a draw
+        if(positions.begin() == positions.end()) return false;
+        Board::hash_t drawHash = positions.back();
+        unsigned int val = 0;
+        for (auto it = positions.rbegin(); it != positions.rend(); ++it) {
+            val += (*it == drawHash);
+        }
+        return val == 3;
     }
 
 };

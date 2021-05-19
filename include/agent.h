@@ -82,7 +82,7 @@ struct Agent {
         for(size_t i = 0; i < 6; ++i) s.s2 += reserveValue[i] * sa.inReserve2[i];
 
         // s.p += endGamePenalty * (1.0*state.nbTurns/state.maxTurns) * (1.0*state.nbTurns/state.maxTurns);
-        s.p += drawPenalty * (state.history.count(state.board.hash()) == 3);
+        s.p += drawPenalty * state.history->hasDraw();
 
         return s;
     }

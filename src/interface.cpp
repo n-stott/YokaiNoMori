@@ -110,7 +110,8 @@ std::optional<Action> readAction(Color player) {
 
 
 void oneVsOne() {
-    GameState state;
+    GameHistory history;
+    GameState state(&history);
     while(!state.hasWinner()) {
         Logger::log(Verb::Std, [&]() {
             std::string s;
@@ -138,12 +139,13 @@ template<Mode mode>
 void oneVsAi(int depth) {
     depth = std::max(0, std::min(20, depth));
 
-    GameState state;
+    GameHistory history;
+    GameState state(&history);
     Agent agent;
 
     using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
 
-    while(!state.hasWinner()) {
+    while(!state.gameOver()) {
         Logger::log(Verb::Std, [&]() { return state.niceToString(); });
         Logger::log(Verb::Std, [&]() { return std::string{"Turn of player : "} + (state.currentPlayer == P1 ? "A" : "B"); });
 
@@ -183,7 +185,8 @@ void oneVsAi(int depth) {
 
 template<Mode mode>
 void aivsAi(int depth1, int depth2) {
-    GameState game;
+    GameHistory history;
+    GameState game(&history);
     Agent agent1;
     Agent agent2;
 
@@ -192,7 +195,7 @@ void aivsAi(int depth1, int depth2) {
 
     using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
 
-    while(!game.hasWinner()) {
+    while(!game.gameOver()) {
         Logger::log(Verb::Std,
             [&]() {
                 std::string s;

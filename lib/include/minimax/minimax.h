@@ -86,7 +86,8 @@ private:
         double bestEvaluation = -std::numeric_limits<double>::infinity();
         for(Action action : actionset) {
             GameState tmp = currentState;
-            tmp.apply(action);
+            bool validMove = tmp.apply(action);
+            assert(validMove);
             double evaluation = applyBias(-search(tmp, depth-1));
             if(depth == maxdepth) {
                 Logger::log(Verb::Dev, [&](){ return action.toString() + " : " + std::to_string(evaluation); });
@@ -96,6 +97,7 @@ private:
                 bestEvaluation = evaluation;
                 if(depth == maxdepth) bestAction = action;
             }
+            if(validMove) tmp.revert();
         }
             
         assert(bestEvaluation == bestEvaluation);
@@ -131,19 +133,25 @@ private:
         double bestEvaluation = -std::numeric_limits<double>::infinity();
         for(Action action : actionset) {
             GameState tmp = currentState;
-            tmp.apply(action);
+            const size_t historySize1 = tmp.history->positions.size();
+            bool validMove = tmp.apply(action);
+            assert(validMove);
             double evaluation = applyBias(-alphaBetaSearch(tmp, depth-1, -beta, -alpha));
             if(depth == maxdepth) {
                 Logger::log(Verb::Dev, [&](){ return action.toString() + " : " + std::to_string(evaluation); });
             }
             assert(evaluation == evaluation);
             if(evaluation > beta) {
+                if(validMove) tmp.revert();
                 return beta;
             }
             if(evaluation > alpha) {
                 alpha = evaluation;
                 if(depth == maxdepth) bestAction = action;
             }
+            if(validMove) tmp.revert();
+            const size_t historySize2 = tmp.history->positions.size();
+            assert(historySize1 == historySize2);
         }
             
         assert(alpha == alpha);
