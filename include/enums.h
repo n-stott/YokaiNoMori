@@ -7,7 +7,7 @@ enum PieceType : char {
     NoType,
     King,
     Tower,
-    Rook,
+    Bishop,
     Pawn,
     SuperPawn
 };

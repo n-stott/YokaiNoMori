@@ -27,7 +27,7 @@ std::optional<PieceType> readPieceType() {
     try {
         std::cin >> p;
         if(p == "k" || p == "K") return std::make_optional(PieceType::King);
-        if(p == "r" || p == "R") return std::make_optional(PieceType::Rook);
+        if(p == "b" || p == "B") return std::make_optional(PieceType::Bishop);
         if(p == "t" || p == "T") return std::make_optional(PieceType::Tower);
         if(p == "p" || p == "P") return std::make_optional(PieceType::Pawn);
         if(p == "s" || p == "S") return std::make_optional(PieceType::SuperPawn);

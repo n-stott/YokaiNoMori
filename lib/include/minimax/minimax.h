@@ -102,12 +102,6 @@ private:
 
 
     double alphaBetaSearch(GameState currentState, int depth, double alpha, double beta) {
-        if(depth == 0) {
-            typename Agent::score score = agent.evaluate(currentState);
-            double eval = score.value(currentState.currentPlayer);
-            assert(eval == eval);
-            return eval;
-        }
 
         if(currentState.hasWon(currentState.currentPlayer)) {
             return std::numeric_limits<double>::infinity();
@@ -118,11 +112,18 @@ private:
         if(currentState.hasDraw()) {
             return -std::numeric_limits<double>::infinity();
         }
+        
+        if(depth == 0) {
+            typename Agent::score score = agent.evaluate(currentState);
+            double eval = score.value(currentState.currentPlayer);
+            assert(eval == eval);
+            return eval;
+        }
 
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
         assert(!actionset.empty());
-        
+
         {
             ActionOrdering orderer(&actionset, currentState);
             orderer.sort();

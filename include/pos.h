@@ -11,7 +11,7 @@ struct Pos {
     using value = uint8_t;
     value pos;
 
-    constexpr Pos() : pos(-1) { }
+    Pos() = default;
     constexpr Pos(value p) : pos(p) { }
 
     constexpr value idx() const {

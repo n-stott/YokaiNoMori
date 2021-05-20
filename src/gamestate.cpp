@@ -209,11 +209,7 @@ bool GameState::drop(Piece p, Pos res, Pos dst) {
 
 
 bool GameState::hasWon(Color player) const {
-    if(player == Color::P1) {
-        return std::any_of(reserve1.begin(), reserve1.end(), [](Piece p){ return p.type() == PieceType::King; });
-    } else {
-        return std::any_of(reserve2.begin(), reserve2.end(), [](Piece p){ return p.type() == PieceType::King; });
-    }
+    return winner == player;
 }
 
 bool GameState::hasLost(Color player) const {

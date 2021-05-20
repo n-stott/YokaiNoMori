@@ -21,12 +21,12 @@ public:
             case 'E': data_ = 0; return;
             case 'k': data_ = (P1 << 4) | King; return;
             case 't': data_ = (P1 << 4) | Tower; return;
-            case 'r': data_ = (P1 << 4) | Rook; return;
+            case 'b': data_ = (P1 << 4) | Bishop; return;
             case 'p': data_ = (P1 << 4) | Pawn; return;
             case 's': data_ = (P1 << 4) | SuperPawn; return;
             case 'K': data_ = (P2 << 4) | King; return;
             case 'T': data_ = (P2 << 4) | Tower; return;
-            case 'R': data_ = (P2 << 4) | Rook; return;
+            case 'B': data_ = (P2 << 4) | Bishop; return;
             case 'P': data_ = (P2 << 4) | Pawn; return;
             case 'S': data_ = (P2 << 4) | SuperPawn; return;
         }
@@ -45,7 +45,7 @@ public:
         char ret = '.';
         if(type() == King) ret = 'k';
         if(type() == Tower) ret = 't';
-        if(type() == Rook) ret = 'r';
+        if(type() == Bishop) ret = 'b';
         if(type() == Pawn) ret = 'p';
         if(type() == SuperPawn) ret = 's';
         if(color() == P2) ret -= 32;
@@ -63,7 +63,7 @@ public:
     const AllowedMove::move_sets& moveSets() const {
         if(type() == King) return AllowedMove::king;
         if(type() == Tower) return AllowedMove::tower;
-        if(type() == Rook) return AllowedMove::rook;
+        if(type() == Bishop) return AllowedMove::bishop;
         if(color() == P1 && type() == Pawn) return AllowedMove::p1Pawn;
         if(color() == P1 && type() == SuperPawn) return AllowedMove::p1SuperPawn;
         if(color() == P2 && type() == Pawn) return AllowedMove::p2Pawn;

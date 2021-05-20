@@ -8,21 +8,12 @@
 
 struct Board {
 
-    // Board() :
-    //     pieces({
-    //         Piece(Tower, P2), Piece(King, P2), Piece(Rook, P2),
-    //         Piece(),          Piece(Pawn, P2), Piece(),
-    //         Piece(),          Piece(Pawn, P1), Piece(),
-    //         Piece(Rook, P1),  Piece(King, P1), Piece(Tower, P1)
-    //     })
-    // { }
-
     Board() :
         pieces({
-            Piece(Rook, P2), Piece(King, P2), Piece(Tower, P2),
-            Piece(),          Piece(Pawn, P2), Piece(),
-            Piece(),          Piece(Pawn, P1), Piece(),
-            Piece(Tower, P1),  Piece(King, P1), Piece(Rook, P1)
+            Piece(Bishop, P2), Piece(King, P2), Piece(Tower, P2),
+            Piece(),           Piece(Pawn, P2), Piece(),
+            Piece(),           Piece(Pawn, P1), Piece(),
+            Piece(Tower, P1),  Piece(King, P1), Piece(Bishop, P1)
         })
     { }
 
