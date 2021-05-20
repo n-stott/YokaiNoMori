@@ -13,33 +13,33 @@ private:
 
 public:
     constexpr Piece() noexcept : data_(0) {}
-    constexpr Piece(PieceType pt, Color c) noexcept : data_( pt | (c << 3) ) {}
+    constexpr Piece(PieceType pt, Color c) noexcept : data_( pt | (c << 4) ) {}
 
     constexpr explicit Piece(char asChar) noexcept : data_(0) {
         switch(asChar) {
             case 'e': data_ = 0; return;
             case 'E': data_ = 0; return;
-            case 'k': data_ = (P1 << 3) | King; return;
-            case 't': data_ = (P1 << 3) | Tower; return;
-            case 'r': data_ = (P1 << 3) | Rook; return;
-            case 'p': data_ = (P1 << 3) | Pawn; return;
-            case 's': data_ = (P1 << 3) | SuperPawn; return;
-            case 'K': data_ = (P2 << 3) | King; return;
-            case 'T': data_ = (P2 << 3) | Tower; return;
-            case 'R': data_ = (P2 << 3) | Rook; return;
-            case 'P': data_ = (P2 << 3) | Pawn; return;
-            case 'S': data_ = (P2 << 3) | SuperPawn; return;
+            case 'k': data_ = (P1 << 4) | King; return;
+            case 't': data_ = (P1 << 4) | Tower; return;
+            case 'r': data_ = (P1 << 4) | Rook; return;
+            case 'p': data_ = (P1 << 4) | Pawn; return;
+            case 's': data_ = (P1 << 4) | SuperPawn; return;
+            case 'K': data_ = (P2 << 4) | King; return;
+            case 'T': data_ = (P2 << 4) | Tower; return;
+            case 'R': data_ = (P2 << 4) | Rook; return;
+            case 'P': data_ = (P2 << 4) | Pawn; return;
+            case 'S': data_ = (P2 << 4) | SuperPawn; return;
         }
         assert(false);
     }
 
     constexpr bool empty() const noexcept { return data_ == 0; }
     
-    constexpr PieceType type() const noexcept { return (PieceType)(data_ & 0b0000111); }
-    constexpr Color color() const noexcept    { return (Color)(data_ >> 3); }
+    constexpr PieceType type() const noexcept { return (PieceType)(data_ & 0b0001111); }
+    constexpr Color color() const noexcept    { return (Color)(data_ >> 4); }
 
-    constexpr void setType(PieceType t) noexcept { data_ = (data_ & 0b11111000) | t; }
-    constexpr void setColor(Color c) noexcept { data_ = (data_ & 0b00000111) | (c << 3); }
+    constexpr void setType(PieceType t) noexcept { data_ = (data_ & 0b11110000) | t; }
+    constexpr void setColor(Color c) noexcept { data_ = (data_ & 0b00001111) | (c << 4); }
 
     constexpr char toChar() const noexcept {
         char ret = '.';

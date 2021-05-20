@@ -48,10 +48,10 @@ struct GameState {
         assert(checkAction(action));
         bool res = false;
         if(action.type == Move) {
-            res = move(action.p.type(), action.p.color(), action.src, action.dst);
+            res = move(action.p, action.src, action.dst);
         }
         else {
-            res = drop(action.p.type(), action.p.color(), action.src, action.dst);
+            res = drop(action.p, action.src, action.dst);
         }
         if(res) {
             history->push(board);
@@ -67,21 +67,21 @@ public:
 
     bool checkAction(Action action) const {
         if(action.type == Move) {
-            return checkMove(action.p.type(), action.p.color(), action.src, action.dst);
+            return checkMove(action.p, action.src, action.dst);
         }
         else {
-            return checkDrop(action.p.type(), action.p.color(), action.src, action.dst);
+            return checkDrop(action.p, action.src, action.dst);
         }
     }
 
-    bool checkMove(PieceType pt, Color c, Pos a, Pos b) const;
-    bool checkDrop(PieceType pt, Color c, Pos res, Pos dst) const;
+    bool checkMove(Piece p, Pos a, Pos b) const;
+    bool checkDrop(Piece p, Pos res, Pos dst) const;
 
-    bool allowedMove(PieceType pt, Color c, Pos a, Pos b) const;
-    bool allowedDrop(PieceType pt, Color c, uint8_t& posInReserve, Pos a) const;
-    bool move(PieceType pt, Color c, Pos a, Pos b);
-    bool drop(PieceType pt, Color c, Pos res, Pos dst);
-    static bool allowedOffset(PieceType pt, Color c, Pos a, Pos b);
+    bool allowedMove(Piece p, Pos a, Pos b) const;
+    bool allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const;
+    bool move(Piece p, Pos a, Pos b);
+    bool drop(Piece p, Pos res, Pos dst);
+    static bool allowedOffset(Piece p, Pos a, Pos b);
 
     bool hasWon(Color player) const;
     bool hasLost(Color player) const;

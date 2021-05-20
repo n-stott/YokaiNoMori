@@ -34,13 +34,15 @@ std::string GameState::niceToString() const {
     return s;
 }
 
-bool GameState::checkMove(PieceType pt, Color c, Pos a, Pos b) const {
+bool GameState::checkMove(Piece p, Pos a, Pos b) const {
     if(nbTurns >= maxTurns) return false;
     if(hasWon(P1) || hasWon(P2)) return false;
     if(a.valid() == false) return false;
     if(b.valid() == false) return false;
     const Piece src = board[a.idx()];
     if(src.empty()) return false;
+    const Color c = p.color();
+    const PieceType pt = p.type();
     if(c != P1 && c != P2) return false;
     if(pt == NoType) return false;
     if(src.type() != pt) return false;
@@ -52,12 +54,14 @@ bool GameState::checkMove(PieceType pt, Color c, Pos a, Pos b) const {
     return true;
 }
 
-bool GameState::checkDrop(PieceType pt, Color c, Pos res, Pos a) const {
+bool GameState::checkDrop(Piece p, Pos res, Pos a) const {
     if(nbTurns >= maxTurns) return false;
     if(hasWinner()) return false;
     if(a.valid() == false) return false;
     const Piece dst = board[a.idx()];
     if(dst.empty() == false) return false;
+    const Color c = p.color();
+    const PieceType pt = p.type();
     if(pt == NoType) return false;
     if(c != P1 && c != P2) return false;
     if(c == P1) {
@@ -84,10 +88,12 @@ bool GameState::checkDrop(PieceType pt, Color c, Pos res, Pos a) const {
 }
 
 
-bool GameState::allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
+bool GameState::allowedMove(Piece p, Pos a, Pos b) const {
     // Checks that the move is not clearly illegal
     assert(a.valid());
     assert(b.valid());
+    const Color c = p.color();
+    const PieceType pt = p.type();
     assert(c == P1 || c == P2);
     assert(pt != NoType);
     
@@ -110,9 +116,11 @@ bool GameState::allowedMove(PieceType pt, Color c, Pos a, Pos b) const {
     return true;
 }
 
-bool GameState::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
+bool GameState::allowedOffset(Piece p, Pos a, Pos b) {
     assert(a.valid());
     assert(b.valid());
+    const Color c = p.color();
+    const PieceType pt = p.type();
     assert(c == P1 || c == P2);
     assert(pt != NoType);
     auto& movesets = AllowedMove::get(c, pt);
@@ -121,11 +129,12 @@ bool GameState::allowedOffset(PieceType pt, Color c, Pos a, Pos b) {
 
 }
 
-bool GameState::move(PieceType pt, Color c, Pos a, Pos b) {
-    assert(allowedMove(pt, c, a, b));
-    assert(allowedOffset(pt, c, a, b));
+bool GameState::move(Piece p, Pos a, Pos b) {
+    assert(allowedMove(p, a, b));
+    assert(allowedOffset(p, a, b));
     const Piece src = board[a.idx()]; 
     Piece dst = board[b.idx()];
+    Color c = p.color();
     if(dst.empty() == false) {
         if(c == P1) {
             dst.demote();
@@ -147,8 +156,10 @@ bool GameState::move(PieceType pt, Color c, Pos a, Pos b) {
     return true;
 }
 
-bool GameState::allowedDrop(PieceType pt, Color c, uint8_t& posInReserve, Pos a) const {
+bool GameState::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
     assert(a.valid());
+    Color c = p.color();
+    PieceType pt = p.type();
     assert(c == P1 || c == P2);
     assert(pt != NoType);
     assert(!hasWinner());
@@ -180,9 +191,10 @@ bool GameState::allowedDrop(PieceType pt, Color c, uint8_t& posInReserve, Pos a)
     return true;
 }
 
-bool GameState::drop(PieceType pt, Color c, Pos res, Pos dst) {
+bool GameState::drop(Piece p, Pos res, Pos dst) {
     uint8_t posInReserve = res.idx();
-    assert(allowedDrop(pt, c, posInReserve, dst.idx()));
+    assert(allowedDrop(p, posInReserve, dst.idx()));
+    const Color c = p.color();
     if(c == P1) {
         const Piece src = reserve1.pop(res.idx());
         board[dst.idx()] = src;
@@ -225,7 +237,7 @@ void GameState::fillAllowedActions(ActionSet* actions) const {
         if(p.color() != currentPlayer) continue;
         for(Pos dst : p.moveSet(src)) {
             if(dst.valid() == false) continue;
-            if(allowedMove(p.type(), p.color(), src, dst) == false) continue;
+            if(allowedMove(p, src, dst) == false) continue;
             actions->push_back(Action::move(p, src, dst));
         }
     }
@@ -239,7 +251,7 @@ void GameState::fillAllowedActions(ActionSet* actions) const {
             for(Pos::value i = 0; i < 12; ++i) {
                 const Pos dst(i);
                 if(dst.valid() == false) continue;
-                if(allowedDrop(p.type(), p.color(), dummyPos, dst) == false) continue;
+                if(allowedDrop(p, dummyPos, dst) == false) continue;
                 actions->push_back(Action::drop(p, dummyPos, dst));
             }
         }
@@ -254,7 +266,7 @@ void GameState::fillAllowedActions(ActionSet* actions) const {
             for(Pos::value i = 0; i < 12; ++i) {
                 const Pos dst(i);
                 if(dst.valid() == false) continue;
-                if(allowedDrop(p.type(), p.color(), dummyPos, dst) == false) continue;
+                if(allowedDrop(p, dummyPos, dst) == false) continue;
                 actions->push_back(Action::drop(p, dummyPos, dst));
             }
         }
