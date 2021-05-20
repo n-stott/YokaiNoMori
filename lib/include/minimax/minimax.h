@@ -49,10 +49,6 @@ struct Minimax {
 
 private:
 
-    static constexpr double applyBias(double v) {
-        return v;
-    }
-
     double search(GameState currentState, int depth) {
         {
             double eval = 1337;
@@ -88,7 +84,7 @@ private:
             GameState tmp = currentState;
             bool validMove = tmp.apply(action);
             assert(validMove);
-            double evaluation = applyBias(-search(tmp, depth-1));
+            double evaluation = -search(tmp, depth-1);
             if(depth == maxdepth) {
                 Logger::log(Verb::Dev, [&](){ return action.toString() + " : " + std::to_string(evaluation); });
             }
@@ -136,7 +132,7 @@ private:
             const size_t historySize1 = tmp.history->positions.size();
             bool validMove = tmp.apply(action);
             assert(validMove);
-            double evaluation = applyBias(-alphaBetaSearch(tmp, depth-1, -beta, -alpha));
+            double evaluation = -alphaBetaSearch(tmp, depth-1, -beta, -alpha);
             if(depth == maxdepth) {
                 Logger::log(Verb::Dev, [&](){ return action.toString() + " : " + std::to_string(evaluation); });
             }
