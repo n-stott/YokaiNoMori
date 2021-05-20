@@ -26,8 +26,8 @@ struct Board {
     const Piece* begin() const noexcept { return pieces.begin(); }
     const Piece* end() const noexcept { return pieces.end(); }
 
-    const Piece& operator[](int i) const { return pieces[i]; }
-    Piece& operator[](int i) { return pieces[i]; }
+    Piece get(uint8_t i) const { return pieces[i]; }
+    void  set(uint8_t i, Piece p) { pieces[i] = p; }
 
     using hash_t = unsigned int;
 

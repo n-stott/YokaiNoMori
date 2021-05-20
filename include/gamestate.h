@@ -142,13 +142,13 @@ struct GameStateHash {
             if(p.type() == SuperPawn) { value <<= 4*(2*0+superpawns); ++superpawns; }
             return value;
         };
-        for(int i = 0; i < 12; ++i) {
-            value |= pieceHash(state.board[i], 1+i);
+        for(uint8_t i = 0; i < 12; ++i) {
+            value |= pieceHash(state.board.get(i), 1+i);
         }
-        for(int i = 0; i < state.reserve1.size; ++i) {
+        for(uint8_t i = 0; i < state.reserve1.size; ++i) {
             value |= pieceHash(state.reserve1[i], 13);
         }
-        for(int i = 0; i < state.reserve2.size; ++i) {
+        for(uint8_t i = 0; i < state.reserve2.size; ++i) {
             value |= pieceHash(state.reserve2[i], 14);
         }
         value = 2*value + (state.currentPlayer == P1);

@@ -20,9 +20,9 @@ std::string GameState::niceToString() const {
     s += reserve2.toString();
     s += '\n';
     s += "-----------------";
-    for(short i = 0; i < 12; ++i) {
+    for(uint8_t i = 0; i < 12; ++i) {
         if(i%3 == 0) s += '\n' + std::to_string(1+i/3) + ' ';
-        s += board[i].toChar();
+        s += board.get(i).toChar();
     }
     s += '\n';
     s += "  ABC\n";
@@ -39,7 +39,7 @@ bool GameState::checkMove(Piece p, Pos a, Pos b) const {
     if(hasWon(P1) || hasWon(P2)) return false;
     if(a.valid() == false) return false;
     if(b.valid() == false) return false;
-    const Piece src = board[a.idx()];
+    const Piece src = board.get(a.idx());
     if(src.empty()) return false;
     const Color c = p.color();
     const PieceType pt = p.type();
@@ -47,7 +47,7 @@ bool GameState::checkMove(Piece p, Pos a, Pos b) const {
     if(pt == NoType) return false;
     if(src.type() != pt) return false;
     if(src.color() != c) return false;
-    const Piece dst = board[b.idx()];
+    const Piece dst = board.get(b.idx());
     if(dst.empty() == false) {
         if(dst.color() == c) return false;
     }
@@ -58,7 +58,7 @@ bool GameState::checkDrop(Piece p, Pos res, Pos a) const {
     if(nbTurns >= maxTurns) return false;
     if(hasWinner()) return false;
     if(a.valid() == false) return false;
-    const Piece dst = board[a.idx()];
+    const Piece dst = board.get(a.idx());
     if(dst.empty() == false) return false;
     const Color c = p.color();
     const PieceType pt = p.type();
@@ -102,14 +102,14 @@ bool GameState::allowedMove(Piece p, Pos a, Pos b) const {
     assert(!hasWon(P2));
     assert(nbTurns < maxTurns);
 
-    const Piece src = board[a.idx()];
+    const Piece src = board.get(a.idx());
 
     // Check board consistency
     assert(!src.empty());
     assert(src.type() == pt);
     assert(src.color() == c);
 
-    const Piece dst = board[b.idx()];
+    const Piece dst = board.get(b.idx());
     if(dst.empty() == false) {
         if(dst.color() == c) return false;
     }
@@ -132,8 +132,8 @@ bool GameState::allowedOffset(Piece p, Pos a, Pos b) {
 bool GameState::move(Piece p, Pos a, Pos b) {
     assert(allowedMove(p, a, b));
     assert(allowedOffset(p, a, b));
-    const Piece src = board[a.idx()]; 
-    Piece dst = board[b.idx()];
+    Piece src = board.get(a.idx()); 
+    Piece dst = board.get(b.idx());
     Color c = p.color();
     if(dst.empty() == false) {
         if(c == P1) {
@@ -144,14 +144,14 @@ bool GameState::move(Piece p, Pos a, Pos b) {
             reserve2.push(dst);
         }
     }
-    board[a.idx()] = Piece();
-    board[b.idx()] = src;
+    board.set(a.idx(), Piece());
     if(c == P1 && b.idx()/3 == 0) {
-        board[b.idx()].promote();
+        src.promote();
     }
     if(c == P2 && b.idx()/3 == 3) {
-        board[b.idx()].promote();
+        src.promote();
     }
+    board.set(b.idx(), src);
     swapPlayer();
     return true;
 }
@@ -163,7 +163,7 @@ bool GameState::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
     assert(c == P1 || c == P2);
     assert(pt != NoType);
     assert(!hasWinner());
-    const Piece dst = board[a.idx()];
+    const Piece dst = board.get(a.idx());
     if(dst.empty() == false) return false;
     if(c == P1) {
         auto pos = std::find_if(reserve1.begin(), reserve1.end(), [&](Piece p) { return p.type() == pt; });
@@ -197,11 +197,11 @@ bool GameState::drop(Piece p, Pos res, Pos dst) {
     const Color c = p.color();
     if(c == P1) {
         const Piece src = reserve1.pop(res.idx());
-        board[dst.idx()] = src;
+        board.set(dst.idx(), src);
     }
     if(c == P2) {
         const Piece src = reserve2.pop(res.idx());
-        board[dst.idx()] = src;
+        board.set(dst.idx(), src);
     }
     swapPlayer();
     return true;
@@ -228,7 +228,7 @@ void GameState::fillAllowedActions(ActionSet* actions) const {
     if(nbTurns >= maxTurns) return;
 
     for(Pos::value i = 0; i < 12; ++i) {
-        const Piece p = board[i];
+        const Piece p = board.get(i);
         const Pos src(i);
         if(p.color() != currentPlayer) continue;
         for(Pos dst : p.moveSet(src)) {
