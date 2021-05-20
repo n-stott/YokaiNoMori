@@ -110,15 +110,19 @@ private:
         }
 
         if(currentState.hasWon(currentState.currentPlayer)) {
-            return -agent.kingDeadValue;
+            return std::numeric_limits<double>::infinity();
         }
         if(currentState.hasLost(currentState.currentPlayer)) {
-            return agent.kingDeadValue;
+            return -std::numeric_limits<double>::infinity();
+        }
+        if(currentState.hasDraw()) {
+            return -std::numeric_limits<double>::infinity();
         }
 
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
-
+        assert(!actionset.empty());
+        
         {
             ActionOrdering orderer(&actionset, currentState);
             orderer.sort();

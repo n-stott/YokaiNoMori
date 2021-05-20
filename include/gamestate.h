@@ -93,7 +93,7 @@ public:
     bool hasWinner() const { return hasWon(Color::P1) || hasWon(Color::P2); }
 
     bool hasDraw() const {
-        return history->hasDraw();
+        return (nbTurns == maxTurns) || history->hasDraw();
     }
 
     void swapPlayer() {
