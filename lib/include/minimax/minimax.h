@@ -108,22 +108,20 @@ private:
             assert(eval == eval);
             return eval;
         }
+
+        if(currentState.hasWon(currentState.currentPlayer)) {
+            return -agent.kingDeadValue;
+        }
+        if(currentState.hasLost(currentState.currentPlayer)) {
+            return agent.kingDeadValue;
+        }
+
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
 
         {
             ActionOrdering orderer(&actionset, currentState);
             orderer.sort();
-        }
-        
-        if(actionset.empty()) {
-            if(currentState.hasWon(currentState.currentPlayer)) {
-                return -agent.kingDeadValue;
-            }
-            if(currentState.hasLost(currentState.currentPlayer)) {
-                return agent.kingDeadValue;
-            }
-            return 0;
         }
 
         double bestEvaluation = -std::numeric_limits<double>::infinity();
