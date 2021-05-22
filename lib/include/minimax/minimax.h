@@ -50,29 +50,27 @@ struct Minimax {
 private:
 
     double search(GameState currentState, int depth) {
-        {
-            double eval = 1337;
-            if(depth == 0) {
-                typename Agent::score score = agent.evaluate(currentState);
-                eval = score.value(currentState.currentPlayer);
-            }
-            if(depth == 0) {
-                assert(eval == eval);
-                return eval;
-            }
+
+        if(currentState.hasWon(currentState.currentPlayer)) {
+            return std::numeric_limits<double>::infinity();
         }
+        if(currentState.hasLost(currentState.currentPlayer)) {
+            return -std::numeric_limits<double>::infinity();
+        }
+        if(currentState.hasDraw()) {
+            return -std::numeric_limits<double>::infinity();
+        }
+        
+        if(depth == 0) {
+            typename Agent::score score = agent.evaluate(currentState);
+            double eval = score.value(currentState.currentPlayer);
+            assert(eval == eval);
+            return eval;
+        }
+
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
-        if(actionset.empty()) {
-            if(currentState.hasWon(currentState.currentPlayer)) {
-                return +std::numeric_limits<double>::infinity();
-            } else if(currentState.hasLost(currentState.currentPlayer)) {
-                return -std::numeric_limits<double>::infinity();
-            }
-            if(currentState.nbTurns == currentState.maxTurns) return 0;
-            assert(false);
-            return 0;
-        }
+        assert(!actionset.empty());
 
         {
             ActionOrdering orderer(&actionset, currentState);

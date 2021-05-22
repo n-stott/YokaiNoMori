@@ -4,6 +4,7 @@
 #include "piece.h"
 #include "enums.h"
 #include <algorithm>
+#include <cstring>
 
 struct Board {
 

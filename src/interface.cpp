@@ -289,8 +289,8 @@ int main(int argc, char** argv) {
         Logger::log(Verb::Std, [&](){
             return "Starting AIvAI mode with depths : " + std::to_string(d1) + " vs " + std::to_string(d2);
         });
-        // aivsAi<PureMinimax>(d1, d2);
-        aivsAi<AlphaBeta>(d1, d2);
+        aivsAi<PureMinimax>(d1, d2);
+        // aivsAi<AlphaBeta>(d1, d2);
     }
     return 0;
 }
