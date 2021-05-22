@@ -8,6 +8,10 @@
 #include "minimax/minimax.h"
 #include "minimax/logger.h"
 #include <cstring>
+
+#define ENABLE_HUMAN_PLAYER 1
+
+#if ENABLE_HUMAN_PLAYER
 #include <iostream>
 
 std::optional<ActionType> readActionType() {
@@ -181,6 +185,7 @@ void oneVsAi(int depth) {
         }
     }
 }
+#endif
 
 
 template<Mode mode>
@@ -249,6 +254,7 @@ void aivsAi(int depth1, int depth2) {
 
 int main(int argc, char** argv) {
     if(argc <= 1) return 0;
+#if ENABLE_HUMAN_PLAYER
     if(std::strcmp(argv[1], "1v1") == 0) {
         Logger::log(Verb::Std, [](){
             return "Starting 1v1 mode";
@@ -270,6 +276,7 @@ int main(int argc, char** argv) {
         // oneVsAi<PureMinimax>(depth);
         oneVsAi<AlphaBeta>(depth);
     }
+#endif
     if(std::strcmp(argv[1], "AIvAI") == 0) {
         if(argc <= 3) {
             Logger::log(Verb::Std, [](){

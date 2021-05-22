@@ -13,9 +13,9 @@ enum PieceType : char {
 };
 
 enum Color : char {
-    None,
     P1,
-    P2
+    P2,
+    None,
 };
 
 enum ActionType : char {

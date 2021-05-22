@@ -3,37 +3,6 @@
 #include <algorithm>
 #include <bitset>
 
-std::string GameState::toString() const {
-    std::string s;
-    for(Piece p : board) s+=p.toChar();
-    s += '|';
-    s += reserve1.toString();
-    s += '|';
-    s += reserve2.toString();
-    return s;
-}
-
-std::string GameState::niceToString() const {
-    std::string s;
-    s += "-----------------\n";
-    s += "Player B | ";
-    s += reserve2.toString();
-    s += '\n';
-    s += "-----------------";
-    for(uint8_t i = 0; i < 12; ++i) {
-        if(i%3 == 0) s += '\n' + std::to_string(1+i/3) + ' ';
-        s += board.get(i).toChar();
-    }
-    s += '\n';
-    s += "  ABC\n";
-    s += "-----------------\n";
-    s += "Player a | ";
-    s += reserve1.toString();
-    s += '\n';
-    s += "-----------------";
-    return s;
-}
-
 bool GameState::checkMove(Piece p, Pos a, Pos b) const {
     if(nbTurns >= maxTurns) return false;
     if(hasWon(P1) || hasWon(P2)) return false;

@@ -3,7 +3,6 @@
 
 #include "piece.h"
 #include "enums.h"
-#include <string>
 #include <algorithm>
 
 struct Board {
@@ -17,8 +16,9 @@ struct Board {
         })
     { }
 
-    Board(const std::string& board) {
-        for(size_t i = 0; i < std::min(board.size(), 12ul); ++i) {
+    Board(const char* board) {
+        assert(std::strlen(board) == 12);
+        for(size_t i = 0; i < 12; ++i) {
             pieces[i] = Piece(board[i]);
         }
     }

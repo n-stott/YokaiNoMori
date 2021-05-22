@@ -11,35 +11,43 @@ class Piece {
 private:
     uint8_t data_;
 
-public:
-    constexpr Piece() noexcept : data_(0) {}
-    constexpr Piece(PieceType pt, Color c) noexcept : data_( pt | (c << 4) ) {}
+    static constexpr uint8_t Empty = -1;
 
-    constexpr explicit Piece(char asChar) noexcept : data_(0) {
+    static_assert(P1 == 0);
+    static_assert(P2 == 1);
+
+public:
+    constexpr Piece() noexcept : data_(Empty) {}
+    constexpr Piece(PieceType pt, Color c) noexcept : data_( c | (pt << 1) ) {}
+
+    constexpr explicit Piece(char asChar) noexcept : data_(Empty) {
         switch(asChar) {
-            case 'e': data_ = 0; return;
-            case 'E': data_ = 0; return;
-            case 'k': data_ = (P1 << 4) | King; return;
-            case 't': data_ = (P1 << 4) | Tower; return;
-            case 'b': data_ = (P1 << 4) | Bishop; return;
-            case 'p': data_ = (P1 << 4) | Pawn; return;
-            case 's': data_ = (P1 << 4) | SuperPawn; return;
-            case 'K': data_ = (P2 << 4) | King; return;
-            case 'T': data_ = (P2 << 4) | Tower; return;
-            case 'B': data_ = (P2 << 4) | Bishop; return;
-            case 'P': data_ = (P2 << 4) | Pawn; return;
-            case 'S': data_ = (P2 << 4) | SuperPawn; return;
+            case 'e': data_ = Empty; return;
+            case 'E': data_ = Empty; return;
+            case 'k': data_ = P1 | (King << 1); return;
+            case 't': data_ = P1 | (Tower << 1); return;
+            case 'b': data_ = P1 | (Bishop << 1); return;
+            case 'p': data_ = P1 | (Pawn << 1); return;
+            case 's': data_ = P1 | (SuperPawn << 1); return;
+            case 'K': data_ = P2 | (King << 1); return;
+            case 'T': data_ = P2 | (Tower << 1); return;
+            case 'B': data_ = P2 | (Bishop << 1); return;
+            case 'P': data_ = P2 | (Pawn << 1); return;
+            case 'S': data_ = P2 | (SuperPawn << 1); return;
         }
         assert(false);
     }
 
-    constexpr bool empty() const noexcept { return data_ == 0; }
+    constexpr bool empty() const noexcept { return data_ == Empty; }
     
-    constexpr PieceType type() const noexcept { return (PieceType)(data_ & 0b0001111); }
-    constexpr Color color() const noexcept    { return (Color)(data_ >> 4); }
+    constexpr PieceType type() const noexcept { return (PieceType)(data_ >> 1); }
+    constexpr Color color() const noexcept    { return (Color)(data_ & 1); }
 
-    constexpr void setType(PieceType t) noexcept { data_ = (data_ & 0b11110000) | t; }
-    constexpr void setColor(Color c) noexcept { data_ = (data_ & 0b00001111) | (c << 4); }
+    constexpr void setType(PieceType pt) noexcept { data_ = (data_ & 1) | (pt << 1); }
+    constexpr void setColor(Color c) noexcept {
+        assert(c != None);
+        data_ = (data_ & ~1) | c;
+    }
 
     constexpr char toChar() const noexcept {
         char ret = '.';
@@ -49,6 +57,7 @@ public:
         if(type() == Pawn) ret = 'p';
         if(type() == SuperPawn) ret = 's';
         if(color() == P2) ret -= 32;
+        if(empty()) ret = '.';
         return ret;
     }
 

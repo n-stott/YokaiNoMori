@@ -32,7 +32,7 @@ struct GameState {
         history(history)
     { }
 
-    GameState(GameHistory* history, const std::string& sboard, const std::string& sres1, const std::string& sres2, Color player) :
+    GameState(GameHistory* history, const char* sboard, const std::string& sres1, const std::string& sres2, Color player) :
         board(sboard),
         reserve1(sres1),
         reserve2(sres2),
@@ -46,8 +46,38 @@ struct GameState {
         if(hasWon(P2)) winner = P2;
     }
 
-    std::string toString() const;
-    std::string niceToString() const;
+
+    inline std::string toString() const {
+        std::string s;
+        for(Piece p : board) s+=p.toChar();
+        s += '|';
+        s += reserve1.toString();
+        s += '|';
+        s += reserve2.toString();
+        return s;
+    }
+
+    inline std::string niceToString() const {
+        std::string s;
+        s += "-----------------\n";
+        s += "Player B | ";
+        s += reserve2.toString();
+        s += '\n';
+        s += "-----------------";
+        for(uint8_t i = 0; i < 12; ++i) {
+            if(i%3 == 0) s += '\n' + std::to_string(1+i/3) + ' ';
+            s += board.get(i).toChar();
+        }
+        s += '\n';
+        s += "  ABC\n";
+        s += "-----------------\n";
+        s += "Player a | ";
+        s += reserve1.toString();
+        s += '\n';
+        s += "-----------------";
+        return s;
+    }
+
     void fillAllowedActions(ActionSet*) const;
 
     bool apply(Action action) {
@@ -116,7 +146,7 @@ public:
 
 };
 
-static_assert(sizeof(GameState) == 40);
+// static_assert(sizeof(GameState) == 40);
 
 
 // A piece can have at most 15 different positions (12 on board, one for each reserve, one for nonexistent (SP))
