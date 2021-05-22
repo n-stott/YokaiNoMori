@@ -74,14 +74,6 @@ public:
     const AllowedMove::move_sets& moveSets() const {
         assert(data_ < 12);
         return allMoveSets[data_];
-        // if(type() == King) return AllowedMove::king;
-        // if(type() == Tower) return AllowedMove::tower;
-        // if(type() == Bishop) return AllowedMove::bishop;
-        // if(color() == P1 && type() == Pawn) return AllowedMove::p1Pawn;
-        // if(color() == P1 && type() == SuperPawn) return AllowedMove::p1SuperPawn;
-        // if(color() == P2 && type() == Pawn) return AllowedMove::p2Pawn;
-        // if(color() == P2 && type() == SuperPawn) return AllowedMove::p2SuperPawn;
-        // return AllowedMove::empty;
     }
 
     const AllowedMove::move_set& moveSet(Pos position) const {
