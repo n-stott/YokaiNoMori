@@ -11,7 +11,7 @@ class Piece {
 private:
     uint8_t data_;
 
-    static constexpr uint8_t Empty = -1;
+    static constexpr uint8_t Empty = 0;
 
     static_assert(P1 == 0);
     static_assert(P2 == 1);
@@ -19,6 +19,8 @@ private:
 public:
     constexpr Piece() noexcept : data_(Empty) {}
     constexpr Piece(PieceType pt, Color c) noexcept : data_( c | (pt << 1) ) {}
+
+    constexpr explicit Piece(int data) : data_(data) { }
 
     constexpr explicit Piece(char asChar) noexcept : data_(Empty) {
         switch(asChar) {
@@ -70,14 +72,16 @@ public:
     }
 
     const AllowedMove::move_sets& moveSets() const {
-        if(type() == King) return AllowedMove::king;
-        if(type() == Tower) return AllowedMove::tower;
-        if(type() == Bishop) return AllowedMove::bishop;
-        if(color() == P1 && type() == Pawn) return AllowedMove::p1Pawn;
-        if(color() == P1 && type() == SuperPawn) return AllowedMove::p1SuperPawn;
-        if(color() == P2 && type() == Pawn) return AllowedMove::p2Pawn;
-        if(color() == P2 && type() == SuperPawn) return AllowedMove::p2SuperPawn;
-        return AllowedMove::empty;
+        assert(data_ < 12);
+        return allMoveSets[data_];
+        // if(type() == King) return AllowedMove::king;
+        // if(type() == Tower) return AllowedMove::tower;
+        // if(type() == Bishop) return AllowedMove::bishop;
+        // if(color() == P1 && type() == Pawn) return AllowedMove::p1Pawn;
+        // if(color() == P1 && type() == SuperPawn) return AllowedMove::p1SuperPawn;
+        // if(color() == P2 && type() == Pawn) return AllowedMove::p2Pawn;
+        // if(color() == P2 && type() == SuperPawn) return AllowedMove::p2SuperPawn;
+        // return AllowedMove::empty;
     }
 
     const AllowedMove::move_set& moveSet(Pos position) const {
@@ -86,7 +90,35 @@ public:
 
 private:
 
+    static constexpr static_vector<AllowedMove::move_sets, 12> allMoveSets {
+        AllowedMove::empty,
+        AllowedMove::empty,
+        AllowedMove::king,
+        AllowedMove::king,
+        AllowedMove::tower,
+        AllowedMove::tower,
+        AllowedMove::bishop,
+        AllowedMove::bishop,
+        AllowedMove::p1Pawn,
+        AllowedMove::p2Pawn,
+        AllowedMove::p1SuperPawn,
+        AllowedMove::p2SuperPawn
+    };
+
 };
+
+static_assert(Piece( 0).type() == NoType    && Piece(0).color() == P1);
+static_assert(Piece( 1).type() == NoType    && Piece(1).color() == P2);
+static_assert(Piece( 2).type() == King      && Piece(2).color() == P1);
+static_assert(Piece( 3).type() == King      && Piece(3).color() == P2);
+static_assert(Piece( 4).type() == Tower     && Piece(4).color() == P1);
+static_assert(Piece( 5).type() == Tower     && Piece(5).color() == P2);
+static_assert(Piece( 6).type() == Bishop    && Piece(6).color() == P1);
+static_assert(Piece( 7).type() == Bishop    && Piece(7).color() == P2);
+static_assert(Piece( 8).type() == Pawn      && Piece(8).color() == P1);
+static_assert(Piece( 9).type() == Pawn      && Piece(9).color() == P2);
+static_assert(Piece(10).type() == SuperPawn && Piece(10).color() == P1);
+static_assert(Piece(11).type() == SuperPawn && Piece(11).color() == P2);
 
 static_assert(sizeof(Piece) == 1);
 
