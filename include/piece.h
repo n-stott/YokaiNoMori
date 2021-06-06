@@ -25,16 +25,16 @@ public:
     constexpr explicit Piece(char asChar) noexcept : data_(Empty) {
         switch(asChar) {
             case '.': data_ = 0; return;
-            case 'k': data_ = (P1 << 4) | King; return;
-            case 't': data_ = (P1 << 4) | Tower; return;
-            case 'r': data_ = (P1 << 4) | Rook; return;
-            case 'p': data_ = (P1 << 4) | Pawn; return;
-            case 's': data_ = (P1 << 4) | SuperPawn; return;
-            case 'K': data_ = (P2 << 4) | King; return;
-            case 'T': data_ = (P2 << 4) | Tower; return;
-            case 'R': data_ = (P2 << 4) | Rook; return;
-            case 'P': data_ = (P2 << 4) | Pawn; return;
-            case 'S': data_ = (P2 << 4) | SuperPawn; return;
+            case 'k': data_ = P1 | (King << 1); return;
+            case 't': data_ = P1 | (Tower << 1); return;
+            case 'r': data_ = P1 | (Bishop << 1); return;
+            case 'p': data_ = P1 | (Pawn << 1); return;
+            case 's': data_ = P1 | (SuperPawn << 1); return;
+            case 'K': data_ = P2 | (King << 1); return;
+            case 'T': data_ = P2 | (Tower << 1); return;
+            case 'R': data_ = P2 | (Bishop << 1); return;
+            case 'P': data_ = P2 | (Pawn << 1); return;
+            case 'S': data_ = P2 | (SuperPawn << 1); return;
         }
         assert(false);
     }

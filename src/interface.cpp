@@ -353,8 +353,8 @@ int main(int argc, char** argv) {
         using MyMinimax = Minimax<Mode::AlphaBeta, Action, GameState, Agent, ActionOrdering>;
 
         std::optional<Action> action;
-        MyMinimax search(state, agent, depth);
-        search.run();
+        MyMinimax search(state, agent);
+        search.run(depth);
         action = search.bestAction;
         if(action) {
             Logger::log(Verb::Std, [&](){ return action->toString(); });
