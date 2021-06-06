@@ -4,9 +4,7 @@
 #include "gamestate.h"
 #include "stateanalysis.h"
 #include "action.h"
-#include "resourcepool.h"
 #include "staticvector.h"
-#include <vector>
 #include <utility>
 #include <algorithm>
 
@@ -53,7 +51,7 @@ private:
         }
         if(!analyzer.controlled1[action.dst.idx()] && analyzer.controlled2[action.dst.idx()]) score -= 10;
         if(action.p.type() == Pawn && analyzer.occupied2[action.dst.idx()]) score += 10;
-        if(analyzer.occupied2[action.dst.idx()] && state.board[action.dst.idx()].type() == King) score += 1000;
+        if(analyzer.occupied2[action.dst.idx()] && state.board.get(action.dst.idx()).type() == King) score += 1000;
         return score;
     }
 
@@ -64,7 +62,7 @@ private:
         }
         if(!analyzer.controlled2[action.dst.idx()] && analyzer.controlled1[action.dst.idx()]) score -= 10;
         if(action.p.type() == Pawn && analyzer.occupied1[action.dst.idx()]) score += 10;
-        if(analyzer.occupied1[action.dst.idx()] && state.board[action.dst.idx()].type() == King) score += 1000;
+        if(analyzer.occupied1[action.dst.idx()] && state.board.get(action.dst.idx()).type() == King) score += 1000;
         return score;
     }
 

@@ -20,8 +20,8 @@ struct AllowedMove {
         switch(piece) {
             case PieceType::King:
                 return king;
-            case PieceType::Rook:
-                return rook;
+            case PieceType::Bishop:
+                return bishop;
             case PieceType::Tower:
                 return tower;
             case PieceType::Pawn:
@@ -33,28 +33,6 @@ struct AllowedMove {
             default:
                 return empty;
         }
-        // if(piece == PieceType::King) {
-        //     return king;
-        // } else if (piece == PieceType::Rook) {
-        //     return rook;
-        // } else if (piece == PieceType::Tower) {
-        //     return tower;
-        // } else if(player == Color::P1) {
-        //     if(piece == PieceType::Pawn) {
-        //         return p1Pawn;
-        //     } else if(piece == PieceType::SuperPawn) {
-        //         return p1SuperPawn;
-        //     }
-        //     assert(false);
-        // } else if(player == Color::P2) {
-        //     if(piece == PieceType::Pawn) {
-        //         return p2Pawn;
-        //     } else if(piece == PieceType::SuperPawn) {
-        //         return p2SuperPawn;
-        //     }
-        //     assert(false);
-        // }
-        // return empty;
     }
 
     static constexpr move_sets empty { 
@@ -75,7 +53,7 @@ struct AllowedMove {
         { 3, 7, 9 }, { 4, 6, 8, 10}, { 5, 7, 11 },
         { 6, 10 },   { 7, 9, 11 },   { 8, 10 }
     };
-    static constexpr move_sets rook { 
+    static constexpr move_sets bishop { 
         { 4 },    { 3, 5 },       { 4 },
         { 1, 7 }, { 0, 2, 6, 8 }, { 1, 7 },
         { 4, 10 },{ 3, 5, 9, 11}, { 4, 10},

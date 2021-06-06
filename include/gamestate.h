@@ -16,6 +16,7 @@ struct GameState {
     Reserve<P1> reserve1;
     Reserve<P2> reserve2;
     Color currentPlayer;
+    Color winner;
     uint8_t nbTurns;
     uint8_t maxTurns;
     GameHistory* history;
@@ -25,23 +26,60 @@ struct GameState {
         reserve1(),
         reserve2(),
         currentPlayer(P1),
+        winner(None),
         nbTurns(0),
         maxTurns(150),
         history(history)
     { }
 
-    GameState(GameHistory* history, const std::string& sboard, const std::string& sres1, const std::string& sres2, Color player) :
+    GameState(GameHistory* history, const char* sboard, const std::string& sres1, const std::string& sres2, Color player) :
         board(sboard),
         reserve1(sres1),
         reserve2(sres2),
         currentPlayer(player),
+        winner(None),
         nbTurns(0),
         maxTurns(150),
         history(history)
-    { }
+    {
+        if(hasWon(P1)) winner = P1;
+        if(hasWon(P2)) winner = P2;
+    }
 
-    std::string toString() const;
-    std::string niceToString() const;
+
+    inline std::string toString() const {
+        std::string s;
+        for(Piece p : board) s+=p.toChar();
+        s += '|';
+        s += reserve1.toString();
+        s += '|';
+        s += reserve2.toString();
+        return s;
+    }
+
+    inline std::string niceToString() const {
+        std::string s;
+        s += "-----------------\n";
+        s += (currentPlayer == P2 ? "> " : "  ");
+        s += "Player B | ";
+        s += reserve2.toString();
+        s += '\n';
+        s += "-----------------";
+        for(uint8_t i = 0; i < 12; ++i) {
+            if(i%3 == 0) s += '\n' + std::to_string(1+i/3) + ' ';
+            s += board.get(i).toChar();
+        }
+        s += '\n';
+        s += "  ABC\n";
+        s += "-----------------\n";
+        s += (currentPlayer == P1 ? "> " : "  ");
+        s += "Player a | ";
+        s += reserve1.toString();
+        s += '\n';
+        s += "-----------------";
+        return s;
+    }
+
     void fillAllowedActions(ActionSet*) const;
 
     bool apply(Action action) {
@@ -55,6 +93,13 @@ struct GameState {
         }
         if(res) {
             history->push(board);
+            // player wins if he ate king, so they win if a king is at the top of their reserve
+            assert(action.p.color() != None);
+            if(action.p.color() == P1) {
+                if(reserve1.size > 0 && reserve1[reserve1.size-1].type() == King) winner = P1;
+            } else {
+                if(reserve2.size > 0 && reserve2[reserve2.size-1].type() == King) winner = P2;
+            }
         }
         return res;
     }
@@ -90,10 +135,10 @@ public:
         return hasWinner() || hasDraw();
     }
 
-    bool hasWinner() const { return hasWon(Color::P1) || hasWon(Color::P2); }
+    bool hasWinner() const { return winner != None; }
 
     bool hasDraw() const {
-        return history->hasDraw();
+        return (nbTurns == maxTurns) || history->hasDraw();
     }
 
     void swapPlayer() {
@@ -102,6 +147,8 @@ public:
     }
 
 };
+
+// static_assert(sizeof(GameState) == 40);
 
 
 // A piece can have at most 15 different positions (12 on board, one for each reserve, one for nonexistent (SP))
@@ -117,23 +164,23 @@ public:
 struct GameStateHash {
 
     GameStateHash(const GameState& state) : value(0) {
-        short kings = 0, towers = 0, rooks = 0, pawns = 0, superpawns = 0;
+        short kings = 0, towers = 0, bishops = 0, pawns = 0, superpawns = 0;
         auto pieceHash = [&](Piece p, short position) {
             short value = 2*position+(p.color() == P1);
             if(p.type() == King)      { value <<= 4*(2*4+kings); ++kings; }
             if(p.type() == Tower)     { value <<= 4*(2*3+towers); ++towers; }
-            if(p.type() == Rook)      { value <<= 4*(2*2+rooks); ++rooks; }
+            if(p.type() == Bishop)    { value <<= 4*(2*2+bishops); ++bishops; }
             if(p.type() == Pawn)      { value <<= 4*(2*1+pawns); ++pawns; }
             if(p.type() == SuperPawn) { value <<= 4*(2*0+superpawns); ++superpawns; }
             return value;
         };
-        for(int i = 0; i < 12; ++i) {
-            value |= pieceHash(state.board[i], 1+i);
+        for(uint8_t i = 0; i < 12; ++i) {
+            value |= pieceHash(state.board.get(i), 1+i);
         }
-        for(int i = 0; i < state.reserve1.size; ++i) {
+        for(uint8_t i = 0; i < state.reserve1.size; ++i) {
             value |= pieceHash(state.reserve1[i], 13);
         }
-        for(int i = 0; i < state.reserve2.size; ++i) {
+        for(uint8_t i = 0; i < state.reserve2.size; ++i) {
             value |= pieceHash(state.reserve2[i], 14);
         }
         value = 2*value + (state.currentPlayer == P1);

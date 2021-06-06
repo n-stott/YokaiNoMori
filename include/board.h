@@ -3,31 +3,23 @@
 
 #include "piece.h"
 #include "enums.h"
-#include <string>
 #include <algorithm>
+#include <cstring>
 
 struct Board {
 
-    // Board() :
-    //     pieces({
-    //         Piece(Tower, P2), Piece(King, P2), Piece(Rook, P2),
-    //         Piece(),          Piece(Pawn, P2), Piece(),
-    //         Piece(),          Piece(Pawn, P1), Piece(),
-    //         Piece(Rook, P1),  Piece(King, P1), Piece(Tower, P1)
-    //     })
-    // { }
-
     Board() :
         pieces({
-            Piece(Rook, P2), Piece(King, P2), Piece(Tower, P2),
-            Piece(),          Piece(Pawn, P2), Piece(),
-            Piece(),          Piece(Pawn, P1), Piece(),
-            Piece(Tower, P1),  Piece(King, P1), Piece(Rook, P1)
+            Piece(Bishop, P2), Piece(King, P2), Piece(Tower, P2),
+            Piece(),           Piece(Pawn, P2), Piece(),
+            Piece(),           Piece(Pawn, P1), Piece(),
+            Piece(Tower, P1),  Piece(King, P1), Piece(Bishop, P1)
         })
     { }
 
-    Board(const std::string& board) {
-        for(size_t i = 0; i < std::min(board.size(), 12ul); ++i) {
+    Board(const char* board) {
+        assert(std::strlen(board) == 12);
+        for(size_t i = 0; i < 12; ++i) {
             pieces[i] = Piece(board[i]);
         }
     }
@@ -35,8 +27,8 @@ struct Board {
     const Piece* begin() const noexcept { return pieces.begin(); }
     const Piece* end() const noexcept { return pieces.end(); }
 
-    const Piece& operator[](int i) const { return pieces[i]; }
-    Piece& operator[](int i) { return pieces[i]; }
+    Piece get(uint8_t i) const { return pieces[i]; }
+    void  set(uint8_t i, Piece p) { pieces[i] = p; }
 
     using hash_t = unsigned int;
 

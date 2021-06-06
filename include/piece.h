@@ -11,11 +11,18 @@ class Piece {
 private:
     uint8_t data_;
 
-public:
-    constexpr Piece() noexcept : data_(0) {}
-    constexpr Piece(PieceType pt, Color c) noexcept : data_( pt | (c << 4) ) {}
+    static constexpr uint8_t Empty = 0;
 
-    constexpr explicit Piece(char asChar) noexcept : data_(0) {
+    static_assert(P1 == 0);
+    static_assert(P2 == 1);
+
+public:
+    constexpr Piece() noexcept : data_(Empty) {}
+    constexpr Piece(PieceType pt, Color c) noexcept : data_( c | (pt << 1) ) {}
+
+    constexpr explicit Piece(int data) : data_(data) { }
+
+    constexpr explicit Piece(char asChar) noexcept : data_(Empty) {
         switch(asChar) {
             case '.': data_ = 0; return;
             case 'k': data_ = (P1 << 4) | King; return;
@@ -32,22 +39,26 @@ public:
         assert(false);
     }
 
-    constexpr bool empty() const noexcept { return data_ == 0; }
+    constexpr bool empty() const noexcept { return data_ == Empty; }
     
-    constexpr PieceType type() const noexcept { return (PieceType)(data_ & 0b0001111); }
-    constexpr Color color() const noexcept    { return (Color)(data_ >> 4); }
+    constexpr PieceType type() const noexcept { return (PieceType)(data_ >> 1); }
+    constexpr Color color() const noexcept    { return (Color)(data_ & 1); }
 
-    constexpr void setType(PieceType t) noexcept { data_ = (data_ & 0b11110000) | t; }
-    constexpr void setColor(Color c) noexcept { data_ = (data_ & 0b00001111) | (c << 4); }
+    constexpr void setType(PieceType pt) noexcept { data_ = (data_ & 1) | (pt << 1); }
+    constexpr void setColor(Color c) noexcept {
+        assert(c != None);
+        data_ = (data_ & ~1) | c;
+    }
 
     constexpr char toChar() const noexcept {
         char ret = '.';
         if(type() == King) ret = 'k';
         if(type() == Tower) ret = 't';
-        if(type() == Rook) ret = 'r';
+        if(type() == Bishop) ret = 'b';
         if(type() == Pawn) ret = 'p';
         if(type() == SuperPawn) ret = 's';
         if(color() == P2) ret -= 32;
+        if(empty()) ret = '.';
         return ret;
     }
 
@@ -60,14 +71,8 @@ public:
     }
 
     const AllowedMove::move_sets& moveSets() const {
-        if(type() == King) return AllowedMove::king;
-        if(type() == Tower) return AllowedMove::tower;
-        if(type() == Rook) return AllowedMove::rook;
-        if(color() == P1 && type() == Pawn) return AllowedMove::p1Pawn;
-        if(color() == P1 && type() == SuperPawn) return AllowedMove::p1SuperPawn;
-        if(color() == P2 && type() == Pawn) return AllowedMove::p2Pawn;
-        if(color() == P2 && type() == SuperPawn) return AllowedMove::p2SuperPawn;
-        return AllowedMove::empty;
+        assert(data_ < 12);
+        return allMoveSets[data_];
     }
 
     const AllowedMove::move_set& moveSet(Pos position) const {
@@ -76,7 +81,35 @@ public:
 
 private:
 
+    static constexpr static_vector<AllowedMove::move_sets, 12> allMoveSets {
+        AllowedMove::empty,
+        AllowedMove::empty,
+        AllowedMove::king,
+        AllowedMove::king,
+        AllowedMove::tower,
+        AllowedMove::tower,
+        AllowedMove::bishop,
+        AllowedMove::bishop,
+        AllowedMove::p1Pawn,
+        AllowedMove::p2Pawn,
+        AllowedMove::p1SuperPawn,
+        AllowedMove::p2SuperPawn
+    };
+
 };
+
+static_assert(Piece( 0).type() == NoType    && Piece(0).color() == P1);
+static_assert(Piece( 1).type() == NoType    && Piece(1).color() == P2);
+static_assert(Piece( 2).type() == King      && Piece(2).color() == P1);
+static_assert(Piece( 3).type() == King      && Piece(3).color() == P2);
+static_assert(Piece( 4).type() == Tower     && Piece(4).color() == P1);
+static_assert(Piece( 5).type() == Tower     && Piece(5).color() == P2);
+static_assert(Piece( 6).type() == Bishop    && Piece(6).color() == P1);
+static_assert(Piece( 7).type() == Bishop    && Piece(7).color() == P2);
+static_assert(Piece( 8).type() == Pawn      && Piece(8).color() == P1);
+static_assert(Piece( 9).type() == Pawn      && Piece(9).color() == P2);
+static_assert(Piece(10).type() == SuperPawn && Piece(10).color() == P1);
+static_assert(Piece(11).type() == SuperPawn && Piece(11).color() == P2);
 
 static_assert(sizeof(Piece) == 1);
 
