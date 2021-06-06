@@ -9,7 +9,7 @@
 template<Color c>
 struct Reserve {
 
-    std::array<Piece, 6> reserve;
+    std::array<Piece, 7> reserve;
     uint8_t size;
 
     Reserve() :
@@ -21,13 +21,15 @@ struct Reserve {
         reserve(),
         size(0)
     {
+        if(res.length() == 1 && res[0] == '.') return;
         for(size_t i = 0; i < res.size(); ++i) {
             push(Piece(res[i]));
-            if(size == 6) break;
+            if(size == 7) assert(false);
         }
     }
 
     void push(const Piece p) {
+        assert(size < 7);
         reserve[size] = p;
         reserve[size].setColor(c);
         size++;

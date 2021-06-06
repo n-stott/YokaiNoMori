@@ -16,6 +16,7 @@ std::string GameState::toString() const {
 std::string GameState::niceToString() const {
     std::string s;
     s += "-----------------\n";
+    s += (currentPlayer == P2 ? "> " : "  ");
     s += "Player B | ";
     s += reserve2.toString();
     s += '\n';
@@ -27,6 +28,7 @@ std::string GameState::niceToString() const {
     s += '\n';
     s += "  ABC\n";
     s += "-----------------\n";
+    s += (currentPlayer == P1 ? "> " : "  ");
     s += "Player a | ";
     s += reserve1.toString();
     s += '\n';

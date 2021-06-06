@@ -17,8 +17,7 @@ public:
 
     constexpr explicit Piece(char asChar) noexcept : data_(0) {
         switch(asChar) {
-            case 'e': data_ = 0; return;
-            case 'E': data_ = 0; return;
+            case '.': data_ = 0; return;
             case 'k': data_ = (P1 << 4) | King; return;
             case 't': data_ = (P1 << 4) | Tower; return;
             case 'r': data_ = (P1 << 4) | Rook; return;

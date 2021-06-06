@@ -248,14 +248,19 @@ void aivsAi(int depth1, int depth2) {
 }
 
 int main(int argc, char** argv) {
-    if(argc <= 1) return 0;
-    if(std::strcmp(argv[1], "1v1") == 0) {
+    if(argc <= 1) {
+        Logger::log(Verb::Std, []() {
+            return "Available game modes : --1v1, --1vAI, --AIvAI";
+        });
+        return 0;
+    }
+    if(std::strcmp(argv[1], "--1v1") == 0) {
         Logger::log(Verb::Std, [](){
             return "Starting 1v1 mode";
         });
         oneVsOne();
     }
-    if(std::strcmp(argv[1], "1vAI") == 0) {
+    if(std::strcmp(argv[1], "--1vAI") == 0) {
         if(argc <= 2) {
             Logger::log(Verb::Std, [](){
                 return "Usage : exe 1vAI depth";
@@ -270,10 +275,10 @@ int main(int argc, char** argv) {
         // oneVsAi<PureMinimax>(depth);
         oneVsAi<AlphaBeta>(depth);
     }
-    if(std::strcmp(argv[1], "AIvAI") == 0) {
+    if(std::strcmp(argv[1], "--AIvAI") == 0) {
         if(argc <= 3) {
             Logger::log(Verb::Std, [](){
-                return "Usage : exe AIvAI depth1 depth2";
+                return "Usage : exe --AIvAI depth1 depth2";
             });
             return 0;
         }
@@ -284,6 +289,74 @@ int main(int argc, char** argv) {
         });
         // aivsAi<PureMinimax>(d1, d2);
         aivsAi<AlphaBeta>(d1, d2);
+    }
+    if(argc >= 1 && std::strcmp(argv[1], "--interactive") == 0) {
+        if(argc <= 6) {
+            Logger::log(Verb::Std, [](){
+                return "Usage : exe --interactive boardstate reserve1 reserve2 currentplayer depth\nempty reserve = '.'";
+            });
+            return 0;
+        }
+
+        if(std::strlen(argv[2]) != 12) {
+            Logger::log(Verb::Std, []() { return "invalid board : must have 12 characters"; });
+        }
+
+        if(std::strlen(argv[3]) > 7) {
+            Logger::log(Verb::Std, []() { return "invalid reserve 1 : cannot have more than 7 pieces"; });
+        }
+
+        if(std::strlen(argv[4]) > 7) {
+            Logger::log(Verb::Std, []() { return "invalid reserve 2 : cannot have more than 7 pieces"; });
+        }
+
+        if (std::strlen(argv[5]) > 1) {
+            Logger::log(Verb::Std, []() { return "invalid player"; });
+            return 0;
+        }
+        char p = argv[5][0];
+        if (p != 'A' && 
+            p != 'a' && 
+            p != 'B' && 
+            p != 'b') {
+            Logger::log(Verb::Std, []() { return "invalid player"; });
+            return 0;
+        }
+        Color player = (p == 'A' || p == 'a') ? Color::P1 : Color::P2;
+
+        int depth = std::atoi(argv[6]);
+
+        GameHistory history;
+
+        GameState state(&history, argv[2], argv[3], argv[4], player);
+
+
+        Logger::log(Verb::Std, [&]() {
+            return state.niceToString();
+        });
+
+        Agent agent;
+        using MyMinimax = Minimax<Mode::AlphaBeta, Action, GameState, Agent, ActionOrdering>;
+
+        std::optional<Action> action;
+        MyMinimax search(state, agent, depth);
+        search.run();
+        action = search.bestAction;
+        if(action) {
+            Logger::log(Verb::Std, [&](){ return action->toString(); });
+        } else {
+            Logger::log(Verb::Std, [&]() {
+                std::string s;
+                s += "Player ";
+                s += p;
+                s += " did not find a suitable action";
+                return s;
+            });
+        }
+
+        Logger::log(Verb::Dev, [&]() {
+            return state.niceToString();
+        });
     }
     return 0;
 }
