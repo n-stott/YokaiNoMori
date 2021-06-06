@@ -167,8 +167,8 @@ void oneVsAi(int depth) {
             }
         } else {
             std::optional<Action> action;
-            MyMinimax search(state, agent, depth);
-            search.run();
+            MyMinimax search(state, agent);
+            search.run(depth);
             action = search.bestAction;
             if(action) {
                 state.apply(action.value());
@@ -212,13 +212,13 @@ void aivsAi(int depth1, int depth2) {
             });
         std::optional<Action> action;
         if(game.currentPlayer == P1) {
-            MyMinimax search1(game, agent1, depth1);
-            search1.run();
+            MyMinimax search1(game, agent1);
+            search1.run(depth1);
             action = search1.bestAction;
         }
         if(game.currentPlayer == P2) {
-            MyMinimax search2(game, agent2, depth2);
-            search2.run();
+            MyMinimax search2(game, agent2);
+            search2.run(depth2);
             action = search2.bestAction;
         }
         if(action) {
@@ -280,7 +280,7 @@ int main(int argc, char** argv) {
     if(std::strcmp(argv[1], "AIvAI") == 0) {
         if(argc <= 3) {
             Logger::log(Verb::Std, [](){
-                return "Usage : exe AIvAI depth1 depth2";
+                return "Usage : exe AIvAI depth1 depth2 [mode = pure(*) | alphabeta | iterdeepen]";
             });
             return 0;
         }
@@ -289,8 +289,15 @@ int main(int argc, char** argv) {
         Logger::log(Verb::Std, [&](){
             return "Starting AIvAI mode with depths : " + std::to_string(d1) + " vs " + std::to_string(d2);
         });
-        // aivsAi<PureMinimax>(d1, d2);
-        aivsAi<AlphaBeta>(d1, d2);
+        if(argc == 4 || (argc == 5 && std::strcmp(argv[4], "pure") == 0)) {
+            aivsAi<PureMinimax>(d1, d2);
+        }
+        if(argc == 5 && std::strcmp(argv[4], "alphabeta") == 0) {
+            aivsAi<AlphaBeta>(d1, d2);
+        }
+        if(argc == 5 && std::strcmp(argv[4], "iterdeepen") == 0) {
+            aivsAi<IterativeDeepening>(d1, d2);
+        }
     }
     return 0;
 }
