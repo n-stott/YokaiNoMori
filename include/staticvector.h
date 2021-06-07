@@ -51,6 +51,14 @@ public:
     constexpr const T& operator[](unsigned int i) const { return data_[i]; }
     constexpr T& operator[](unsigned int i) { return data_[i]; }
 
+    constexpr bool operator==(const static_vector<T, max_size>& other) const noexcept {
+        if(size() != other.size()) return false;
+        for(size_t i = 0; i < size(); ++i) {
+            if(!(data_[i] == other[i])) return false;
+        }
+        return true;
+    }
+
 private:
     std::array<T, max_size> data_;
     unsigned int size_;

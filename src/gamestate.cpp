@@ -92,7 +92,7 @@ bool GameState::allowedOffset(Piece p, Pos a, Pos b) {
     const PieceType pt = p.type();
     assert(c == P1 || c == P2);
     assert(pt != NoType);
-    auto& movesets = AllowedMove::get(c, pt);
+    auto& movesets = p.moveSets();
     auto& moveset = movesets[a.idx()];
     return std::find(moveset.begin(), moveset.end(), b.idx()) != moveset.end();
 

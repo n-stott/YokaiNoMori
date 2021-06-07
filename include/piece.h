@@ -51,15 +51,7 @@ public:
     }
 
     constexpr char toChar() const noexcept {
-        char ret = '.';
-        if(type() == King) ret = 'k';
-        if(type() == Tower) ret = 't';
-        if(type() == Bishop) ret = 'b';
-        if(type() == Pawn) ret = 'p';
-        if(type() == SuperPawn) ret = 's';
-        if(color() == P2) ret -= 32;
-        if(empty()) ret = '.';
-        return ret;
+        return charCodes[data_];
     }
 
     constexpr void promote() noexcept {
@@ -94,6 +86,21 @@ private:
         AllowedMove::p2Pawn,
         AllowedMove::p1SuperPawn,
         AllowedMove::p2SuperPawn
+    };
+
+    static constexpr static_vector<char, 12> charCodes {
+        '.',
+        '.',
+        'k',
+        'K',
+        't',
+        'T',
+        'b',
+        'B',
+        'p',
+        'P',
+        's',
+        'S'
     };
 
 };

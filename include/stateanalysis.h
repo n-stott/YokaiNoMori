@@ -2,7 +2,6 @@
 #define BOARDANALYSIS_H
 
 #include "gamestate.h"
-#include "allowedmove.h"
 #include <bitset>
 #include <cassert>
 #include <array>
@@ -51,12 +50,12 @@ struct StateAnalysis {
             if(piece.color() == Color::P1) {
                 occupied1[pos] = 1;
                 ++onBoard1[(int)piece.type()];
-                for(Pos npos : AllowedMove::get(piece.color(), piece.type())[pos]) {
+                for(Pos npos : piece.moveSet(pos)) {
                     controlled1[npos.idx()] = 1;
                 }
                 if(piece.type() == PieceType::King) {
                     kingPosition1[pos] = 1;
-                    for(Pos npos : AllowedMove::get(piece.color(), piece.type())[pos]) {
+                    for(Pos npos : piece.moveSet(pos)) {
                         kingControl1[npos.idx()] = 1;
                     }
                 }
@@ -64,12 +63,12 @@ struct StateAnalysis {
             if(piece.color() == Color::P2) {
                 occupied2[pos] = 1;
                 ++onBoard2[(int)piece.type()];
-                for(Pos npos : AllowedMove::get(piece.color(), piece.type())[pos]) {
+                for(Pos npos : piece.moveSet(pos)) {
                     controlled2[npos.idx()] = 1;
                 }
                 if(piece.type() == PieceType::King) {
                     kingPosition2[pos] = 1;
-                    for(Pos npos : AllowedMove::get(piece.color(), piece.type())[pos]) {
+                    for(Pos npos : piece.moveSet(pos)) {
                         kingControl2[npos.idx()] = 1;
                     }
                 }
