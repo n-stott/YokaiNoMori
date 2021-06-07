@@ -9,7 +9,8 @@ enum PieceType : char {
     Tower,
     Bishop,
     Pawn,
-    SuperPawn
+    SuperPawn,
+    ArchBishop,
 };
 
 enum Color : char {

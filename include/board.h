@@ -11,12 +11,26 @@ using board_hash_t = unsigned int;
 template<unsigned int rows, unsigned int cols>
 struct Board {
 
+    template<unsigned int R = rows, unsigned int C = cols> requires(R == 4 && C == 3)
     Board() :
         pieces({
             Piece(Bishop, P2), Piece(King, P2), Piece(Tower, P2),
             Piece(),           Piece(Pawn, P2), Piece(),
             Piece(),           Piece(Pawn, P1), Piece(),
             Piece(Tower, P1),  Piece(King, P1), Piece(Bishop, P1)
+        })
+    { }
+
+
+    template<unsigned int R = rows, unsigned int C = cols> requires(R == 6 && C == 5)
+    Board() :
+        pieces({
+            Piece(ArchBishop, P2), Piece(SuperPawn, P2), Piece(King, P2), Piece(SuperPawn, P2), Piece(ArchBishop, P2), 
+            Piece(),               Piece(),              Piece(),         Piece(),              Piece(),
+            Piece(),               Piece(Pawn, P2),      Piece(Pawn, P2), Piece(Pawn, P2),      Piece(),
+            Piece(),               Piece(Pawn, P1),      Piece(Pawn, P1), Piece(Pawn, P1),      Piece(),
+            Piece(),               Piece(),              Piece(),         Piece(),              Piece(),
+            Piece(ArchBishop, P1), Piece(SuperPawn, P1), Piece(King, P1), Piece(SuperPawn, P1), Piece(ArchBishop, P1)
         })
     { }
 

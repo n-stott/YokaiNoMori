@@ -13,8 +13,8 @@ struct GameConfig<BoardConfig::Easy> {
 
 template<>
 struct GameConfig<BoardConfig::Medium> {
-    static constexpr unsigned int rows = 5;
-    static constexpr unsigned int cols = 6;
+    static constexpr unsigned int rows = 6;
+    static constexpr unsigned int cols = 5;
     static constexpr unsigned int ressize = 15;
 };
 

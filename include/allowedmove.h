@@ -64,6 +64,10 @@ struct AllowedMove {
             return false;
         };
 
+        auto archbishop_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
+            return bishop_valid_move(xsrc, ysrc, xdst, ydst) || pawn_valid_move(xsrc, ysrc, xdst, ydst);
+        };
+
         int i = 0;
         for(int i = 0; i < rows*cols; ++i) {
             move_set& movesAtPos = moveSet[i];
@@ -85,6 +89,9 @@ struct AllowedMove {
                     movesAtPos.emplace_back(j);
                 }
                 if(pt == PieceType::SuperPawn && superpawn_valid_move(xsrc, ysrc, xdst, ydst)) {
+                    movesAtPos.emplace_back(j);
+                }
+                if(pt == PieceType::ArchBishop && archbishop_valid_move(xsrc, ysrc, xdst, ydst)) {
                     movesAtPos.emplace_back(j);
                 }
             }
