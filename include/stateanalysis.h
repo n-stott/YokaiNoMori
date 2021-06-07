@@ -2,6 +2,7 @@
 #define BOARDANALYSIS_H
 
 #include "gamestate.h"
+#include "gamelogic.h"
 #include <bitset>
 #include <cassert>
 #include <array>
@@ -29,7 +30,8 @@ struct StateAnalysis {
     std::array<short, 6> inReserve2;
 
 
-    StateAnalysis(const GameState& state) :
+    template<BoardConfig config>
+    StateAnalysis(const GameState<config>& state) :
         occupied1(),
         occupied2(),
         controlled1(),
@@ -45,17 +47,19 @@ struct StateAnalysis {
     {
         std::fill(onBoard1.begin(), onBoard1.end(), 0);
         std::fill(onBoard2.begin(), onBoard2.end(), 0);
+        constexpr unsigned int rows = GameConfig<config>::rows;
+        constexpr unsigned int cols = GameConfig<config>::cols;
         size_t pos = 0;
         for(Piece piece : state.board) {
             if(piece.color() == Color::P1) {
                 occupied1[pos] = 1;
                 ++onBoard1[(int)piece.type()];
-                for(Pos npos : piece.moveSet(pos)) {
+                for(Pos npos : GameLogic<rows, cols>::moveSet(piece, pos)) {
                     controlled1[npos.idx()] = 1;
                 }
                 if(piece.type() == PieceType::King) {
                     kingPosition1[pos] = 1;
-                    for(Pos npos : piece.moveSet(pos)) {
+                    for(Pos npos : GameLogic<rows, cols>::moveSet(piece, pos)) {
                         kingControl1[npos.idx()] = 1;
                     }
                 }
@@ -63,12 +67,12 @@ struct StateAnalysis {
             if(piece.color() == Color::P2) {
                 occupied2[pos] = 1;
                 ++onBoard2[(int)piece.type()];
-                for(Pos npos : piece.moveSet(pos)) {
+                for(Pos npos : GameLogic<rows, cols>::moveSet(piece, pos)) {
                     controlled2[npos.idx()] = 1;
                 }
                 if(piece.type() == PieceType::King) {
                     kingPosition2[pos] = 1;
-                    for(Pos npos : piece.moveSet(pos)) {
+                    for(Pos npos : GameLogic<rows, cols>::moveSet(piece, pos)) {
                         kingControl2[npos.idx()] = 1;
                     }
                 }

@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <cstring>
 
+using board_hash_t = unsigned int;
+
+template<unsigned int rows, unsigned int cols>
 struct Board {
 
     Board() :
@@ -18,8 +21,8 @@ struct Board {
     { }
 
     Board(const char* board) {
-        assert(std::strlen(board) == 12);
-        for(size_t i = 0; i < 12; ++i) {
+        assert(std::strlen(board) == rows*cols);
+        for(size_t i = 0; i < rows*cols; ++i) {
             pieces[i] = Piece(board[i]);
         }
     }
@@ -30,16 +33,14 @@ struct Board {
     Piece get(uint8_t i) const { return pieces[i]; }
     void  set(uint8_t i, Piece p) { pieces[i] = p; }
 
-    using hash_t = unsigned int;
-
-    hash_t hash() const {
-        hash_t value = 0;
-        for(unsigned int i = 0; i < 12; ++i) value = (i > 0 ? 6 : 1) * value + static_cast<int>(pieces[i].type());
+    board_hash_t hash() const {
+        board_hash_t value = 0;
+        for(unsigned int i = 0; i < rows*cols; ++i) value = (i > 0 ? 6 : 1) * value + static_cast<int>(pieces[i].type());
         return value;
     }
 
 private:
-    std::array<Piece, 12> pieces;
+    std::array<Piece, rows*cols> pieces;
 
 };
 

@@ -14,6 +14,7 @@ struct ActionOrdering {
     ActionSet* const actions;
     static_vector<double, 64> scores;
 
+    template<typename GameState>
     ActionOrdering(ActionSet* actions, const GameState& state) :
         actions(actions)
     {
@@ -44,6 +45,7 @@ struct ActionOrdering {
 
 private:
 
+    template<typename GameState>
     static double score1(const Action& action, const GameState& state, const StateAnalysis& analyzer) {
         double score = 0;
         if(action.type == ActionType::Move) {
@@ -55,6 +57,7 @@ private:
         return score;
     }
 
+    template<typename GameState>
     static double score2(const Action& action, const GameState& state, const StateAnalysis& analyzer) {
         double score = 0;
         if(action.type == ActionType::Move) {

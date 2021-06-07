@@ -115,7 +115,7 @@ std::optional<Action> readAction(Color player) {
 
 void oneVsOne() {
     GameHistory history;
-    GameState state(&history);
+    GameState<Easy> state(&history);
     while(!state.hasWinner()) {
         Logger::log(Verb::Std, [&]() {
             std::string s;
@@ -144,10 +144,10 @@ void oneVsAi(int depth) {
     depth = std::max(0, std::min(20, depth));
 
     GameHistory history;
-    GameState state(&history);
+    GameState<Easy> state(&history);
     Agent agent;
 
-    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
+    using MyMinimax = Minimax<mode, Action, GameState<Easy>, Agent, ActionOrdering>;
 
     while(!state.gameOver()) {
         Logger::log(Verb::Std, [&]() { return state.niceToString(); });
@@ -191,14 +191,14 @@ void oneVsAi(int depth) {
 template<Mode mode>
 void aivsAi(int depth1, int depth2) {
     GameHistory history;
-    GameState game(&history);
+    GameState<Easy> game(&history);
     Agent agent1;
     Agent agent2;
 
     depth1 = std::max(0, std::min(20, depth1));
     depth2 = std::max(0, std::min(20, depth2));
 
-    using MyMinimax = Minimax<mode, Action, GameState, Agent, ActionOrdering>;
+    using MyMinimax = Minimax<mode, Action, GameState<Easy>, Agent, ActionOrdering>;
 
     while(!game.gameOver()) {
         Logger::log(Verb::Std,
@@ -342,7 +342,7 @@ int main(int argc, char** argv) {
 
         GameHistory history;
 
-        GameState state(&history, argv[2], argv[3], argv[4], player);
+        GameState<Easy> state(&history, argv[2], argv[3], argv[4], player);
 
 
         Logger::log(Verb::Std, [&]() {
@@ -350,7 +350,7 @@ int main(int argc, char** argv) {
         });
 
         Agent agent;
-        using MyMinimax = Minimax<Mode::AlphaBeta, Action, GameState, Agent, ActionOrdering>;
+        using MyMinimax = Minimax<Mode::AlphaBeta, Action, GameState<Easy>, Agent, ActionOrdering>;
 
         std::optional<Action> action;
         MyMinimax search(state, agent);

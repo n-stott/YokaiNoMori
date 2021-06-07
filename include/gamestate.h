@@ -11,10 +11,33 @@
 #include <string>
 #include <minimax/logger.h>
 
+template<BoardConfig config>
+struct GameConfig;
+
+template<>
+struct GameConfig<BoardConfig::Easy> {
+    static constexpr unsigned int rows = 4;
+    static constexpr unsigned int cols = 3;
+    static constexpr unsigned int ressize = 7;
+};
+
+template<>
+struct GameConfig<BoardConfig::Medium> {
+    static constexpr unsigned int rows = 5;
+    static constexpr unsigned int cols = 6;
+    static constexpr unsigned int ressize = 15;
+};
+
+template<BoardConfig config>
 struct GameState {
-    Board board;
-    Reserve<P1> reserve1;
-    Reserve<P2> reserve2;
+
+    static constexpr unsigned int rows = GameConfig<config>::rows;
+    static constexpr unsigned int cols = GameConfig<config>::cols;
+    static constexpr unsigned int ressize = GameConfig<config>::ressize;
+
+    Board<rows, cols> board;
+    Reserve<P1, ressize> reserve1;
+    Reserve<P2, ressize> reserve2;
     Color currentPlayer;
     Color winner;
     uint8_t nbTurns;
@@ -128,8 +151,15 @@ public:
     bool drop(Piece p, Pos res, Pos dst);
     static bool allowedOffset(Piece p, Pos a, Pos b);
 
-    bool hasWon(Color player) const;
-    bool hasLost(Color player) const;
+    inline bool hasWon(Color player) const { return winner == player; }
+
+    inline bool hasLost(Color player) const {
+        if(player == Color::P1) {
+            return hasWon(Color::P2);
+        } else {
+            return hasWon(Color::P1);
+        }
+    }
 
     bool gameOver() const {
         return hasWinner() || hasDraw();
@@ -148,6 +178,8 @@ public:
 
 };
 
+
+
 // static_assert(sizeof(GameState) == 40);
 
 
@@ -163,6 +195,7 @@ public:
 
 struct GameStateHash {
 
+    template<typename GameState>
     GameStateHash(const GameState& state) : value(0) {
         short kings = 0, towers = 0, bishops = 0, pawns = 0, superpawns = 0;
         auto pieceHash = [&](Piece p, short position) {

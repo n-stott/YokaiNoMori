@@ -1,9 +1,10 @@
 #include "gamestate.h"
-#include "allowedmove.h"
+#include "gamelogic.h"
 #include <algorithm>
 #include <bitset>
 
-bool GameState::checkMove(Piece p, Pos a, Pos b) const {
+template<BoardConfig config>
+bool GameState<config>::checkMove(Piece p, Pos a, Pos b) const {
     if(nbTurns >= maxTurns) return false;
     if(hasWon(P1) || hasWon(P2)) return false;
     if(a.valid() == false) return false;
@@ -23,7 +24,8 @@ bool GameState::checkMove(Piece p, Pos a, Pos b) const {
     return true;
 }
 
-bool GameState::checkDrop(Piece p, Pos res, Pos a) const {
+template<BoardConfig config>
+bool GameState<config>::checkDrop(Piece p, Pos res, Pos a) const {
     if(nbTurns >= maxTurns) return false;
     if(hasWinner()) return false;
     if(a.valid() == false) return false;
@@ -57,7 +59,8 @@ bool GameState::checkDrop(Piece p, Pos res, Pos a) const {
 }
 
 
-bool GameState::allowedMove(Piece p, Pos a, Pos b) const {
+template<BoardConfig config>
+bool GameState<config>::allowedMove(Piece p, Pos a, Pos b) const {
     // Checks that the move is not clearly illegal
     assert(a.valid());
     assert(b.valid());
@@ -85,20 +88,22 @@ bool GameState::allowedMove(Piece p, Pos a, Pos b) const {
     return true;
 }
 
-bool GameState::allowedOffset(Piece p, Pos a, Pos b) {
+template<BoardConfig config>
+bool GameState<config>::allowedOffset(Piece p, Pos a, Pos b) {
     assert(a.valid());
     assert(b.valid());
     const Color c = p.color();
     const PieceType pt = p.type();
     assert(c == P1 || c == P2);
     assert(pt != NoType);
-    auto& movesets = p.moveSets();
+    auto& movesets = GameLogic<rows, cols>::moveSets(p);
     auto& moveset = movesets[a.idx()];
     return std::find(moveset.begin(), moveset.end(), b.idx()) != moveset.end();
 
 }
 
-bool GameState::move(Piece p, Pos a, Pos b) {
+template<BoardConfig config>
+bool GameState<config>::move(Piece p, Pos a, Pos b) {
     assert(allowedMove(p, a, b));
     assert(allowedOffset(p, a, b));
     Piece src = board.get(a.idx()); 
@@ -125,7 +130,8 @@ bool GameState::move(Piece p, Pos a, Pos b) {
     return true;
 }
 
-bool GameState::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
+template<BoardConfig config>
+bool GameState<config>::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
     assert(a.valid());
     Color c = p.color();
     PieceType pt = p.type();
@@ -160,7 +166,8 @@ bool GameState::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
     return true;
 }
 
-bool GameState::drop(Piece p, Pos res, Pos dst) {
+template<BoardConfig config>
+bool GameState<config>::drop(Piece p, Pos res, Pos dst) {
     uint8_t posInReserve = res.idx();
     assert(allowedDrop(p, posInReserve, dst.idx()));
     const Color c = p.color();
@@ -176,20 +183,8 @@ bool GameState::drop(Piece p, Pos res, Pos dst) {
     return true;
 }
 
-
-bool GameState::hasWon(Color player) const {
-    return winner == player;
-}
-
-bool GameState::hasLost(Color player) const {
-    if(player == Color::P1) {
-        return hasWon(Color::P2);
-    } else {
-        return hasWon(Color::P1);
-    }
-}
-
-void GameState::fillAllowedActions(ActionSet* actions) const {
+template<BoardConfig config>
+void GameState<config>::fillAllowedActions(ActionSet* actions) const {
     actions->clear();
     actions->reserve(64);
 
@@ -200,7 +195,7 @@ void GameState::fillAllowedActions(ActionSet* actions) const {
         const Piece p = board.get(i);
         const Pos src(i);
         if(p.color() != currentPlayer) continue;
-        for(Pos dst : p.moveSet(src)) {
+        for(Pos dst : GameLogic<rows, cols>::moveSet(p, src)) {
             if(dst.valid() == false) continue;
             if(allowedMove(p, src, dst) == false) continue;
             actions->push_back(Action::move(p, src, dst));
@@ -237,3 +232,6 @@ void GameState::fillAllowedActions(ActionSet* actions) const {
         }
     }
 }
+
+template class GameState<Easy>;
+template class GameState<Medium>;

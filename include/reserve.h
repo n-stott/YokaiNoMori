@@ -6,10 +6,10 @@
 #include <cassert>
 #include <string>
 
-template<Color c>
+template<Color c, unsigned int ressize>
 struct Reserve {
 
-    std::array<Piece, 7> reserve;
+    std::array<Piece, ressize> reserve;
     uint8_t size;
 
     Reserve() :
@@ -24,12 +24,12 @@ struct Reserve {
         if(res.length() == 1 && res[0] == '.') return;
         for(size_t i = 0; i < res.size(); ++i) {
             push(Piece(res[i]));
-            if(size == 7) assert(false);
+            if(size == ressize) assert(false);
         }
     }
 
     void push(const Piece p) {
-        assert(size < 7);
+        assert(size < ressize);
         reserve[size] = p;
         reserve[size].setColor(c);
         size++;

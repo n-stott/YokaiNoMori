@@ -23,5 +23,9 @@ enum ActionType : char {
     Drop
 };
 
+enum BoardConfig : char {
+    Easy,
+    Medium   
+};
 
 #endif
