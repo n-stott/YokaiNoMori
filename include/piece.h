@@ -62,30 +62,30 @@ public:
         if(type() == SuperPawn) setType(Pawn);
     }
 
-    inline const AllowedMove::move_sets& moveSets() const {
+    inline const AllowedMove<4, 3>::move_sets& moveSets() const {
         assert(data_ < 12);
         return allMoveSets[data_];
     }
 
-    inline const AllowedMove::move_set& moveSet(Pos position) const {
+    inline const AllowedMove<4, 3>::move_set& moveSet(Pos position) const {
         return moveSets()[position.idx()];
     }
 
 private:
 
-    static constexpr static_vector<AllowedMove::move_sets, 12> allMoveSets {
-        AllowedMove::computeMoveSets(PieceType::NoType   , Color::P1),
-        AllowedMove::computeMoveSets(PieceType::NoType   , Color::P2),
-        AllowedMove::computeMoveSets(PieceType::King     , Color::P1),
-        AllowedMove::computeMoveSets(PieceType::King     , Color::P2),
-        AllowedMove::computeMoveSets(PieceType::Tower    , Color::P1),
-        AllowedMove::computeMoveSets(PieceType::Tower    , Color::P2),
-        AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P1),
-        AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P2),
-        AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P1),
-        AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P2),
-        AllowedMove::computeMoveSets(PieceType::SuperPawn, Color::P1),
-        AllowedMove::computeMoveSets(PieceType::SuperPawn, Color::P2)
+    static constexpr static_vector<AllowedMove<4, 3>::move_sets, 12> allMoveSets {
+        AllowedMove<4, 3>::computeMoveSets(PieceType::NoType   , Color::P1),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::NoType   , Color::P2),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::King     , Color::P1),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::King     , Color::P2),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::Tower    , Color::P1),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::Tower    , Color::P2),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::Bishop   , Color::P1),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::Bishop   , Color::P2),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::Pawn     , Color::P1),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::Pawn     , Color::P2),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::SuperPawn, Color::P1),
+        AllowedMove<4, 3>::computeMoveSets(PieceType::SuperPawn, Color::P2)
     };
 
     static constexpr static_vector<char, 12> charCodes {

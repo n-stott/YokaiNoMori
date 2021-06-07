@@ -7,19 +7,21 @@
 #include <cstdint>
 #include <algorithm>
 
+// for rows = 4, cols = 3
 // 0  1  2
 // 3  4  5
 // 6  7  8
 // 9  10 11
 
+template<unsigned int rows, unsigned int cols>
 struct AllowedMove {
 
     using move_set = static_vector<Pos, 8>;
-    using move_sets = static_vector<move_set, 12>;
+    using move_sets = static_vector<move_set, rows*cols>;
 
     static constexpr move_sets computeMoveSets(PieceType pt, Color player) {
         move_sets moveSet;
-        for(size_t i = 0; i < 12; ++i) moveSet.emplace_back();
+        for(size_t i = 0; i < rows*cols; ++i) moveSet.emplace_back();
 
         auto king_valid_move = [](int xsrc, int ysrc, int xdst, int ydst) {
             return (xsrc != xdst || ysrc != ydst) && 
@@ -59,13 +61,13 @@ struct AllowedMove {
         };
 
         int i = 0;
-        for(int i = 0; i < 12; ++i) {
+        for(int i = 0; i < rows*cols; ++i) {
             move_set& movesAtPos = moveSet[i];
-            int xsrc = i%3;
-            int ysrc = i/3;
-            for(int j = 0; j < 12; ++j) {
-                int xdst = j%3;
-                int ydst = j/3;
+            int xsrc = i%cols;
+            int ysrc = i/cols;
+            for(int j = 0; j < rows*cols; ++j) {
+                int xdst = j%cols;
+                int ydst = j/cols;
                 if(pt == PieceType::King && king_valid_move(xsrc, ysrc, xdst, ydst)) {
                     movesAtPos.emplace_back(j);
                 }
@@ -86,6 +88,14 @@ struct AllowedMove {
 
         return moveSet;
     }
+
+};
+
+#ifndef NDEBUG
+namespace {
+
+    using move_set = static_vector<Pos, 8>;
+    using move_sets = static_vector<move_set, 12>;
 
     static constexpr move_sets empty { 
         {}, {}, {}, 
@@ -136,20 +146,22 @@ struct AllowedMove {
         { 3, 7, 9, 10}, { 4, 6, 8, 9, 10, 11}, { 5, 7, 10, 11 },
         { 6, 10},       { 7, 9, 11 },          { 8, 10 }
     };
-};
 
 
-static_assert(AllowedMove::empty       == AllowedMove::computeMoveSets(PieceType::NoType   , Color::P1));
-static_assert(AllowedMove::empty       == AllowedMove::computeMoveSets(PieceType::NoType   , Color::P2));
-static_assert(AllowedMove::king        == AllowedMove::computeMoveSets(PieceType::King     , Color::P1));
-static_assert(AllowedMove::king        == AllowedMove::computeMoveSets(PieceType::King     , Color::P2));
-static_assert(AllowedMove::tower       == AllowedMove::computeMoveSets(PieceType::Tower    , Color::P1));
-static_assert(AllowedMove::tower       == AllowedMove::computeMoveSets(PieceType::Tower    , Color::P2));
-static_assert(AllowedMove::bishop      == AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P1));
-static_assert(AllowedMove::bishop      == AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P2));
-static_assert(AllowedMove::p1Pawn      == AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P1));
-static_assert(AllowedMove::p2Pawn      == AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P2));
-static_assert(AllowedMove::p1SuperPawn == AllowedMove::computeMoveSets(PieceType::SuperPawn, Color::P1));
-static_assert(AllowedMove::p2SuperPawn == AllowedMove::computeMoveSets(PieceType::SuperPawn, Color::P2));
+    static_assert(empty       == AllowedMove<4, 3>::computeMoveSets(PieceType::NoType   , Color::P1));
+    static_assert(empty       == AllowedMove<4, 3>::computeMoveSets(PieceType::NoType   , Color::P2));
+    static_assert(king        == AllowedMove<4, 3>::computeMoveSets(PieceType::King     , Color::P1));
+    static_assert(king        == AllowedMove<4, 3>::computeMoveSets(PieceType::King     , Color::P2));
+    static_assert(tower       == AllowedMove<4, 3>::computeMoveSets(PieceType::Tower    , Color::P1));
+    static_assert(tower       == AllowedMove<4, 3>::computeMoveSets(PieceType::Tower    , Color::P2));
+    static_assert(bishop      == AllowedMove<4, 3>::computeMoveSets(PieceType::Bishop   , Color::P1));
+    static_assert(bishop      == AllowedMove<4, 3>::computeMoveSets(PieceType::Bishop   , Color::P2));
+    static_assert(p1Pawn      == AllowedMove<4, 3>::computeMoveSets(PieceType::Pawn     , Color::P1));
+    static_assert(p2Pawn      == AllowedMove<4, 3>::computeMoveSets(PieceType::Pawn     , Color::P2));
+    static_assert(p1SuperPawn == AllowedMove<4, 3>::computeMoveSets(PieceType::SuperPawn, Color::P1));
+    static_assert(p2SuperPawn == AllowedMove<4, 3>::computeMoveSets(PieceType::SuperPawn, Color::P2));
+
+}
+#endif
 
 #endif
