@@ -96,7 +96,7 @@ bool GameState<config>::allowedOffset(Piece p, Pos a, Pos b) {
     const PieceType pt = p.type();
     assert(c == P1 || c == P2);
     assert(pt != NoType);
-    auto& movesets = GameLogic<rows, cols>::moveSets(p);
+    auto& movesets = GameLogic<config>::moveSets(p);
     auto& moveset = movesets[a.idx()];
     return std::find(moveset.begin(), moveset.end(), b.idx()) != moveset.end();
 
@@ -195,7 +195,7 @@ void GameState<config>::fillAllowedActions(ActionSet* actions) const {
         const Piece p = board.get(i);
         const Pos src(i);
         if(p.color() != currentPlayer) continue;
-        for(Pos dst : GameLogic<rows, cols>::moveSet(p, src)) {
+        for(Pos dst : GameLogic<config>::moveSet(p, src)) {
             if(dst.valid() == false) continue;
             if(allowedMove(p, src, dst) == false) continue;
             actions->push_back(Action::move(p, src, dst));

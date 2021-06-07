@@ -4,6 +4,7 @@
 #include "staticvector.h"
 #include "pos.h"
 #include "enums.h"
+#include "gameconfig.h"
 #include <cstdint>
 #include <algorithm>
 
@@ -13,8 +14,11 @@
 // 6  7  8
 // 9  10 11
 
-template<unsigned int rows, unsigned int cols>
+template<BoardConfig config>
 struct AllowedMove {
+
+    static constexpr unsigned int rows = GameConfig<config>::rows;
+    static constexpr unsigned int cols = GameConfig<config>::cols;
 
     using move_set = static_vector<Pos, 8>;
     using move_sets = static_vector<move_set, rows*cols>;
@@ -148,18 +152,18 @@ namespace {
     };
 
 
-    static_assert(empty       == AllowedMove<4, 3>::computeMoveSets(PieceType::NoType   , Color::P1));
-    static_assert(empty       == AllowedMove<4, 3>::computeMoveSets(PieceType::NoType   , Color::P2));
-    static_assert(king        == AllowedMove<4, 3>::computeMoveSets(PieceType::King     , Color::P1));
-    static_assert(king        == AllowedMove<4, 3>::computeMoveSets(PieceType::King     , Color::P2));
-    static_assert(tower       == AllowedMove<4, 3>::computeMoveSets(PieceType::Tower    , Color::P1));
-    static_assert(tower       == AllowedMove<4, 3>::computeMoveSets(PieceType::Tower    , Color::P2));
-    static_assert(bishop      == AllowedMove<4, 3>::computeMoveSets(PieceType::Bishop   , Color::P1));
-    static_assert(bishop      == AllowedMove<4, 3>::computeMoveSets(PieceType::Bishop   , Color::P2));
-    static_assert(p1Pawn      == AllowedMove<4, 3>::computeMoveSets(PieceType::Pawn     , Color::P1));
-    static_assert(p2Pawn      == AllowedMove<4, 3>::computeMoveSets(PieceType::Pawn     , Color::P2));
-    static_assert(p1SuperPawn == AllowedMove<4, 3>::computeMoveSets(PieceType::SuperPawn, Color::P1));
-    static_assert(p2SuperPawn == AllowedMove<4, 3>::computeMoveSets(PieceType::SuperPawn, Color::P2));
+    static_assert(empty       == AllowedMove<Easy>::computeMoveSets(PieceType::NoType   , Color::P1));
+    static_assert(empty       == AllowedMove<Easy>::computeMoveSets(PieceType::NoType   , Color::P2));
+    static_assert(king        == AllowedMove<Easy>::computeMoveSets(PieceType::King     , Color::P1));
+    static_assert(king        == AllowedMove<Easy>::computeMoveSets(PieceType::King     , Color::P2));
+    static_assert(tower       == AllowedMove<Easy>::computeMoveSets(PieceType::Tower    , Color::P1));
+    static_assert(tower       == AllowedMove<Easy>::computeMoveSets(PieceType::Tower    , Color::P2));
+    static_assert(bishop      == AllowedMove<Easy>::computeMoveSets(PieceType::Bishop   , Color::P1));
+    static_assert(bishop      == AllowedMove<Easy>::computeMoveSets(PieceType::Bishop   , Color::P2));
+    static_assert(p1Pawn      == AllowedMove<Easy>::computeMoveSets(PieceType::Pawn     , Color::P1));
+    static_assert(p2Pawn      == AllowedMove<Easy>::computeMoveSets(PieceType::Pawn     , Color::P2));
+    static_assert(p1SuperPawn == AllowedMove<Easy>::computeMoveSets(PieceType::SuperPawn, Color::P1));
+    static_assert(p2SuperPawn == AllowedMove<Easy>::computeMoveSets(PieceType::SuperPawn, Color::P2));
 
 }
 #endif

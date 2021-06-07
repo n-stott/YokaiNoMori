@@ -9,9 +9,6 @@
 
 class Piece {
 private:
-    template<unsigned int rows, unsigned int cols>
-    friend class GameLogic;
-
     uint8_t data_;
 
     static constexpr uint8_t Empty = 0;
@@ -42,26 +39,28 @@ public:
         assert(false);
     }
 
-    constexpr inline bool empty() const noexcept { return data_ == Empty; }
-    
-    constexpr inline PieceType type() const noexcept { return (PieceType)(data_ >> 1); }
-    constexpr inline Color color() const noexcept    { return (Color)(data_ & 1); }
+    constexpr uint8_t id() const { return data_; }
 
-    constexpr inline void setType(PieceType pt) noexcept { data_ = (data_ & 1) | (pt << 1); }
-    constexpr inline void setColor(Color c) noexcept {
+    constexpr bool empty() const noexcept { return data_ == Empty; }
+    
+    constexpr PieceType type() const noexcept { return (PieceType)(data_ >> 1); }
+    constexpr Color color() const noexcept    { return (Color)(data_ & 1); }
+
+    constexpr void setType(PieceType pt) noexcept { data_ = (data_ & 1) | (pt << 1); }
+    constexpr void setColor(Color c) noexcept {
         assert(c != None);
         data_ = (data_ & ~1) | c;
     }
 
-    constexpr inline char toChar() const noexcept {
+    constexpr char toChar() const noexcept {
         return charCodes[data_];
     }
 
-    constexpr inline void promote() noexcept {
+    constexpr void promote() noexcept {
         if(type() == Pawn) setType(SuperPawn);
     }
 
-    constexpr inline void demote() noexcept {
+    constexpr void demote() noexcept {
         if(type() == SuperPawn) setType(Pawn);
     }
 
