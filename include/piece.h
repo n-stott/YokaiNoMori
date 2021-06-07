@@ -27,65 +27,65 @@ public:
             case '.': data_ = 0; return;
             case 'k': data_ = P1 | (King << 1); return;
             case 't': data_ = P1 | (Tower << 1); return;
-            case 'r': data_ = P1 | (Bishop << 1); return;
+            case 'b': data_ = P1 | (Bishop << 1); return;
             case 'p': data_ = P1 | (Pawn << 1); return;
             case 's': data_ = P1 | (SuperPawn << 1); return;
             case 'K': data_ = P2 | (King << 1); return;
             case 'T': data_ = P2 | (Tower << 1); return;
-            case 'R': data_ = P2 | (Bishop << 1); return;
+            case 'B': data_ = P2 | (Bishop << 1); return;
             case 'P': data_ = P2 | (Pawn << 1); return;
             case 'S': data_ = P2 | (SuperPawn << 1); return;
         }
         assert(false);
     }
 
-    constexpr bool empty() const noexcept { return data_ == Empty; }
+    constexpr inline bool empty() const noexcept { return data_ == Empty; }
     
-    constexpr PieceType type() const noexcept { return (PieceType)(data_ >> 1); }
-    constexpr Color color() const noexcept    { return (Color)(data_ & 1); }
+    constexpr inline PieceType type() const noexcept { return (PieceType)(data_ >> 1); }
+    constexpr inline Color color() const noexcept    { return (Color)(data_ & 1); }
 
-    constexpr void setType(PieceType pt) noexcept { data_ = (data_ & 1) | (pt << 1); }
-    constexpr void setColor(Color c) noexcept {
+    constexpr inline void setType(PieceType pt) noexcept { data_ = (data_ & 1) | (pt << 1); }
+    constexpr inline void setColor(Color c) noexcept {
         assert(c != None);
         data_ = (data_ & ~1) | c;
     }
 
-    constexpr char toChar() const noexcept {
+    constexpr inline char toChar() const noexcept {
         return charCodes[data_];
     }
 
-    constexpr void promote() noexcept {
+    constexpr inline void promote() noexcept {
         if(type() == Pawn) setType(SuperPawn);
     }
 
-    constexpr void demote() noexcept {
+    constexpr inline void demote() noexcept {
         if(type() == SuperPawn) setType(Pawn);
     }
 
-    const AllowedMove::move_sets& moveSets() const {
+    inline const AllowedMove::move_sets& moveSets() const {
         assert(data_ < 12);
         return allMoveSets[data_];
     }
 
-    const AllowedMove::move_set& moveSet(Pos position) const {
+    inline const AllowedMove::move_set& moveSet(Pos position) const {
         return moveSets()[position.idx()];
     }
 
 private:
 
     static constexpr static_vector<AllowedMove::move_sets, 12> allMoveSets {
-        AllowedMove::empty,
-        AllowedMove::empty,
-        AllowedMove::king,
-        AllowedMove::king,
-        AllowedMove::tower,
-        AllowedMove::tower,
-        AllowedMove::bishop,
-        AllowedMove::bishop,
-        AllowedMove::p1Pawn,
-        AllowedMove::p2Pawn,
-        AllowedMove::p1SuperPawn,
-        AllowedMove::p2SuperPawn
+        AllowedMove::computeMoveSets(PieceType::NoType   , Color::P1),
+        AllowedMove::computeMoveSets(PieceType::NoType   , Color::P2),
+        AllowedMove::computeMoveSets(PieceType::King     , Color::P1),
+        AllowedMove::computeMoveSets(PieceType::King     , Color::P2),
+        AllowedMove::computeMoveSets(PieceType::Tower    , Color::P1),
+        AllowedMove::computeMoveSets(PieceType::Tower    , Color::P2),
+        AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P1),
+        AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P2),
+        AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P1),
+        AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P2),
+        AllowedMove::computeMoveSets(PieceType::SuperPawn, Color::P1),
+        AllowedMove::computeMoveSets(PieceType::SuperPawn, Color::P2)
     };
 
     static constexpr static_vector<char, 12> charCodes {

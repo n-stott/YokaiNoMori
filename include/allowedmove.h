@@ -140,9 +140,13 @@ struct AllowedMove {
 
 
 static_assert(AllowedMove::empty       == AllowedMove::computeMoveSets(PieceType::NoType   , Color::P1));
+static_assert(AllowedMove::empty       == AllowedMove::computeMoveSets(PieceType::NoType   , Color::P2));
 static_assert(AllowedMove::king        == AllowedMove::computeMoveSets(PieceType::King     , Color::P1));
+static_assert(AllowedMove::king        == AllowedMove::computeMoveSets(PieceType::King     , Color::P2));
 static_assert(AllowedMove::tower       == AllowedMove::computeMoveSets(PieceType::Tower    , Color::P1));
+static_assert(AllowedMove::tower       == AllowedMove::computeMoveSets(PieceType::Tower    , Color::P2));
 static_assert(AllowedMove::bishop      == AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P1));
+static_assert(AllowedMove::bishop      == AllowedMove::computeMoveSets(PieceType::Bishop   , Color::P2));
 static_assert(AllowedMove::p1Pawn      == AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P1));
 static_assert(AllowedMove::p2Pawn      == AllowedMove::computeMoveSets(PieceType::Pawn     , Color::P2));
 static_assert(AllowedMove::p1SuperPawn == AllowedMove::computeMoveSets(PieceType::SuperPawn, Color::P1));
