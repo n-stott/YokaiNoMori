@@ -11,8 +11,8 @@ using board_hash_t = unsigned int;
 template<unsigned int rows, unsigned int cols>
 struct Board {
 
-    template<unsigned int R = rows, unsigned int C = cols> requires(R == 4 && C == 3)
-    Board() :
+    template<unsigned int R = rows, unsigned int C = cols>
+    Board(typename std::enable_if<R==4 && C==3>::type* = 0) :
         pieces({
             Piece(Bishop, P2), Piece(King, P2), Piece(Tower, P2),
             Piece(),           Piece(Pawn, P2), Piece(),
@@ -22,8 +22,8 @@ struct Board {
     { }
 
 
-    template<unsigned int R = rows, unsigned int C = cols> requires(R == 6 && C == 5)
-    Board() :
+    template<unsigned int R = rows, unsigned int C = cols>
+    Board(typename std::enable_if<R==6 && C==5>::type* = 0) :
         pieces({
             Piece(ArchBishop, P2), Piece(SuperPawn, P2), Piece(King, P2), Piece(SuperPawn, P2), Piece(ArchBishop, P2), 
             Piece(),               Piece(),              Piece(),         Piece(),              Piece(),

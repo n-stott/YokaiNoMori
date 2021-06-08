@@ -9,27 +9,28 @@
 #include <algorithm>
 
 
+template<BoardConfig config>
 struct ActionOrdering {
 
-    ActionSet* const actions;
+    ActionSet<config>* const actions;
     static_vector<double, 64> scores;
 
     template<typename GameState>
-    ActionOrdering(ActionSet* actions, const GameState& state) :
+    ActionOrdering(ActionSet<config>* actions, const GameState& state) :
         actions(actions)
     {
         StateAnalysis analyzer(state);
         scores.clear();
         scores.reserve(actions->size());
-        for(const Action& action : *actions) {
+        for(const Action<config>& action : *actions) {
             if(action.p.color() == P1) scores.push_back(score1(action, state, analyzer));
             if(action.p.color() == P2) scores.push_back(score2(action, state, analyzer));
         }
     }
 
     void sort() {
-        ActionSet& actionset = *actions;
-        static_vector<aspair, 64> actionScores;
+        ActionSet<config>& actionset = *actions;
+        static_vector<aspair<config>, 64> actionScores;
 
         const size_t size = scores.size();
         actionScores.clear();
@@ -37,7 +38,7 @@ struct ActionOrdering {
         for(size_t i = 0; i < size; ++i) {
             actionScores.emplace_back(std::make_pair(actionset[i], scores[i]));
         }
-        std::sort(actionScores.begin(), actionScores.end(), [](const aspair& a, const aspair& b) { return a.second > b.second; });
+        std::sort(actionScores.begin(), actionScores.end(), [](const aspair<config>& a, const aspair<config>& b) { return a.second > b.second; });
         for(size_t i = 0; i < size; ++i) {
             actionset[i] = actionScores[i].first;
         }
@@ -46,7 +47,7 @@ struct ActionOrdering {
 private:
 
     template<typename GameState>
-    static double score1(const Action& action, const GameState& state, const StateAnalysis& analyzer) {
+    static double score1(const Action<config>& action, const GameState& state, const StateAnalysis& analyzer) {
         double score = 0;
         if(action.type == ActionType::Move) {
             if(action.p.type() == King && analyzer.controlled2[action.dst.idx()]) score -= 100;
@@ -58,7 +59,7 @@ private:
     }
 
     template<typename GameState>
-    static double score2(const Action& action, const GameState& state, const StateAnalysis& analyzer) {
+    static double score2(const Action<config>& action, const GameState& state, const StateAnalysis& analyzer) {
         double score = 0;
         if(action.type == ActionType::Move) {
             if(action.p.type() == King && analyzer.controlled1[action.dst.idx()]) score -= 100;

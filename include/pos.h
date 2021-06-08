@@ -1,6 +1,7 @@
 #ifndef POS_H
 #define POS_H
 
+#include "gameconfig.h"
 #include <string>
 #include <algorithm>
 #include <cassert>
@@ -18,18 +19,22 @@ struct Pos {
         return pos;
     }
 
+    template<BoardConfig config>
     constexpr bool valid() const noexcept {
-        return pos >= 0 && pos < 12;
+        constexpr unsigned int rows = GameConfig<config>::rows;
+        constexpr unsigned int cols = GameConfig<config>::cols;
+        return pos >= 0 && pos < rows*cols;
     }
 
     constexpr bool operator==(const Pos p) const {
         return pos == p.pos;
     }
 
+    template<BoardConfig config>
     std::string toString() const noexcept {
         std::string s;
-        s += ('A' + pos%3);
-        s += std::to_string((pos/3)+1);
+        s += ('A' + pos%GameConfig<config>::cols);
+        s += std::to_string((pos/GameConfig<config>::cols)+1);
         return s;
     }
 };

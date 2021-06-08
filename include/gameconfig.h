@@ -1,6 +1,8 @@
 #ifndef GAMECONFIG_H
 #define GAMECONFIG_H
 
+#include "enums.h"
+
 template<BoardConfig config>
 struct GameConfig;
 

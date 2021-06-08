@@ -66,7 +66,7 @@ public:
 
 private:
 
-    static constexpr static_vector<char, 12> charCodes {
+    static constexpr static_vector<char, 14> charCodes {
         '.',
         '.',
         'k',
@@ -78,7 +78,9 @@ private:
         'p',
         'P',
         's',
-        'S'
+        'S',
+        'a',
+        'A'
     };
 
 };

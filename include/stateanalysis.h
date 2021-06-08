@@ -3,13 +3,18 @@
 
 #include "gamestate.h"
 #include "gamelogic.h"
+#include "gameconfig.h"
 #include <bitset>
 #include <cassert>
 #include <array>
 
+template<BoardConfig config>
 struct StateAnalysis {
 
-    using mask = std::bitset<12>;
+    static constexpr unsigned int rows = GameConfig<config>::rows;
+    static constexpr unsigned int cols = GameConfig<config>::cols;
+
+    using mask = std::bitset<rows*cols>;
 
     mask occupied1;
     mask occupied2;
@@ -23,14 +28,13 @@ struct StateAnalysis {
     mask kingControl1;
     mask kingControl2;
 
-    std::array<short, 6> onBoard1;
-    std::array<short, 6> onBoard2;
+    std::array<short, 7> onBoard1;
+    std::array<short, 7> onBoard2;
 
-    std::array<short, 6> inReserve1;
-    std::array<short, 6> inReserve2;
+    std::array<short, 7> inReserve1;
+    std::array<short, 7> inReserve2;
 
 
-    template<BoardConfig config>
     StateAnalysis(const GameState<config>& state) :
         occupied1(),
         occupied2(),
@@ -111,15 +115,15 @@ struct StateAnalysis {
     }
 
     size_t kingDistance1() const {
-        for(size_t i = 0; i < 12; ++i) {
-            if(kingPosition1[i]) return i/3;
+        for(size_t i = 0; i < rows*cols; ++i) {
+            if(kingPosition1[i]) return i/cols;
         }
         return 0;
     }
 
     size_t kingDistance2() const {
-        for(size_t i = 0; i < 12; ++i) {
-            if(kingPosition2[i]) return 3-i/3;
+        for(size_t i = 0; i < rows*cols; ++i) {
+            if(kingPosition2[i]) return rows-1-i/cols;
         }
         return 0;
     }

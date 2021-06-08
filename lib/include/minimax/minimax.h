@@ -12,7 +12,7 @@ enum Mode {
     IterativeDeepening
 };
 
-template<Mode mode, typename Action, typename GameState, typename Agent, typename ActionOrdering>
+template<Mode mode, typename Action, typename ActionSet, typename GameState, typename Agent, typename ActionOrdering>
 struct Minimax {
 
     GameState& root;

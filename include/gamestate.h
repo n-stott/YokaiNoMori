@@ -72,12 +72,16 @@ struct GameState {
         s += reserve2.toString();
         s += '\n';
         s += "-----------------";
-        for(uint8_t i = 0; i < 12; ++i) {
-            if(i%3 == 0) s += '\n' + std::to_string(1+i/3) + ' ';
+        for(uint8_t i = 0; i < rows*cols; ++i) {
+            if(i%cols == 0) s += '\n' + std::to_string(1+i/cols) + ' ';
             s += board.get(i).toChar();
         }
         s += '\n';
-        s += "  ABC\n";
+        if(config == Easy) {
+            s += "  ABC\n";
+        } else {
+            s += "  ABCDE\n";
+        }
         s += "-----------------\n";
         s += (currentPlayer == P1 ? "> " : "  ");
         s += "Player a | ";
@@ -87,9 +91,9 @@ struct GameState {
         return s;
     }
 
-    void fillAllowedActions(ActionSet*) const;
+    void fillAllowedActions(ActionSet<config>*) const;
 
-    bool apply(Action action) {
+    bool apply(Action<config> action) {
         assert(checkAction(action));
         bool res = false;
         if(action.type == Move) {
@@ -117,7 +121,7 @@ struct GameState {
     
 public:
 
-    bool checkAction(Action action) const {
+    bool checkAction(Action<config> action) const {
         if(action.type == Move) {
             return checkMove(action.p, action.src, action.dst);
         }
@@ -177,6 +181,7 @@ public:
 // King with least index, King with largest index, Tower with least index, ...
 // with indices 0 = does not exist, 1-12 = positions 0-11, 13 = reserve1, 14 = reserve2 
 
+/*
 struct GameStateHash {
 
     template<typename GameState>
@@ -205,5 +210,6 @@ struct GameStateHash {
 
     unsigned long long value;
 };
+*/
 
 #endif

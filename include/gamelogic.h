@@ -16,27 +16,31 @@ struct GameLogic {
     using move_sets = typename AllowedMove<config>::move_sets;
 
     static inline const move_sets& moveSets(Piece piece) {
-        assert(piece.data_ < 12);
+        assert(piece.id() < rows*cols);
         return allMoveSets[piece.id()];
     }
 
     static inline const move_set& moveSet(Piece piece, Pos position) {
+        assert(piece.id() < allMoveSets.size());
+        assert(position.idx() < allMoveSets[piece.id()].size());
         return allMoveSets[piece.id()][position.idx()];
     }
 
-    static constexpr static_vector<move_sets, 12> allMoveSets {
-        AllowedMove<config>::computeMoveSets(PieceType::NoType   , Color::P1),
-        AllowedMove<config>::computeMoveSets(PieceType::NoType   , Color::P2),
-        AllowedMove<config>::computeMoveSets(PieceType::King     , Color::P1),
-        AllowedMove<config>::computeMoveSets(PieceType::King     , Color::P2),
-        AllowedMove<config>::computeMoveSets(PieceType::Tower    , Color::P1),
-        AllowedMove<config>::computeMoveSets(PieceType::Tower    , Color::P2),
-        AllowedMove<config>::computeMoveSets(PieceType::Bishop   , Color::P1),
-        AllowedMove<config>::computeMoveSets(PieceType::Bishop   , Color::P2),
-        AllowedMove<config>::computeMoveSets(PieceType::Pawn     , Color::P1),
-        AllowedMove<config>::computeMoveSets(PieceType::Pawn     , Color::P2),
-        AllowedMove<config>::computeMoveSets(PieceType::SuperPawn, Color::P1),
-        AllowedMove<config>::computeMoveSets(PieceType::SuperPawn, Color::P2)
+    static constexpr static_vector<move_sets, 14> allMoveSets {
+        AllowedMove<config>::computeMoveSets(PieceType::NoType    , Color::P1),
+        AllowedMove<config>::computeMoveSets(PieceType::NoType    , Color::P2),
+        AllowedMove<config>::computeMoveSets(PieceType::King      , Color::P1),
+        AllowedMove<config>::computeMoveSets(PieceType::King      , Color::P2),
+        AllowedMove<config>::computeMoveSets(PieceType::Tower     , Color::P1),
+        AllowedMove<config>::computeMoveSets(PieceType::Tower     , Color::P2),
+        AllowedMove<config>::computeMoveSets(PieceType::Bishop    , Color::P1),
+        AllowedMove<config>::computeMoveSets(PieceType::Bishop    , Color::P2),
+        AllowedMove<config>::computeMoveSets(PieceType::Pawn      , Color::P1),
+        AllowedMove<config>::computeMoveSets(PieceType::Pawn      , Color::P2),
+        AllowedMove<config>::computeMoveSets(PieceType::SuperPawn , Color::P1),
+        AllowedMove<config>::computeMoveSets(PieceType::SuperPawn , Color::P2),
+        AllowedMove<config>::computeMoveSets(PieceType::ArchBishop, Color::P1),
+        AllowedMove<config>::computeMoveSets(PieceType::ArchBishop, Color::P2)
     };
 
 };
