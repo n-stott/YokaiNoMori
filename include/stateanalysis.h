@@ -28,11 +28,11 @@ struct StateAnalysis {
     mask kingControl1;
     mask kingControl2;
 
-    std::array<short, 7> onBoard1;
-    std::array<short, 7> onBoard2;
+    std::array<short, NB_PIECE_TYPE> onBoard1;
+    std::array<short, NB_PIECE_TYPE> onBoard2;
 
-    std::array<short, 7> inReserve1;
-    std::array<short, 7> inReserve2;
+    std::array<short, NB_PIECE_TYPE> inReserve1;
+    std::array<short, NB_PIECE_TYPE> inReserve2;
 
 
     StateAnalysis(const GameState<config>& state) :

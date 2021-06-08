@@ -11,6 +11,7 @@ class static_vector {
 public:
 
     using const_iterator = const T*;
+    static constexpr unsigned int capacity = max_size;
 
     constexpr static_vector() : data_(), size_(0) {}
 

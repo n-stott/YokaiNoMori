@@ -119,10 +119,12 @@ bool GameState<config>::move(Piece p, Pos a, Pos b) {
         }
     }
     board.set(a.idx(), Piece());
-    if(c == P1 && b.idx()/3 == 0) {
+    constexpr unsigned int rows = GameConfig<config>::rows;
+    constexpr unsigned int cols = GameConfig<config>::cols;
+    if(c == P1 && b.idx()/cols == 0) {
         src.promote();
     }
-    if(c == P2 && b.idx()/3 == 3) {
+    if(c == P2 && b.idx()/cols == rows-1) {
         src.promote();
     }
     board.set(b.idx(), src);
@@ -205,7 +207,7 @@ void GameState<config>::fillAllowedActions(ActionSet<config>* actions) const {
         }
     }
     if(currentPlayer == P1) {
-        std::bitset<7> typeVisited(false);
+        std::bitset<NB_PIECE_TYPE+1> typeVisited(false);
         uint8_t dummyPos = 0;
         for(uint8_t k = 0; k < reserve1.size; ++k) {
             const Piece p = reserve1[k];
@@ -220,7 +222,7 @@ void GameState<config>::fillAllowedActions(ActionSet<config>* actions) const {
         }
     }
     else {
-        std::bitset<6> typeVisited(false);
+        std::bitset<NB_PIECE_TYPE+1> typeVisited(false);
         uint8_t dummyPos = 0;
         for(uint8_t k = 0; k < reserve2.size; ++k) {
             const Piece p = reserve2[k];

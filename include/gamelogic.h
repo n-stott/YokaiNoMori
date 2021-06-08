@@ -26,7 +26,7 @@ struct GameLogic {
         return allMoveSets[piece.id()][position.idx()];
     }
 
-    static constexpr static_vector<move_sets, 14> allMoveSets {
+    static constexpr static_vector<move_sets, NB_PLAYERS*NB_PIECE_TYPE> allMoveSets {
         AllowedMove<config>::computeMoveSets(PieceType::NoType    , Color::P1),
         AllowedMove<config>::computeMoveSets(PieceType::NoType    , Color::P2),
         AllowedMove<config>::computeMoveSets(PieceType::King      , Color::P1),

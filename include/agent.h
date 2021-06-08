@@ -22,8 +22,8 @@ struct Agent {
     size_t nbEvals;
 
     // scores
-    std::array<double, 6> boardValue;
-    std::array<double, 6> reserveValue;
+    std::array<double, NB_PIECE_TYPE> boardValue;
+    std::array<double, NB_PIECE_TYPE> reserveValue;
     double occupiedValue;
     double controlledValue;
     double disputedValue;
@@ -37,8 +37,8 @@ struct Agent {
 
     Agent() : 
         nbEvals(0),
-        boardValue{0, 0, 5, 3, 1, 4},
-        reserveValue{0, 1000, 10, 6, 2, 0},
+        boardValue{0, 0, 5, 3, 1, 4, 2},
+        reserveValue{0, 1000, 10, 6, 2, 0, 4},
         occupiedValue(1),
         controlledValue(0.5),
         disputedValue(0),
@@ -68,8 +68,8 @@ struct Agent {
         s.s1 += kingEscapesValue * sa.nbKingEscapes1();
         s.s1 += kingDistanceValue * sa.kingDistance1();
         s.s1 += (sa.hasKing1() ? 0 : kingDeadValue);
-        for(size_t i = 0; i < 6; ++i) s.s1 += boardValue[i] * sa.onBoard1[i];
-        for(size_t i = 0; i < 6; ++i) s.s1 += reserveValue[i] * sa.inReserve1[i];
+        for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s1 += boardValue[i] * sa.onBoard1[i];
+        for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s1 += reserveValue[i] * sa.inReserve1[i];
 
         s.s2 += occupiedValue * sa.nbOccupied2();
         s.s2 += controlledValue * sa.nbControlled2();
@@ -79,8 +79,8 @@ struct Agent {
         s.s2 += kingEscapesValue * sa.nbKingEscapes2();
         s.s2 += kingDistanceValue * sa.kingDistance2();
         s.s2 += (sa.hasKing2() ? 0 : kingDeadValue);
-        for(size_t i = 0; i < 6; ++i) s.s2 += boardValue[i] * sa.onBoard2[i];
-        for(size_t i = 0; i < 6; ++i) s.s2 += reserveValue[i] * sa.inReserve2[i];
+        for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s2 += boardValue[i] * sa.onBoard2[i];
+        for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s2 += reserveValue[i] * sa.inReserve2[i];
 
         // s.p += endGamePenalty * (1.0*state.nbTurns/state.maxTurns) * (1.0*state.nbTurns/state.maxTurns);
         s.p += drawPenalty * state.history->hasDraw();

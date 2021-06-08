@@ -51,9 +51,13 @@ using aspair = std::pair<Action<config>, double>;
 template<BoardConfig config>
 struct ActionSet {
 
-    using value_type = Action<config>;
+    static constexpr unsigned int maxSizeEasy = 64;
+    static constexpr unsigned int maxSizeMedium = 128;
 
-    static_vector<value_type, (config == Easy ? 64 : 128)> actions;
+    using value_type = Action<config>;
+    using storage = static_vector<value_type, (config == Easy ? maxSizeEasy : maxSizeMedium)>;
+
+    storage actions;
 
     std::string toString() const {
         std::string message;
@@ -64,7 +68,7 @@ struct ActionSet {
     size_t size() const { return actions.size(); }
 
     void push_back(const value_type& action) {
-        actions.push_back(action);
+        if(actions.size() < actions.capacity) actions.push_back(action);
     }
 
     bool empty() const {
@@ -82,7 +86,7 @@ struct ActionSet {
     const value_type& operator[](size_t i) const { return actions[i]; }
     value_type& operator[](size_t i) { return actions[i]; }
 
-    using const_iterator = typename static_vector<value_type, 64>::const_iterator;
+    using const_iterator = typename storage::const_iterator;
 
     const_iterator begin() const { return actions.begin(); }
     const_iterator end() const { return actions.end(); }

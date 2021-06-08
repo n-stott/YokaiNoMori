@@ -47,7 +47,7 @@ struct ActionOrdering {
 private:
 
     template<typename GameState>
-    static double score1(const Action<config>& action, const GameState& state, const StateAnalysis& analyzer) {
+    static double score1(const Action<config>& action, const GameState& state, const StateAnalysis<config>& analyzer) {
         double score = 0;
         if(action.type == ActionType::Move) {
             if(action.p.type() == King && analyzer.controlled2[action.dst.idx()]) score -= 100;
@@ -59,7 +59,7 @@ private:
     }
 
     template<typename GameState>
-    static double score2(const Action<config>& action, const GameState& state, const StateAnalysis& analyzer) {
+    static double score2(const Action<config>& action, const GameState& state, const StateAnalysis<config>& analyzer) {
         double score = 0;
         if(action.type == ActionType::Move) {
             if(action.p.type() == King && analyzer.controlled1[action.dst.idx()]) score -= 100;
