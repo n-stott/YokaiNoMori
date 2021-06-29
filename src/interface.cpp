@@ -30,11 +30,13 @@ std::optional<PieceType> readPieceType() {
     std::string p;
     try {
         std::cin >> p;
-        if(p == "k" || p == "K") return std::make_optional(PieceType::King);
-        if(p == "b" || p == "B") return std::make_optional(PieceType::Bishop);
-        if(p == "t" || p == "T") return std::make_optional(PieceType::Tower);
-        if(p == "p" || p == "P") return std::make_optional(PieceType::Pawn);
-        if(p == "s" || p == "S") return std::make_optional(PieceType::SuperPawn);
+        if(p.size() < 1) return std::nullopt;
+        char pc = p[0];
+        if(pc == 'k' || pc == 'K') return std::make_optional(PieceType::King);
+        if(pc == 'b' || pc == 'B') return std::make_optional(PieceType::Bishop);
+        if(pc == 't' || pc == 'T') return std::make_optional(PieceType::Tower);
+        if(pc == 'p' || pc == 'P') return std::make_optional(PieceType::Pawn);
+        if(pc == 's' || pc == 'S') return std::make_optional(PieceType::SuperPawn);
     } catch(...) {
         return std::nullopt;
     }
@@ -48,13 +50,15 @@ std::optional<Pos> readBoardPosition() {
     try {
         std::cin >> p;
         if(p.size() < 2) return std::nullopt;
-        if(p[0] == 'A' || p[0] == 'a') y = 0;
-        if(p[0] == 'B' || p[0] == 'b') y = 1;
-        if(p[0] == 'C' || p[0] == 'c') y = 2;
-        if(p[1] == '1') x = 0;
-        if(p[1] == '2') x = 1;
-        if(p[1] == '3') x = 2;
-        if(p[1] == '4') x = 3;
+        const char pc0 = p[0];
+        const char pc1 = p[1];
+        if(pc0 == 'A' || pc0 == 'a') y = 0;
+        if(pc0 == 'B' || pc0 == 'b') y = 1;
+        if(pc0 == 'C' || pc0 == 'c') y = 2;
+        if(pc1 == '1') x = 0;
+        if(pc1 == '2') x = 1;
+        if(pc1 == '3') x = 2;
+        if(pc1 == '4') x = 3;
         if(x != -1 && y != -1) {
             return std::make_optional(Pos(3*x+y));
         }
@@ -122,7 +126,7 @@ void oneVsOne() {
             std::string s;
             s += state.niceToString() + '\n';
             s += "Turn of player : ";
-            s += (state.currentPlayer == P1 ? "A" : "B");
+            s += (state.currentPlayer == P1 ? 'A' : 'B');
             s += '\n';
             return s;
         });
@@ -146,13 +150,13 @@ void oneVsAi(int depth) {
 
     GameHistory history;
     GameState<Easy> state(&history);
-    Agent agent;
+    Agent<Easy> agent;
 
-    using MyMinimax = Minimax<mode, Action<Easy>, ActionSet<Easy>, GameState<Easy>, Agent, ActionOrdering<Easy>>;
+    using MyMinimax = Minimax<mode, Action<Easy>, ActionSet<Easy>, GameState<Easy>, Agent<Easy>, ActionOrdering<Easy>>;
 
     while(!state.gameOver()) {
         Logger::log(Verb::Std, [&]() { return state.niceToString(); });
-        Logger::log(Verb::Std, [&]() { return std::string{"Turn of player : "} + (state.currentPlayer == P1 ? "A" : "B"); });
+        Logger::log(Verb::Std, [&]() { return std::string{"Turn of player : "} + (state.currentPlayer == P1 ? 'A' : 'B'); });
 
         if(state.currentPlayer == P1) {
             std::optional<Action<Easy>> action = readAction<Easy>(state.currentPlayer);
@@ -192,24 +196,24 @@ void oneVsAi(int depth) {
 template<Mode mode, BoardConfig config>
 void aivsAi(int depth1, int depth2) {
 
-    Logger::log(Verb::Std, [&](){
+    Logger::log(Verb::Dev, [&](){
         std::stringstream ss;
         ss << "Starting AIvAI mode with :\n";
-        ss << " depths : " + std::to_string(depth1) + " vs " + std::to_string(depth2) << "\n";
-        ss << " mode   : " << (mode == Mode::PureMinimax ? "pure" : (mode == AlphaBeta ? "Minimax" : "Iterative deepening")) << "\n";
-        ss << " config : " << (config == Easy ? "easy" : "medium") << "\n";
+        ss << " depths : " + std::to_string(depth1) + " vs " + std::to_string(depth2) << '\n';
+        ss << " mode   : " << (mode == Mode::PureMinimax ? "pure" : (mode == AlphaBeta ? "AlphaBeta" : "Iterative deepening")) << '\n';
+        ss << " config : " << (config == Easy ? "easy" : "medium") << '\n';
         return ss.str();
     });
 
     GameHistory history;
     GameState<config> game(&history);
-    Agent agent1;
-    Agent agent2;
+    Agent<config> agent1;
+    Agent<config> agent2;
 
     depth1 = std::max(0, std::min(20, depth1));
     depth2 = std::max(0, std::min(20, depth2));
 
-    using MyMinimax = Minimax<mode, Action<config>, ActionSet<config>, GameState<config>, Agent, ActionOrdering<config>>;
+    using MyMinimax = Minimax<mode, Action<config>, ActionSet<config>, GameState<config>, Agent<config>, ActionOrdering<config>>;
 
     while(!game.gameOver()) {
         Logger::log(Verb::Std,
@@ -217,7 +221,7 @@ void aivsAi(int depth1, int depth2) {
                 std::string s;
                 s += game.niceToString() + '\n';
                 s += "Turn of player : ";
-                s += (game.currentPlayer == P1 ? "A" : "B");
+                s += (game.currentPlayer == P1 ? 'A' : 'B');
                 s += '\n';
                 return s;
             });
@@ -296,7 +300,7 @@ int main(int argc, char** argv) {
     if(std::strcmp(argv[1], "--AIvAI") == 0) {
         if(argc <= 3) {
             Logger::log(Verb::Std, [](){
-                return "Usage : exe --AIvAI depth1 depth2 [mode] [board]";
+                return "Usage : exe --AIvAI depth1 depth2 [mode = pure|alphabeta|iterdeepen] [board=easy|medium]";
             });
             return 0;
         }
@@ -305,33 +309,39 @@ int main(int argc, char** argv) {
         Logger::log(Verb::Std, [&](){
             std::stringstream ss;
             ss << "Starting AIvAI mode with :\n";
-            ss << " depths : " + std::to_string(d1) + " vs " + std::to_string(d2) << "\n";
-            ss << " mode   : " << (argc <= 4 ? "pure" : argv[4]) << "\n";
-            ss << " config : " << (argc <= 5 ? "easy" : argv[5]) << "\n";
+            ss << " depths : " + std::to_string(d1) + " vs " + std::to_string(d2) << '\n';
+            ss << " mode   : " << (argc <= 4 ? "pure" : argv[4]) << '\n';
+            ss << " config : " << (argc <= 5 ? "easy" : argv[5]) << '\n';
             return ss.str();
         });
-        if(argc >= 4 || (argc == 5 && std::strcmp(argv[4], "pure") == 0)) {
-            if(argc < 6 || (argc == 6 && std::strcmp(argv[5], "easy") == 0)) {
-                aivsAi<PureMinimax, BoardConfig::Easy>(d1, d2);
-            }
-            if((argc == 6 && std::strcmp(argv[5], "medium") == 0)) {
-                aivsAi<PureMinimax, BoardConfig::Medium>(d1, d2);
-            }
-        }
         if(argc >= 5 && std::strcmp(argv[4], "alphabeta") == 0) {
             if(argc < 6 || (argc == 6 && std::strcmp(argv[5], "easy") == 0)) {
                 aivsAi<AlphaBeta, BoardConfig::Easy>(d1, d2);
+                return 0;
             }
             if((argc == 6 && std::strcmp(argv[5], "medium") == 0)) {
                 aivsAi<AlphaBeta, BoardConfig::Medium>(d1, d2);
+                return 0;
             }
         }
         if(argc >= 5 && std::strcmp(argv[4], "iterdeepen") == 0) {
             if(argc < 6 || (argc == 6 && std::strcmp(argv[5], "easy") == 0)) {
                 aivsAi<IterativeDeepening, BoardConfig::Easy>(d1, d2);
+                return 0;
             }
             if((argc == 6 && std::strcmp(argv[5], "medium") == 0)) {
                 aivsAi<IterativeDeepening, BoardConfig::Medium>(d1, d2);
+                return 0;
+            }
+        }
+        if(argc >= 4 || (argc == 5 && std::strcmp(argv[4], "pure") == 0)) {
+            if(argc < 6 || (argc == 6 && std::strcmp(argv[5], "easy") == 0)) {
+                aivsAi<PureMinimax, BoardConfig::Easy>(d1, d2);
+                return 0;
+            }
+            if((argc == 6 && std::strcmp(argv[5], "medium") == 0)) {
+                aivsAi<PureMinimax, BoardConfig::Medium>(d1, d2);
+                return 0;
             }
         }
     }
@@ -380,8 +390,8 @@ int main(int argc, char** argv) {
             return state.niceToString();
         });
 
-        Agent agent;
-        using MyMinimax = Minimax<Mode::AlphaBeta, Action<Easy>, ActionSet<Easy>, GameState<Easy>, Agent, ActionOrdering<Easy>>;
+        Agent<Easy> agent;
+        using MyMinimax = Minimax<Mode::AlphaBeta, Action<Easy>, ActionSet<Easy>, GameState<Easy>, Agent<Easy>, ActionOrdering<Easy>>;
 
         std::optional<Action<Easy>> action;
         MyMinimax search(state, agent);

@@ -15,12 +15,12 @@ struct GameLogic {
     using move_set = typename AllowedMove<config>::move_set;
     using move_sets = typename AllowedMove<config>::move_sets;
 
-    static inline const move_sets& moveSets(Piece piece) {
+    static constexpr const move_sets& moveSets(Piece piece) {
         assert(piece.id() < rows*cols);
         return allMoveSets[piece.id()];
     }
 
-    static inline const move_set& moveSet(Piece piece, Pos position) {
+    static constexpr const move_set& moveSet(Piece piece, Pos position) {
         assert(piece.id() < allMoveSets.size());
         assert(position.idx() < allMoveSets[piece.id()].size());
         return allMoveSets[piece.id()][position.idx()];

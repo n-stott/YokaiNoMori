@@ -6,6 +6,8 @@
 #include <cassert>
 #include <string>
 
+using reserve_hash_t = unsigned long long;
+
 template<Color c, unsigned int ressize>
 struct Reserve {
 
@@ -53,6 +55,12 @@ struct Reserve {
     const Piece& operator[](uint8_t pos) const {
         assert(pos < size);
         return reserve[pos];
+    }
+
+    reserve_hash_t hash() const {
+        reserve_hash_t val = 0;
+        for(Piece p : *this) val = NB_PIECE_TYPE*(1+p.id());
+        return val;
     }
 
     const Piece* begin() const { return reserve.data(); }

@@ -19,7 +19,7 @@ struct ActionOrdering {
     ActionOrdering(ActionSet<config>* actions, const GameState& state) :
         actions(actions)
     {
-        StateAnalysis analyzer(state);
+        StateAnalysis<config> analyzer(state.board, state.reserve1, state.reserve2);
         scores.clear();
         scores.reserve(actions->size());
         for(const Action<config>& action : *actions) {

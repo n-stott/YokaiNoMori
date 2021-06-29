@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstring>
 
-using board_hash_t = unsigned int;
+using board_hash_t = unsigned long long;
 
 template<unsigned int rows, unsigned int cols>
 struct Board {

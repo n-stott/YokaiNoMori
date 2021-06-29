@@ -9,6 +9,43 @@
 #include <limits>
 #include <cmath>
 
+#if 0
+#include <unordered_map>
+
+struct state_hash {
+    board_hash_t bh;
+    reserve_hash_t r1h;
+    reserve_hash_t r2h;
+
+    bool operator==(const state_hash& other) const {
+        return bh == other.bh && r1h == other.r1h && r2h == other.r2h;
+    }
+};
+
+struct StateHasher {
+
+    size_t operator()(const state_hash& sh) const {
+        return sh.bh ^ sh.r1h ^ sh.r2h;
+    }
+
+};
+
+template<BoardConfig config>
+struct StateRecord {
+    std::unordered_map<state_hash, StateAnalysis<config>, StateHasher> record;
+
+    const StateAnalysis<config>& push(const GameState<config>& s) {
+        state_hash sh {s.board.hash(), s.reserve1.hash(), s.reserve2.hash()};
+        if(record.count(sh) == 0) {
+            record[sh] = StateAnalysis<config>(s.board, s.reserve1, s.reserve2);
+        }
+        return record[sh];
+    }
+
+};
+#endif
+
+template<BoardConfig config>
 struct Agent {
 
     struct score {
@@ -55,10 +92,11 @@ struct Agent {
         Logger::log(Verb::Dev, [&](){ return "Agent has evaluated : " + std::to_string(nbEvals) + " positions"; });
     }
 
-    template<typename GameState>
-    score evaluate(const GameState& state) {
+    score evaluate(const GameState<config>& state) {
         ++nbEvals;
-        StateAnalysis sa(state);
+
+        StateAnalysis<config> sa(state.board, state.reserve1, state.reserve2);
+
         score s;
         s.s1 += occupiedValue * sa.nbOccupied1();
         s.s1 += controlledValue * sa.nbControlled1();

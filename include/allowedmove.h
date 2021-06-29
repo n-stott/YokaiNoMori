@@ -14,6 +14,10 @@
 // 6  7  8
 // 9  10 11
 
+constexpr int iabs(int z) {
+    return (z >= 0 ? z : -z);
+}
+
 template<BoardConfig config>
 struct AllowedMove {
 
@@ -29,18 +33,18 @@ struct AllowedMove {
 
         auto king_valid_move = [](int xsrc, int ysrc, int xdst, int ydst) {
             return (xsrc != xdst || ysrc != ydst) && 
-                   ( std::max(std::abs(xsrc-xdst), std::abs(ysrc-ydst)) == 1 );
+                   ( std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1 );
         };
 
         auto tower_valid_move = [](int xsrc, int ysrc, int xdst, int ydst) {
             return (xsrc != xdst || ysrc != ydst) &&
-                   ( std::max(std::abs(xsrc-xdst), std::abs(ysrc-ydst)) == 1 ) &&
+                   ( std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1 ) &&
                    ((xsrc-xdst) * (ysrc-ydst) == 0);
         };
 
         auto bishop_valid_move = [](int xsrc, int ysrc, int xdst, int ydst) {
             return (xsrc != xdst || ysrc != ydst) &&
-                   ( std::max(std::abs(xsrc-xdst), std::abs(ysrc-ydst)) == 1 ) &&
+                   ( std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1 ) &&
                    ((xsrc-xdst) * (ysrc-ydst) != 0);
         };
 
@@ -56,10 +60,10 @@ struct AllowedMove {
 
         auto superpawn_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
             if(player == Color::P1) {
-                return (ydst <= ysrc && std::max(std::abs(xsrc-xdst), std::abs(ysrc-ydst)) == 1) || (ydst == ysrc+1 && xsrc == xdst);
+                return (ydst <= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc+1 && xsrc == xdst);
             }
             if(player == Color::P2) {
-                return (ydst >= ysrc && std::max(std::abs(xsrc-xdst), std::abs(ysrc-ydst)) == 1) || (ydst == ysrc-1 && xsrc == xdst);
+                return (ydst >= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc-1 && xsrc == xdst);
             }
             return false;
         };

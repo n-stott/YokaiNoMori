@@ -8,13 +8,58 @@
 #include <cassert>
 #include <array>
 
+
+
+template<typename T, unsigned int N, unsigned int... Ns>
+struct multi_array {
+    std::array< multi_array<T, Ns...>, N> array;
+
+    constexpr multi_array<T, Ns...>& operator[](uint8_t pos) { return array[pos]; }
+    constexpr const multi_array<T, Ns...>& operator[](uint8_t pos) const { return array[pos]; }
+};
+
+template<typename T, unsigned int N>
+struct multi_array<T, N> {
+    std::array<T, N> array;
+
+    constexpr T& operator[](uint8_t pos) { return array[pos]; }
+    constexpr const T& operator[](uint8_t pos) const { return array[pos]; }
+};
+
+
+template<unsigned int rows, unsigned int cols>
+using mask_storage = multi_array<std::bitset<rows*cols>, 2, NB_PIECE_TYPE, rows*cols>;
+
+template<BoardConfig config, unsigned int rows, unsigned int cols>
+constexpr mask_storage<rows, cols> computeAllMasks() {
+    using mask = std::bitset<rows*cols>;
+
+    mask_storage<rows, cols> result;
+    for(uint8_t player = 0; player < 2; ++player) {
+        for(uint8_t id = 0; id < NB_PIECE_TYPE; ++id) {
+            for(uint8_t pos = 0; pos < rows*cols; ++pos) {
+                Piece piece((PieceType)id, (Color)player);
+                Pos current(pos);
+                unsigned long mask_proxy = 0;
+                for(Pos p : GameLogic<config>::moveSet(piece, current)) mask_proxy |= (1 << p.idx());
+                mask m(mask_proxy);
+                result[player][id][pos] = m;
+            }
+        }
+    }
+    return result;
+}
+
 template<BoardConfig config>
 struct StateAnalysis {
 
     static constexpr unsigned int rows = GameConfig<config>::rows;
     static constexpr unsigned int cols = GameConfig<config>::cols;
+    static constexpr unsigned int ressize = GameConfig<config>::ressize;
 
     using mask = std::bitset<rows*cols>;
+
+    static constexpr mask_storage<rows, cols> allMasks = computeAllMasks<config, rows, cols>();
 
     mask occupied1;
     mask occupied2;
@@ -34,8 +79,9 @@ struct StateAnalysis {
     std::array<short, NB_PIECE_TYPE> inReserve1;
     std::array<short, NB_PIECE_TYPE> inReserve2;
 
+    StateAnalysis() { }
 
-    StateAnalysis(const GameState<config>& state) :
+    StateAnalysis(const Board<rows, cols>& board, const Reserve<P1, ressize>& reserve1, const Reserve<P2, ressize>& reserve2) :
         occupied1(),
         occupied2(),
         controlled1(),
@@ -52,39 +98,31 @@ struct StateAnalysis {
         std::fill(onBoard1.begin(), onBoard1.end(), 0);
         std::fill(onBoard2.begin(), onBoard2.end(), 0);
         size_t pos = 0;
-        for(Piece piece : state.board) {
+        for(Piece piece : board) {
             if(piece.color() == Color::P1) {
                 occupied1[pos] = 1;
                 ++onBoard1[(int)piece.type()];
-                for(Pos npos : GameLogic<config>::moveSet(piece, pos)) {
-                    controlled1[npos.idx()] = 1;
-                }
+                controlled1 |= allMasks[Color::P1][piece.type()][pos];
                 if(piece.type() == PieceType::King) {
                     kingPosition1[pos] = 1;
-                    for(Pos npos : GameLogic<config>::moveSet(piece, pos)) {
-                        kingControl1[npos.idx()] = 1;
-                    }
+                    kingControl1 = allMasks[Color::P1][PieceType::King][pos];
                 }
             }
             if(piece.color() == Color::P2) {
                 occupied2[pos] = 1;
                 ++onBoard2[(int)piece.type()];
-                for(Pos npos : GameLogic<config>::moveSet(piece, pos)) {
-                    controlled2[npos.idx()] = 1;
-                }
+                controlled2 |= allMasks[Color::P2][piece.type()][pos];
                 if(piece.type() == PieceType::King) {
                     kingPosition2[pos] = 1;
-                    for(Pos npos : GameLogic<config>::moveSet(piece, pos)) {
-                        kingControl2[npos.idx()] = 1;
-                    }
+                    kingControl2 = allMasks[Color::P2][PieceType::King][pos];
                 }
             }
             ++pos;
         }
         std::fill(inReserve1.begin(), inReserve1.end(), 0);
-        for(Piece piece : state.reserve1) ++inReserve1[(int)piece.type()];
+        for(Piece piece : reserve1) ++inReserve1[(int)piece.type()];
         std::fill(inReserve2.begin(), inReserve2.end(), 0);
-        for(Piece piece : state.reserve2) ++inReserve2[(int)piece.type()];
+        for(Piece piece : reserve2) ++inReserve2[(int)piece.type()];
     }
 
     size_t nbOccupied1() const { return occupied1.count(); }
