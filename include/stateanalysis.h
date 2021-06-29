@@ -4,11 +4,13 @@
 #include "gamestate.h"
 #include "gamelogic.h"
 #include "gameconfig.h"
+#include "smallbitset.h"
 #include <bitset>
 #include <cassert>
 #include <array>
 
-
+template<BoardConfig config>
+using mask_t = SmallBitset<GameConfig<config>::rows*GameConfig<config>::cols, unsigned int>;
 
 template<typename T, unsigned int N, unsigned int... Ns>
 struct multi_array {
@@ -27,14 +29,14 @@ struct multi_array<T, N> {
 };
 
 
-template<unsigned int rows, unsigned int cols>
-using mask_storage = multi_array<std::bitset<rows*cols>, 2, NB_PIECE_TYPE, rows*cols>;
+template<BoardConfig config, unsigned int rows = GameConfig<config>::rows, unsigned int cols = GameConfig<config>::cols>
+using mask_storage = multi_array<mask_t<config>, 2, NB_PIECE_TYPE, rows*cols>;
 
-template<BoardConfig config, unsigned int rows, unsigned int cols>
-constexpr mask_storage<rows, cols> computeAllMasks() {
-    using mask = std::bitset<rows*cols>;
+template<BoardConfig config, unsigned int rows = GameConfig<config>::rows, unsigned int cols = GameConfig<config>::cols>
+constexpr mask_storage<config> computeAllMasks() {
+    using mask = mask_t<config>;
 
-    mask_storage<rows, cols> result;
+    mask_storage<config> result;
     for(uint8_t player = 0; player < 2; ++player) {
         for(uint8_t id = 0; id < NB_PIECE_TYPE; ++id) {
             for(uint8_t pos = 0; pos < rows*cols; ++pos) {
@@ -57,9 +59,9 @@ struct StateAnalysis {
     static constexpr unsigned int cols = GameConfig<config>::cols;
     static constexpr unsigned int ressize = GameConfig<config>::ressize;
 
-    using mask = std::bitset<rows*cols>;
+    using mask = mask_t<config>;
 
-    static constexpr mask_storage<rows, cols> allMasks = computeAllMasks<config, rows, cols>();
+    static constexpr mask_storage<config> allMasks = computeAllMasks<config>();
 
     mask occupied1;
     mask occupied2;
@@ -79,7 +81,7 @@ struct StateAnalysis {
     std::array<short, NB_PIECE_TYPE> inReserve1;
     std::array<short, NB_PIECE_TYPE> inReserve2;
 
-    StateAnalysis() { }
+    StateAnalysis() = default;
 
     StateAnalysis(const Board<rows, cols>& board, const Reserve<P1, ressize>& reserve1, const Reserve<P2, ressize>& reserve2) :
         occupied1(),
@@ -100,20 +102,20 @@ struct StateAnalysis {
         size_t pos = 0;
         for(Piece piece : board) {
             if(piece.color() == Color::P1) {
-                occupied1[pos] = 1;
+                occupied1.set(pos);
                 ++onBoard1[(int)piece.type()];
                 controlled1 |= allMasks[Color::P1][piece.type()][pos];
                 if(piece.type() == PieceType::King) {
-                    kingPosition1[pos] = 1;
+                    kingPosition1.set(pos);
                     kingControl1 = allMasks[Color::P1][PieceType::King][pos];
                 }
             }
             if(piece.color() == Color::P2) {
-                occupied2[pos] = 1;
+                occupied2.set(pos);
                 ++onBoard2[(int)piece.type()];
                 controlled2 |= allMasks[Color::P2][piece.type()][pos];
                 if(piece.type() == PieceType::King) {
-                    kingPosition2[pos] = 1;
+                    kingPosition2.set(pos);
                     kingControl2 = allMasks[Color::P2][PieceType::King][pos];
                 }
             }
@@ -153,17 +155,13 @@ struct StateAnalysis {
     }
 
     size_t kingDistance1() const {
-        for(size_t i = 0; i < rows*cols; ++i) {
-            if(kingPosition1[i]) return i/cols;
-        }
-        return 0;
+        if(!hasKing1()) return 0;
+        return __builtin_ctz(kingPosition1.val)/cols;
     }
 
     size_t kingDistance2() const {
-        for(size_t i = 0; i < rows*cols; ++i) {
-            if(kingPosition2[i]) return rows-1-i/cols;
-        }
-        return 0;
+        if(!hasKing2()) return 0;
+        return rows-1-__builtin_ctz(kingPosition2.val)/cols;
     }
 
 };

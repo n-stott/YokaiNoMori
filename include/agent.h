@@ -122,7 +122,7 @@ struct Agent {
 
         // s.p += endGamePenalty * (1.0*state.nbTurns/state.maxTurns) * (1.0*state.nbTurns/state.maxTurns);
         s.p += drawPenalty * state.history->hasDraw();
-        s.p += 1.0 * state.board.hash() / std::numeric_limits<board_hash_t>::max();
+        // s.p += 1.0 * state.board.hash() / std::numeric_limits<board_hash_t>::max();
 
         return s;
     }
