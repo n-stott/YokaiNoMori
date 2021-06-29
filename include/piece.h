@@ -64,6 +64,10 @@ public:
         if(type() == SuperPawn) setType(Pawn);
     }
 
+    constexpr bool operator==(Piece other) const {
+        return data_ == other.data_;
+    }
+
 private:
 
     static constexpr static_vector<char, 14> charCodes {

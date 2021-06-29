@@ -119,7 +119,7 @@ std::optional<Action<config>> readAction(Color player) {
 
 
 void oneVsOne() {
-    GameHistory history;
+    GameHistory<Easy> history;
     GameState<Easy> state(&history);
     while(!state.hasWinner()) {
         Logger::log(Verb::Std, [&]() {
@@ -148,7 +148,7 @@ template<Mode mode>
 void oneVsAi(int depth) {
     depth = std::max(0, std::min(20, depth));
 
-    GameHistory history;
+    GameHistory<Easy> history;
     GameState<Easy> state(&history);
     Agent<Easy> agent;
 
@@ -205,7 +205,7 @@ void aivsAi(int depth1, int depth2) {
         return ss.str();
     });
 
-    GameHistory history;
+    GameHistory<config> history;
     GameState<config> game(&history);
     Agent<config> agent1;
     Agent<config> agent2;
@@ -381,7 +381,7 @@ int main(int argc, char** argv) {
 
         int depth = std::atoi(argv[6]);
 
-        GameHistory history;
+        GameHistory<Easy> history;
 
         GameState<Easy> state(&history, argv[2], argv[3], argv[4], player);
 

@@ -46,27 +46,37 @@ struct ActionOrdering {
 
 private:
 
+    static constexpr std::array<double, NB_PIECE_TYPE> pieceValue {
+        0.0, // NoType,
+        1000.0, // King,
+        50.0, // Tower,
+        50.0, // Bishop,
+        10.0, // Pawn,
+        30.0, // SuperPawn,
+        40.0, // ArchBishop,
+    };
+
     template<typename GameState>
     static double score1(const Action<config>& action, const GameState& state, const StateAnalysis<config>& analyzer) {
         double score = 0;
-        if(action.type == ActionType::Move) {
-            if(action.p.type() == King && analyzer.controlled2[action.dst.idx()]) score -= 100;
+        if(analyzer.controlled2[action.dst.idx()]) {
+            double val = pieceValue[action.p.type()];
+            score -= val;
+            if(!analyzer.controlled1[action.dst.idx()]) score -= val;
         }
-        if(!analyzer.controlled1[action.dst.idx()] && analyzer.controlled2[action.dst.idx()]) score -= 10;
-        if(action.p.type() == Pawn && analyzer.occupied2[action.dst.idx()]) score += 10;
-        if(analyzer.occupied2[action.dst.idx()] && state.board.get(action.dst.idx()).type() == King) score += 1000;
+        if(analyzer.occupied2[action.dst.idx()]) score += pieceValue[state.board.get(action.dst.idx()).type()];
         return score;
     }
 
     template<typename GameState>
     static double score2(const Action<config>& action, const GameState& state, const StateAnalysis<config>& analyzer) {
         double score = 0;
-        if(action.type == ActionType::Move) {
-            if(action.p.type() == King && analyzer.controlled1[action.dst.idx()]) score -= 100;
+        if(analyzer.controlled1[action.dst.idx()]) {
+            double val = pieceValue[action.p.type()];
+            score -= val;
+            if(!analyzer.controlled2[action.dst.idx()]) score -= val;
         }
-        if(!analyzer.controlled2[action.dst.idx()] && analyzer.controlled1[action.dst.idx()]) score -= 10;
-        if(action.p.type() == Pawn && analyzer.occupied1[action.dst.idx()]) score += 10;
-        if(analyzer.occupied1[action.dst.idx()] && state.board.get(action.dst.idx()).type() == King) score += 1000;
+        if(analyzer.occupied1[action.dst.idx()]) score += pieceValue[state.board.get(action.dst.idx()).type()];
         return score;
     }
 

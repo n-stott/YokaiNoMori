@@ -26,9 +26,9 @@ struct GameState {
     Color winner;
     uint8_t nbTurns;
     uint8_t maxTurns;
-    GameHistory* history;
+    GameHistory<config>* history;
 
-    GameState(GameHistory* history) : 
+    GameState(GameHistory<config>* history) : 
         board(),
         reserve1(),
         reserve2(),
@@ -39,7 +39,7 @@ struct GameState {
         history(history)
     { }
 
-    GameState(GameHistory* history, const char* sboard, const std::string& sres1, const std::string& sres2, Color player) :
+    GameState(GameHistory<config>* history, const char* sboard, const std::string& sres1, const std::string& sres2, Color player) :
         board(sboard),
         reserve1(sres1),
         reserve2(sres2),

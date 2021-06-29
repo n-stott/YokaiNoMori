@@ -130,7 +130,9 @@ private:
         double bestEvaluation = -std::numeric_limits<double>::infinity();
         for(Action action : actionset) {
             GameState tmp = currentState;
+#ifndef NDEBUG
             const size_t historySize1 = tmp.history->positions.size();
+#endif
             bool validMove = tmp.apply(action);
             assert(validMove);
             double evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
@@ -139,16 +141,26 @@ private:
             }
             assert(evaluation == evaluation);
             if(evaluation > beta) {
-                if(validMove) tmp.revert();
+#ifndef NDEBUG
+                assert(validMove);
+                if(validMove)
+#endif
+                tmp.revert();
                 return beta;
             }
             if(evaluation > alpha) {
                 alpha = evaluation;
                 if(depth == maxDepth) bestAction = action;
             }
-            if(validMove) tmp.revert();
+#ifndef NDEBUG
+            assert(validMove);
+            if(validMove) 
+#endif
+            tmp.revert();
+#ifndef NDEBUG
             const size_t historySize2 = tmp.history->positions.size();
             assert(historySize1 == historySize2);
+#endif
         }
             
         assert(alpha == alpha);
