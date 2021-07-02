@@ -19,6 +19,7 @@ struct GameState {
     static constexpr unsigned int cols = GameConfig<config>::cols;
     static constexpr unsigned int ressize = GameConfig<config>::ressize;
 
+    GameHistory<config>* history;
     Board<rows, cols> board;
     Reserve<P1, ressize> reserve1;
     Reserve<P2, ressize> reserve2;
@@ -26,29 +27,31 @@ struct GameState {
     Color winner;
     uint8_t nbTurns;
     uint8_t maxTurns;
-    GameHistory<config>* history;
 
     GameState(GameHistory<config>* history) : 
+        history(history),
         board(),
         reserve1(),
         reserve2(),
         currentPlayer(P1),
         winner(None),
         nbTurns(0),
-        maxTurns(150),
-        history(history)
-    { }
+        maxTurns(150)
+    {
+        history->push(board);
+    }
 
     GameState(GameHistory<config>* history, const char* sboard, const std::string& sres1, const std::string& sres2, Color player) :
+        history(history),
         board(sboard),
         reserve1(sres1),
         reserve2(sres2),
         currentPlayer(player),
         winner(None),
         nbTurns(0),
-        maxTurns(150),
-        history(history)
+        maxTurns(150)
     {
+        history->push(board);
         if(hasWon(P1)) winner = P1;
         if(hasWon(P2)) winner = P2;
     }
