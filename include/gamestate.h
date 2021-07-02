@@ -18,6 +18,7 @@ struct GameState {
     static constexpr unsigned int rows = GameConfig<config>::rows;
     static constexpr unsigned int cols = GameConfig<config>::cols;
     static constexpr unsigned int ressize = GameConfig<config>::ressize;
+    static constexpr unsigned int MAX_TURNS = 50;
 
     GameHistory<config>* history;
     Board<rows, cols> board;
@@ -36,9 +37,29 @@ struct GameState {
         currentPlayer(P1),
         winner(None),
         nbTurns(0),
-        maxTurns(150)
+        maxTurns(MAX_TURNS)
     {
         history->push(board);
+    }
+
+
+    GameState(GameHistory<config>* history, 
+            Board<rows, cols> b,
+            Reserve<P1, GameConfig<config>::ressize> r1,
+            Reserve<P2, GameConfig<config>::ressize> r2,
+            Color player) :
+        history(history),
+        board(b),
+        reserve1(r1),
+        reserve2(r2),
+        currentPlayer(player),
+        winner(None),
+        nbTurns(0),
+        maxTurns(MAX_TURNS)
+    {
+        history->push(board);
+        if(hasWon(P1)) winner = P1;
+        if(hasWon(P2)) winner = P2;
     }
 
     GameState(GameHistory<config>* history, const char* sboard, const std::string& sres1, const std::string& sres2, Color player) :
@@ -64,6 +85,36 @@ struct GameState {
         s += reserve1.toString();
         s += '|';
         s += reserve2.toString();
+        return s;
+    }
+
+    inline std::string toString2() const {
+        char pieceCode[2*NB_PIECE_TYPE] = {
+            'v', // P1 NoType
+            'v', // P2 NoType
+            'a', // P1 King
+            'f', // P2 King
+            'c', // P1 Tower
+            'h', // P2 Tower
+            'b', // P1 Bishop
+            'g', // P2 Bishop
+            'd', // P1 Pawn
+            'i', // P2 Pawn
+            'e', // P1 SuperPawn
+            'j', // P2 SuperPawn
+            'x', // P1 Archbishop
+            'y', // P2 Archbishop
+        };
+        std::string b;
+        for(Piece p : board) b += pieceCode[p.id()];
+        std::string r1("vvvvvvvv");
+        std::string r2("vvvvvvvv");
+        for(unsigned int i = 0; i < reserve1.size; ++i) 
+            r1[i] = pieceCode[reserve1[i].id()];
+        for(unsigned int i = 0; i < reserve2.size; ++i) 
+            r2[i] = pieceCode[reserve2[i].id()];
+
+        std::string s = b + " " + r1 + " " + r2;
         return s;
     }
 

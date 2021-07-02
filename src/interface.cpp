@@ -8,6 +8,8 @@
 #include "minimax/minimax.h"
 #include "minimax/logger.h"
 #include <cstring>
+#include <ostream>
+#include <fstream>
 
 #define ENABLE_HUMAN_PLAYER 1
 
@@ -193,8 +195,15 @@ void oneVsAi(int depth) {
 #endif
 
 
+
 template<Mode mode, BoardConfig config>
-void aivsAi(int depth1, int depth2) {
+Color aivsAiFrom(
+    Board<GameConfig<config>::rows, GameConfig<config>::cols> b,
+    Reserve<P1, GameConfig<config>::ressize> r1,
+    Reserve<P2, GameConfig<config>::ressize> r2,
+    Color player,
+    int depth1, 
+    int depth2) {
 
     Logger::log(Verb::Dev, [&](){
         std::stringstream ss;
@@ -206,7 +215,7 @@ void aivsAi(int depth1, int depth2) {
     });
 
     GameHistory<config> history;
-    GameState<config> game(&history);
+    GameState<config> game(&history, b, r1, r2, player);
     Agent<config> agent1;
     Agent<config> agent2;
 
@@ -255,15 +264,85 @@ void aivsAi(int depth1, int depth2) {
         return game.niceToString();
     });
     
+    Color winner = Color::None;
+    if(game.hasWon(Color::P1)) {
+        winner = Color::P1;
+    } else if(game.hasWon(Color::P2)) {
+        winner = Color::P2;
+    }
+
     Logger::log(Verb::Std, [&]() {
-        if(game.hasWon(Color::P1)) {
+        if(winner == Color::P1) {
             return "Player A has won";
-        } else if(game.hasWon(Color::P2)) {
+        } else if(winner == Color::P2) {
             return "Player B has won";
         } else {
             return "Draw";
         }
     });
+
+    return winner;
+
+}
+
+
+template<Mode mode, BoardConfig config>
+Color aivsAi(int depth1, int depth2) {
+    Board<GameConfig<config>::rows, GameConfig<config>::cols> b;
+    Reserve<P1, GameConfig<config>::ressize> r1;
+    Reserve<P2, GameConfig<config>::ressize> r2;
+    Color player = Color::P1;
+    return aivsAiFrom<mode, config>(b, r1, r2, player, depth1, depth2);
+}
+
+template<typename Func>
+void enumeratePositionsHelper(
+                            unsigned int maxdepth,
+                            GameState<Easy> root,
+                            std::ostream& ostream,
+                            Func runner) {
+    if(maxdepth == 0) return;
+    ActionSet<Easy> actions;
+    root.fillAllowedActions(&actions);
+    for(Action a : actions) {
+        GameState<Easy> node = root;
+        node.apply(a);
+        if(node.hasWinner()) continue;
+
+        runner(node, ostream);
+
+        
+
+        enumeratePositionsHelper(maxdepth-1, node, ostream, runner);
+    }
+}
+
+void enumeratePositions(unsigned int maxdepth, std::string filename) {
+
+    GameHistory<Easy> history;
+    GameState<Easy> game(&history);
+
+    std::ofstream ofile;
+    ofile.open(filename);
+
+    auto runner = [](GameState<Easy> node, std::ostream& ostream) {
+        for(int i = 0; i < 2; ++i) {
+            ostream << node.toString2() << " " << i;
+            Color winner = aivsAiFrom<AlphaBeta, Easy>(
+                node.board,
+                node.reserve1,
+                node.reserve2,
+                (Color)i,
+                4,
+                4
+            );
+            ostream << " " << winner;
+            ostream << '\n';
+            ostream << std::flush;
+        }
+    };
+
+    enumeratePositionsHelper(maxdepth, game, ofile, runner);
 
 }
 
@@ -297,6 +376,25 @@ int main(int argc, char** argv) {
         oneVsAi<AlphaBeta>(depth);
     }
 #endif
+    if(std::strcmp(argv[1], "--enumerate") == 0) {
+        if(argc <= 2) {
+            Logger::log(Verb::Std, [](){
+                return "Usage : exe --enumerate [depth = 3] [filename = positions.txt]";
+            });
+        }
+        unsigned int maxdepth = 3;
+        if(argc >= 3) {
+            maxdepth = std::atoi(argv[2]);
+        }
+        std::string filename = "positions.txt";
+        if(argc >= 4) {
+            filename = argv[3];
+        }
+        
+        enumeratePositions(maxdepth, filename);
+    }
+
+
     if(std::strcmp(argv[1], "--AIvAI") == 0) {
         if(argc <= 3) {
             Logger::log(Verb::Std, [](){

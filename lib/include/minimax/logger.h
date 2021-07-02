@@ -15,7 +15,7 @@ enum class Verb {
 
 struct Logger {
 
-    static constexpr Verb verbosity = Verb::Std;
+    static constexpr Verb verbosity = Verb::None;
 
     template<typename Message>
     static void log(Verb v, Message message) {
