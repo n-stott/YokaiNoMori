@@ -399,6 +399,7 @@ int main(int argc, char** argv) {
         action = search.bestAction;
         if(action) {
             Logger::log(Verb::Std, [&](){ return action->toString(); });
+            state.apply(action.value());
         } else {
             Logger::log(Verb::Std, [&]() {
                 std::string s;

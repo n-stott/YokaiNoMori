@@ -9,49 +9,13 @@
 #include <limits>
 #include <cmath>
 
-#if 0
-#include <unordered_map>
-
-struct state_hash {
-    board_hash_t bh;
-    reserve_hash_t r1h;
-    reserve_hash_t r2h;
-
-    bool operator==(const state_hash& other) const {
-        return bh == other.bh && r1h == other.r1h && r2h == other.r2h;
-    }
-};
-
-struct StateHasher {
-
-    size_t operator()(const state_hash& sh) const {
-        return sh.bh ^ sh.r1h ^ sh.r2h;
-    }
-
-};
-
-template<BoardConfig config>
-struct StateRecord {
-    std::unordered_map<state_hash, StateAnalysis<config>, StateHasher> record;
-
-    const StateAnalysis<config>& push(const GameState<config>& s) {
-        state_hash sh {s.board.hash(), s.reserve1.hash(), s.reserve2.hash()};
-        if(record.count(sh) == 0) {
-            record[sh] = StateAnalysis<config>(s.board, s.reserve1, s.reserve2);
-        }
-        return record[sh];
-    }
-
-};
-#endif
-
 template<BoardConfig config>
 struct Agent {
 
     struct score {
         double s1 = 0; // estimated score of p1
         double s2 = 0; // estimated score of p2
-        double p = 0;  // penalty for p1 (non symetric)
+        double p = 0;  // penalty
 
         double value(Color player) const { return (player == Color::P1 ? (s1-s2) : (s2-s1))+p; }
     };
@@ -120,9 +84,7 @@ struct Agent {
         for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s2 += boardValue[i] * sa.onBoard2[i];
         for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s2 += reserveValue[i] * sa.inReserve2[i];
 
-        // s.p += endGamePenalty * (1.0*state.nbTurns/state.maxTurns) * (1.0*state.nbTurns/state.maxTurns);
         s.p += drawPenalty * state.history->hasDraw();
-        // s.p += 1.0 * state.board.hash() / std::numeric_limits<board_hash_t>::max();
 
         return s;
     }

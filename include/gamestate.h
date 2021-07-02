@@ -167,49 +167,4 @@ public:
 };
 
 
-
-// static_assert(sizeof(GameState) == 40);
-
-
-// A piece can have at most 15 different positions (12 on board, one for each reserve, one for nonexistent (SP))
-// Hence the position for a piece can be stored on 4 bits
-// The color requires a 5th bit
-// the current player requires another bit
-// The whole state then fits in 5*10+1 bit
-
-// To avoid symetries, the storage is done as follows : 
-// King with least index, King with largest index, Tower with least index, ...
-// with indices 0 = does not exist, 1-12 = positions 0-11, 13 = reserve1, 14 = reserve2 
-
-/*
-struct GameStateHash {
-
-    template<typename GameState>
-    GameStateHash(const GameState& state) : value(0) {
-        short kings = 0, towers = 0, bishops = 0, pawns = 0, superpawns = 0;
-        auto pieceHash = [&](Piece p, short position) {
-            short value = 2*position+(p.color() == P1);
-            if(p.type() == King)      { value <<= 4*(2*4+kings); ++kings; }
-            if(p.type() == Tower)     { value <<= 4*(2*3+towers); ++towers; }
-            if(p.type() == Bishop)    { value <<= 4*(2*2+bishops); ++bishops; }
-            if(p.type() == Pawn)      { value <<= 4*(2*1+pawns); ++pawns; }
-            if(p.type() == SuperPawn) { value <<= 4*(2*0+superpawns); ++superpawns; }
-            return value;
-        };
-        for(uint8_t i = 0; i < 12; ++i) {
-            value |= pieceHash(state.board.get(i), 1+i);
-        }
-        for(uint8_t i = 0; i < state.reserve1.size; ++i) {
-            value |= pieceHash(state.reserve1[i], 13);
-        }
-        for(uint8_t i = 0; i < state.reserve2.size; ++i) {
-            value |= pieceHash(state.reserve2[i], 14);
-        }
-        value = 2*value + (state.currentPlayer == P1);
-    }
-
-    unsigned long long value;
-};
-*/
-
 #endif

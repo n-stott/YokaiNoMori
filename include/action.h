@@ -19,10 +19,6 @@ struct Action {
         return Action{p, ActionType::Move, src, dst};
     }
 
-    // static Action drop(Piece p, Pos dst) {
-    //     return Action{p, ActionType::Drop, Pos{0}, dst};
-    // }
-
     static Action drop(Piece p, uint8_t posInReserve, Pos dst) {
         return Action{p, ActionType::Drop, Pos{posInReserve}, dst};
     }
