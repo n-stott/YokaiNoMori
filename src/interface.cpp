@@ -328,15 +328,15 @@ void enumeratePositions(unsigned int maxdepth, std::string filename) {
     auto runner = [](GameState<Easy> node, std::ostream& ostream) {
         for(int i = 0; i < 2; ++i) {
             ostream << node.toString2() << " " << i;
-            Color winner = aivsAiFrom<AlphaBeta, Easy>(
-                node.board,
-                node.reserve1,
-                node.reserve2,
-                (Color)i,
-                4,
-                4
-            );
-            ostream << " " << winner;
+            // Color winner = aivsAiFrom<AlphaBeta, Easy>(
+            //     node.board,
+            //     node.reserve1,
+            //     node.reserve2,
+            //     (Color)i,
+            //     4,
+            //     4
+            // );
+            // ostream << " " << winner;
             ostream << '\n';
             ostream << std::flush;
         }
