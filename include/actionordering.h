@@ -8,7 +8,6 @@
 #include <utility>
 #include <algorithm>
 
-
 template<BoardConfig config>
 struct ActionOrdering {
 

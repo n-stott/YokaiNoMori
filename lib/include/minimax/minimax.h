@@ -58,7 +58,7 @@ private:
             return -std::numeric_limits<double>::infinity();
         }
         if(currentState.hasDraw()) {
-            return -std::numeric_limits<double>::infinity();
+            return agent.drawPenalty;
         }
         
         if(depth == 0) {

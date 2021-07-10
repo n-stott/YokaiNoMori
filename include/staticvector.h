@@ -60,6 +60,21 @@ public:
         return true;
     }
 
+    constexpr const T& back() const {
+        assert(size_ > 0);
+        return data_[size_-1];
+    }
+
+    constexpr T& back() {
+        assert(size_ > 0);
+        return data_[size_-1];
+    }
+
+    constexpr void pop_back() {
+        assert(size_ > 0);
+        --size_;
+    }
+
 private:
     std::array<T, max_size> data_;
     unsigned int size_;

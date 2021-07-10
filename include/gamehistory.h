@@ -4,6 +4,7 @@
 #include "gamelogic.h"
 #include "staticvector.h"
 #include "board.h"
+#include "constants.h"
 #include <vector>
 
 
@@ -14,7 +15,7 @@ struct GameHistory {
 
     static constexpr unsigned int nbKingPos = GameLogic<config>::rows*GameLogic<config>::cols;
 
-    std::vector<board_t> positions;
+    static_vector<board_t, MAX_TURNS+2> positions;
     std::array<uint8_t, nbKingPos*nbKingPos> countKingPos;
     bool cached_draw;
     bool cache_valid;
@@ -41,14 +42,6 @@ struct GameHistory {
         cache_valid = false;
     }
 
-    unsigned int count(const board_t& b) const {
-        unsigned int val = 0;
-        for(const board_t& h : positions) {
-            val += (b == h);
-        }
-        return val;
-    }
-
     bool hasDraw() {
         if(cache_valid) return cached_draw;
         // We only need to check if the last move was a draw
@@ -62,8 +55,8 @@ struct GameHistory {
             return false;
         }
         unsigned int val = 0;
-        for (auto it = positions.rbegin(); it != positions.rend(); ++it) {
-            val += (h == *it);
+        for (auto& b : positions) {
+            val += (b == h);
         }
         set_cache(val == 3);
         return val == 3;

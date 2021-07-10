@@ -7,6 +7,7 @@
 #include "reserve.h"
 #include "gamehistory.h"
 #include "gameconfig.h"
+#include "constants.h"
 
 #include <array>
 #include <string>
@@ -18,7 +19,6 @@ struct GameState {
     static constexpr unsigned int rows = GameConfig<config>::rows;
     static constexpr unsigned int cols = GameConfig<config>::cols;
     static constexpr unsigned int ressize = GameConfig<config>::ressize;
-    static constexpr unsigned int MAX_TURNS = 50;
 
     GameHistory<config>* history;
     Board<rows, cols> board;

@@ -1,6 +1,7 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+#include "constants.h"
 #include <cstddef>
 
 enum PieceType : char {
@@ -13,15 +14,11 @@ enum PieceType : char {
     ArchBishop,
 };
 
-static constexpr unsigned int NB_PIECE_TYPE = 7;
-
 enum Color : char {
     P1,
     P2,
     None,
 };
-
-static constexpr unsigned int NB_PLAYERS = 2;
 
 enum ActionType : char {
     Move,
