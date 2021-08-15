@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Wasm test</title>
+    </head>
+    <body>
+    </body>
+    <!-- The main function of my C++ code is executed at the beginning after importing this js file, which also exposes the Module object -->
+    <script src="./bin/yokai-lib.js"></script>
+
+    <script language="javascript">
+
+        searchBestMove = Module.cwrap('searchBestMove', 'number', ['string', 'string', 'string', 'number', 'number'])
+        get_board = Module.cwrap('board', 'string', [])
+        get_reserve0 = Module.cwrap('reserve0', 'string', [])
+        get_reserve1 = Module.cwrap('reserve1', 'string', [])
+        
+        validAction = Module.cwrap('validAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
+        playAction = Module.cwrap('playAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
+
+        class Configuration {
+
+            constructor(board, reserve0, reserve1, player) {
+                this.board = board;
+                this.reserve0 = reserve0;
+                this.reserve1 = reserve1;
+                this.currentPlayer = player;
+            }
+
+            static Default() {
+                return new Configuration('TKB.P..p.bkt', '', '', 0);
+            }
+
+            update() {
+                this.board = get_board()
+                this.reserve0 = get_reserve0()
+                this.reserve1 = get_reserve1()
+                this.currentPlayer = 1-this.currentPlayer
+            }
+
+            autoPlay(depth) {
+                searchBestMove(
+                    this.board,
+                    this.reserve0,
+                    this.reserve1,
+                    this.currentPlayer,
+                    depth
+                )
+                this.update()
+            }
+
+            play(action, piece, start, end) {
+                let valid = validAction(
+                    this.board,
+                    this.reserve0,
+                    this.reserve1,
+                    this.currentPlayer,
+                    action,
+                    piece,
+                    start,
+                    end
+                )
+                if(valid) {
+                    playAction(
+                        this.board,
+                        this.reserve0,
+                        this.reserve1,
+                        this.currentPlayer,
+                        action,
+                        piece,
+                        start,
+                        end
+                    )
+                    this.update()
+                }
+            }
+            
+        }
+
+        class GameState {
+            constructor() {
+                this.config = Configuration();
+                this.winner = -1;
+                this.history = [];
+            }
+        }
+
+        let config = Configuration.Default()
+
+        console.log(config)
+
+        config.autoPlay(5)
+
+        console.log(config)
+
+        config.play('move','P',4,7)
+
+        console.log(config)
+
+    </script>
+</html>

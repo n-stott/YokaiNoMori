@@ -80,7 +80,7 @@ struct GameState {
 
     inline std::string toString() const {
         std::string s;
-        for(Piece p : board) s+=p.toChar();
+        s += board.toString();
         s += '|';
         s += reserve1.toString();
         s += '|';

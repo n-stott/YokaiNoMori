@@ -52,6 +52,12 @@ struct Board {
         check();
         return pieces[i];
     }
+
+    std::string toString() const {
+        std::string s;
+        for(Piece p : *this) s+=p.toChar();
+        return s;
+    }
     
     void  set(uint8_t i, Piece p) {
         if(pieces[i].type() == PieceType::King) {
