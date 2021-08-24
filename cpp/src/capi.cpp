@@ -85,13 +85,13 @@ extern "C" {
         if(player > 1) player = 1;
 
         if(depth < 1) depth = 1;
-        if(depth > 6) depth = 6;
+        if(depth > 8) depth = 8;
 
         GameHistory<Easy> history;
         GameState<Easy> state(&history, board, reserve1, reserve2, (Color)player);
 
         Agent<Easy> agent;
-        using MyMinimax = Minimax<Mode::AlphaBeta, Action<Easy>, ActionSet<Easy>, GameState<Easy>, Agent<Easy>, ActionOrdering<Easy>>;
+        using MyMinimax = Minimax<Mode::IterativeDeepening, Action<Easy>, ActionSet<Easy>, GameState<Easy>, Agent<Easy>, ActionOrdering<Easy>>;
 
         std::optional<Action<Easy>> action;
         MyMinimax search(state, agent);

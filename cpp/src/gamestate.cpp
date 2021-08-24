@@ -21,7 +21,7 @@ bool GameState<config>::checkMove(Piece p, Pos a, Pos b) const {
     if(dst.empty() == false) {
         if(dst.color() == c) return false;
     }
-    return true;
+    return allowedOffset(p, a, b);
 }
 
 template<BoardConfig config>
