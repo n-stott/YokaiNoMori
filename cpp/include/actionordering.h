@@ -46,13 +46,13 @@ struct ActionOrdering {
 private:
 
     static constexpr std::array<double, NB_PIECE_TYPE> pieceValue {
-        0.0, // NoType,
+        0.0,    // NoType,
         1000.0, // King,
-        50.0, // Tower,
-        50.0, // Bishop,
-        10.0, // Pawn,
-        30.0, // SuperPawn,
-        40.0, // ArchBishop,
+        50.0,   // Tower,
+        50.0,   // Bishop,
+        10.0,   // Pawn,
+        30.0,   // SuperPawn,
+        40.0,   // ArchBishop,
     };
 
     template<typename GameState>
