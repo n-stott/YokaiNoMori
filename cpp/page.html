@@ -32,6 +32,7 @@
         }
 
         autoPlay(depth) {
+            console.log("before AI : ", this.toString());
             searchBestMove(
                 this.board,
                 this.reserve0,
@@ -40,6 +41,7 @@
                 depth
             )
             this.update()
+            console.log("after AI : ", this.toString());
         }
 
         play(action, piece, start, end) {
@@ -53,8 +55,8 @@
                 start,
                 end
             )
-            console.log(valid);
             if(valid) {
+                console.log("before HU : ", this.toString());
                 playAction(
                     this.board,
                     this.reserve0,
@@ -66,6 +68,7 @@
                     end
                 )
                 this.update()
+                console.log("after HU : ", this.toString());
             }
         }
 
@@ -110,6 +113,7 @@
         b += "<button onclick=init(5)>Medium</button>";
         b += "<button onclick=init(6)>Hard</button>";
         b += "<div>Difficulty : <span id=difficulty></span></div>"; 
+        b += "Rules : "
         b += "<div> <table cellspacing=0 align=center>";
         for(i = 0; i < 7; ++i) {
             b += "<th width="+W+" height="+W+" onclick=C('r',"+i+",1)" +
@@ -139,11 +143,9 @@
     writeHtml();
 
     function C(part, i, j) {
-        console.log(part, i, j);
         if(selectedPos == -1) {
             selectedPos = part+i+j;
         } else {
-            console.log("play");
             if(selectedPos[0] == 'b' && part == 'b') {
                 i0 = parseInt(selectedPos[1]);
                 j0 = parseInt(selectedPos[2]);
@@ -157,7 +159,7 @@
             draw();
             if(config.winner() != -1) {
                 alert("Player : " + config.winner() + " has won !");
-                init();
+                init(difficulty);
                 draw();
             }
             selectedPos = -1;
@@ -166,7 +168,7 @@
                 draw();
                 if(config.winner() != -1) {
                     alert("Player " + config.winner() + " has won !");
-                    init();
+                    init(difficulty);
                     draw();
                 }
             }
