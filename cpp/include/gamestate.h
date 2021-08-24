@@ -39,7 +39,7 @@ struct GameState {
         nbTurns(0),
         maxTurns(MAX_TURNS)
     {
-        history->push(board);
+        if(history) history->push(board);
     }
 
 
@@ -57,7 +57,7 @@ struct GameState {
         nbTurns(0),
         maxTurns(MAX_TURNS)
     {
-        history->push(board);
+        if(history) history->push(board);
         if(hasWon(P1)) winner = P1;
         if(hasWon(P2)) winner = P2;
     }
@@ -72,7 +72,7 @@ struct GameState {
         nbTurns(0),
         maxTurns(150)
     {
-        history->push(board);
+        if(history) history->push(board);
         if(hasWon(P1)) winner = P1;
         if(hasWon(P2)) winner = P2;
     }
@@ -157,7 +157,7 @@ struct GameState {
             res = drop(action.p, action.src, action.dst);
         }
         if(res) {
-            history->push(board);
+            if(history) history->push(board);
             // player wins if he ate king, so they win if a king is at the top of their reserve
             assert(action.p.color() != None);
             if(action.p.color() == P1) {
@@ -170,7 +170,7 @@ struct GameState {
     }
 
     void revert() {
-        history->pop();
+        if(history) history->pop();
     }
     
 public:
@@ -210,7 +210,7 @@ public:
     bool hasWinner() const { return winner != None; }
 
     bool hasDraw() const {
-        return (nbTurns == maxTurns) || history->hasDraw();
+        return (nbTurns == maxTurns) || (history && history->hasDraw());
     }
 
     void swapPlayer() {

@@ -119,7 +119,6 @@ std::optional<Action<config>> readAction(Color player) {
     return std::nullopt;
 }
 
-
 void oneVsOne() {
     GameHistory<Easy> history;
     GameState<Easy> state(&history);

@@ -72,7 +72,7 @@ struct Board {
     }
 
     bool operator==(const Board& other) const {
-        return (k1 == other.k1 && k2 == other.k2 && pieces == other.pieces);
+        return ((k1 == other.k1) & (k2 == other.k2)) && pieces == other.pieces;
     }
 
     constexpr uint8_t king1() const { return k1.idx() < rows*cols ? k1.idx() : 0; }

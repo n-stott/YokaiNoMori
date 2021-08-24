@@ -84,7 +84,7 @@ struct Agent {
         for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s2 += boardValue[i] * sa.onBoard2[i];
         for(size_t i = 0; i < NB_PIECE_TYPE; ++i) s.s2 += reserveValue[i] * sa.inReserve2[i];
 
-        s.p += drawPenalty * state.history->hasDraw();
+        s.p += drawPenalty * (state.history ? state.history->hasDraw() : 0);
 
         return s;
     }

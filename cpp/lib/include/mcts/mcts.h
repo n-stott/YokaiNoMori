@@ -80,7 +80,7 @@ struct MctsNode {
         scores.clear();
         scores.reserve(children.size());
         for(auto& child : children) {
-            scores.emplace_back(&child, child.UCT(data.player));
+            scores.emplace_back(&child, child.UCT(data.player()));
         }
         auto best = std::max_element(scores.begin(), scores.end(), [](const score_pair& a, const score_pair& b) { return a.second < b.second; });
 
@@ -114,13 +114,20 @@ struct MctsNode {
 
     std::string toString(std::string prefix = "", int maxdepth = 2, int depth = 0) const {
         std::string s;
-        s += prefix + "simulations : " + std::to_string(simulations) + '\n';
-        s += prefix + "wins : " + std::to_string(wins1) + "   " + std::to_string(wins2) + '\n';
-        s += prefix + "uct : " + std::to_string(UCT(1)) + "   " + std::to_string(UCT(2)) + '\n';
+        // s += prefix + "simulations : " + std::to_string(simulations) + '\n';
+        // s += prefix + "wins : " + std::to_string(wins1) + "   " + std::to_string(wins2) + '\n';
+        // s += prefix + "draws: " + std::to_string(draws) + '\n';
+        // s += prefix + "uct : " + std::to_string(UCT(1)) + "   " + std::to_string(UCT(2)) + '\n';
+
+        s += prefix + "simulations : " + std::to_string(simulations) + "sim ";
+        s += std::to_string(wins1) + " w1 " + std::to_string(wins2) + " w2 ";
+        s += std::to_string(UCT(1)) + " uct1  " + std::to_string(UCT(2)) + " uct2\n";
+
         s += prefix + data.toString() + '\n';
         if(depth == maxdepth) return s;
         for(auto& c : children) {
-            s += c->toString(prefix+"  ", maxdepth, depth+1);
+            // s += c.toString();
+            s += c.toString(prefix+"  ", maxdepth, depth+1);
         }
         return s;
     }
@@ -182,7 +189,7 @@ struct MctsGraph {
 
     std::string toString() const {
         std::string s = "root\n";
-        s += root.toString();
+        s += root.toString("   ", 1, 0);
         return s;
     }
 
