@@ -14,6 +14,7 @@ bool GameState<config>::checkMove(Piece p, Pos a, Pos b) const {
     const Color c = p.color();
     const PieceType pt = p.type();
     if(c != P1 && c != P2) return false;
+    if(c != currentPlayer) return false;
     if(pt == NoType) return false;
     if(src.type() != pt) return false;
     if(src.color() != c) return false;
@@ -35,6 +36,7 @@ bool GameState<config>::checkDrop(Piece p, Pos res, Pos a) const {
     const PieceType pt = p.type();
     if(pt == NoType) return false;
     if(c != P1 && c != P2) return false;
+    if(c != currentPlayer) return false;
     if(c == P1) {
         auto pos = std::find_if(reserve1.begin(), reserve1.end(), [&](Piece p) { return p.type() == pt; });
         if(pos == reserve1.end()) return false;

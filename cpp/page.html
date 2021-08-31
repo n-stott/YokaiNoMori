@@ -108,6 +108,8 @@
 
     function writeHtml() {
         W = 100
+        black = "#000";
+        white = "#fff";
         b = "";
         b += "<button onclick=init(3)>Easy</button>";
         b += "<button onclick=init(5)>Medium</button>";
@@ -117,16 +119,16 @@
         b += "<div> <table cellspacing=0 align=center>";
         for(i = 0; i < 7; ++i) {
             b += "<th width="+W+" height="+W+" onclick=C('r',"+i+",1)" +
-                    " style='border:2px solid #aae' id=r"+i+1+
-                    " bgcolor=#"+(i&1?"9090d0>":"c0c0ff>");
+                    " style='border:2px solid #999' id=r"+i+1+
+                    " bgcolor=#"+(i&1?"aaaaaa>":"eeeeee>");
         }
         b += "</tr> </table> </div>";
-        b += "<div><table cellspacing=0 align=center>";
+        b += "<div><table cellspacing=0 align=center border: 3px solid black;>";
         for(i = 0; i < 4; ++i) {
             for(j = 0; j < 3; ++j) {
                 b += "<th width="+W+" height="+W+" onclick=C('b',"+i+","+j+")" +
-                     " style='border:2px solid #aae' id=b"+i+j +
-                     " bgcolor=#"+((3*i+j)&1?"9090d0>":"c0c0ff>");
+                     " style='border:2px solid #999' id=b"+i+j +
+                     " bgcolor=#"+((3*i+j)&1?"aaaaaa>":"eeeeee>");
             }
             b += "</tr>";
         }
@@ -134,8 +136,8 @@
         b += "<div> <table cellspacing=0 align=center>";
         for(i = 0; i < 7; ++i) {
             b += "<th width="+W+" height="+W+" onclick=C('r',"+i+",0)" +
-                    " style='border:2px solid #aae' id=r"+i+0+
-                    " bgcolor=#"+(i&1?"9090d0>":"c0c0ff>");
+                    " style='border:2px solid #999' id=r"+i+0+
+                    " bgcolor=#"+(i&1?"aaaaaa>":"eeeeee>");
         }
         b += "</tr> </table> </div>";
         document.write(b);
@@ -159,7 +161,8 @@
             draw();
             if(config.winner() != -1) {
                 alert("Player : " + config.winner() + " has won !");
-                init(difficulty);
+                d = difficulty;
+                init(d);
                 draw();
             }
             selectedPos = -1;
@@ -168,7 +171,8 @@
                 draw();
                 if(config.winner() != -1) {
                     alert("Player " + config.winner() + " has won !");
-                    init(difficulty);
+                    d = difficulty;
+                    init(d);
                     draw();
                 }
             }
@@ -178,8 +182,10 @@
 
     function draw() {
         W = 100
-        path = "img/simple/";
-        ext = ".gif"
+        path = "img/own/";
+        ext = ".png"
+        black = "#000";
+        white = "#fff";
         if(q = document.getElementById("difficulty")) {
             q.innerHTML = (difficulty == 3 ? 'Easy' : (difficulty == 5 ? 'Medium' : 'Hard'));
         }
@@ -191,7 +197,7 @@
                     charCode = config.board[3*i+j];
                     if(charCode === '.') charCode = 'e';
                     q.innerHTML = "<img width="+W+" src="+path + charCode + ext+">";
-                    q.style.borderColor = id == selectedPos ? "#ff0" : "#aae";
+                    q.style.borderColor = id == selectedPos ? black : white;
                 }
             }
         }
@@ -201,7 +207,7 @@
                 charCode = (i < config.reserve0.length ? config.reserve0[i] : 'e');
                 if(charCode === '.') charCode = 'e';
                 q.innerHTML = "<img width="+W+" src="+path + charCode + ext+">";
-                q.style.borderColor = id == selectedPos ? "#ff0" : "#aae";
+                q.style.borderColor = id == selectedPos ? black : white;
             }
         }
         for(i = 0; i < 7; ++i) {
@@ -210,7 +216,7 @@
                 charCode = (i < config.reserve1.length ? config.reserve1[i] : 'e');
                 if(charCode === '.') charCode = 'e';
                 q.innerHTML = "<img width="+W+" src="+path + charCode + ext+">";
-                q.style.borderColor = id == selectedPos ? "#ff0" : "#aae";
+                q.style.borderColor = id == selectedPos ? black : white;
             }
         }
     }
