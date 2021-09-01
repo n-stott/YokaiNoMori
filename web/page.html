@@ -3,16 +3,16 @@
 <script src="./js/yokai-api.js"></script>
 <script language="javascript">
     var selectedPos;
-    var config;
+    var game;
     var difficulty;
     var history;
 
     function init(d) {
         selectedPos = -1;
-        config = Configuration.Default();
+        game = Yokai.Default();
         difficulty = d;
         history = new GameHistory()
-        // history.config += config;
+        // history.game += game;
         draw();
     }
     init(5);
@@ -63,25 +63,25 @@
                 i0 = parseInt(selectedPos[1]);
                 j0 = parseInt(selectedPos[2]);
                 p = 3*i0+j0;
-                config.play("move", config.board[p], p, 3*i+j);
+                game.play("move", game.board[p], p, 3*i+j);
             } else if(selectedPos[0] == 'r' && selectedPos[2] == '0' && part == 'b'){
                 i0 = parseInt(selectedPos[1]);
                 p = i0;
-                config.play("drop", config.reserve0[p], p, 3*i+j);
+                game.play("drop", game.reserve0[p], p, 3*i+j);
             }
             draw();
-            if(config.winner() != -1) {
-                alert("Player : " + config.winner() + " has won !");
+            if(game.winner() != -1) {
+                alert("Player : " + game.winner() + " has won !");
                 d = difficulty;
                 init(d);
                 draw();
             }
             selectedPos = -1;
-            if(config.currentPlayer == 1) {
-                config.autoPlay(difficulty);
+            if(game.currentPlayer == 1) {
+                game.autoPlay(difficulty);
                 draw();
-                if(config.winner() != -1) {
-                    alert("Player " + config.winner() + " has won !");
+                if(game.winner() != -1) {
+                    alert("Player " + game.winner() + " has won !");
                     d = difficulty;
                     init(d);
                     draw();
@@ -105,7 +105,7 @@
                 id = "b"+i+j;
                 if (q = document.getElementById(id)) {
                     p = 3*i+j;
-                    charCode = config.board[3*i+j];
+                    charCode = game.board[3*i+j];
                     if(charCode === '.') charCode = 'e';
                     q.innerHTML = "<img width="+W+" src="+path + charCode + ext+">";
                     q.style.borderColor = id == selectedPos ? black : white;
@@ -115,7 +115,7 @@
         for(i = 0; i < 7; ++i) {
             id = "r"+i+0;
             if (q = document.getElementById(id)) {
-                charCode = (i < config.reserve0.length ? config.reserve0[i] : 'e');
+                charCode = (i < game.reserve0.length ? game.reserve0[i] : 'e');
                 if(charCode === '.') charCode = 'e';
                 q.innerHTML = "<img width="+W+" src="+path + charCode + ext+">";
                 q.style.borderColor = id == selectedPos ? black : white;
@@ -124,7 +124,7 @@
         for(i = 0; i < 7; ++i) {
             id = "r"+i+1;
             if (q = document.getElementById(id)) {
-                charCode = (i < config.reserve1.length ? config.reserve1[i] : 'e');
+                charCode = (i < game.reserve1.length ? game.reserve1[i] : 'e');
                 if(charCode === '.') charCode = 'e';
                 q.innerHTML = "<img width="+W+" src="+path + charCode + ext+">";
                 q.style.borderColor = id == selectedPos ? black : white;

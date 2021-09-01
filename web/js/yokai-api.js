@@ -6,7 +6,7 @@ get_reserve1 = Module.cwrap('reserve1', 'string', [])
 validAction = Module.cwrap('validAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
 playAction = Module.cwrap('playAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
 
-class Configuration {
+class Yokai {
 
     constructor(board, reserve0, reserve1, player) {
         this.board = board;
@@ -16,7 +16,7 @@ class Configuration {
     }
 
     static Default() {
-        return new Configuration('TKB.P..p.bkt', '', '', 0);
+        return new Yokai('TKB.P..p.bkt', '', '', 0);
     }
 
     update() {
