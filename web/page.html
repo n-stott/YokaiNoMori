@@ -1,6 +1,7 @@
 <!-- The main function of my C++ code is executed at the beginning after importing this js file, which also exposes the Module object -->
 <script src="./js/yokai-lib.js"></script>
 <script src="./js/yokai-api.js"></script>
+<link rel="stylesheet" href="css/style.css">
 <script language="javascript">
     var selectedPos;
     var game;
@@ -15,45 +16,77 @@
         // history.game += game;
         draw();
     }
-    init(5);
 
-    function writeHtml() {
-        W = 100
-        black = "#000";
-        white = "#fff";
-        b = "";
-        b += "<button onclick=init(3)>Easy</button>";
-        b += "<button onclick=init(5)>Medium</button>";
-        b += "<button onclick=init(6)>Hard</button>";
-        b += "<div>Difficulty : <span id=difficulty></span></div>"; 
-        b += "Rules : "
-        b += "<div> <table cellspacing=0 align=center>";
-        for(i = 0; i < 7; ++i) {
-            b += "<th width="+W+" height="+W+" onclick=C('r',"+i+",1)" +
-                    " style='border:2px solid #999' id=r"+i+1+
-                    " bgcolor=#"+(i&1?"aaaaaa>":"eeeeee>");
+    function makeBoard() {
+        {
+            let easy = document.createElement('button');
+            easy.innerHTML = 'Easy';
+            easy.onclick = function() { init(3); }
+            let medium = document.createElement('button');
+            medium.innerHTML = 'Medium';
+            medium.onclick = function() { init(5); }
+            let hard = document.createElement('button');
+            hard.innerHTML = 'Hard';
+            hard.onclick = function() { init(6); }
+            document.body.appendChild(easy);
+            document.body.appendChild(medium);
+            document.body.appendChild(hard);
+
+            let difficultyDisplay = document.createElement('div');
+            difficultyDisplay.id = 'difficulty';
+            document.body.appendChild(difficultyDisplay);
         }
-        b += "</tr> </table> </div>";
-        b += "<div><table cellspacing=0 align=center border: 3px solid black;>";
+
+        let reserve1div = document.createElement('div');
+        let reserve1 = document.createElement('table');
+        reserve1.cellSpacing = 0;
+        reserve1.align = 'center';
+        for(i = 0; i < 7; ++i) {
+            let tile = document.createElement('th');
+            tile.className = (i+1)&1 ? 'whitetile' : 'blacktile';
+            (function(ii) { tile.onclick = function() { C('r',ii,1); } })(i);
+            tile.id = 'r'+i+1;
+            reserve1.appendChild(tile);
+        }
+        reserve1div.appendChild(reserve1);
+
+        let boardDiv = document.createElement('div');
+        let board = document.createElement('table');
+        board.cellSpacing = 0;
+        board.align = 'center';
+        board.className = 'board';
         for(i = 0; i < 4; ++i) {
+            let row = document.createElement('tr');
             for(j = 0; j < 3; ++j) {
-                b += "<th width="+W+" height="+W+" onclick=C('b',"+i+","+j+")" +
-                     " style='border:2px solid #999' id=b"+i+j +
-                     " bgcolor=#"+((3*i+j)&1?"aaaaaa>":"eeeeee>");
+                let tile = document.createElement('th');
+                tile.className = (3*i+j)&1 ? 'whitetile' : 'blacktile';
+                (function(ii, jj) { tile.onclick = function() { C('b', ii, jj); } })(i, j);
+                tile.id = "b"+i+j;
+                row.appendChild(tile);
             }
-            b += "</tr>";
+            board.appendChild(row);
         }
-        b += "</table> </div>";
-        b += "<div> <table cellspacing=0 align=center>";
+        boardDiv.appendChild(board);
+
+        let reserve0div = document.createElement('div');
+        let reserve0 = document.createElement('table');
+        reserve0.cellSpacing = 0;
+        reserve0.align = 'center';
         for(i = 0; i < 7; ++i) {
-            b += "<th width="+W+" height="+W+" onclick=C('r',"+i+",0)" +
-                    " style='border:2px solid #999' id=r"+i+0+
-                    " bgcolor=#"+(i&1?"aaaaaa>":"eeeeee>");
+            let tile = document.createElement('th');
+            tile.className = i&1 ? 'whitetile' : 'blacktile';
+            (function(ii) { tile.onclick = function() { C('r', ii, 0); } })(i);
+            tile.id = 'r'+i+0;
+            reserve0.appendChild(tile);
         }
-        b += "</tr> </table> </div>";
-        document.write(b);
+        reserve0div.appendChild(reserve0);
+
+        let gamespace = document.createElement('div');
+        gamespace.appendChild(reserve1div);
+        gamespace.appendChild(boardDiv);
+        gamespace.appendChild(reserve0div);
+        document.body.appendChild(gamespace);
     }
-    writeHtml();
 
     function C(part, i, j) {
         if(selectedPos == -1) {
@@ -131,6 +164,14 @@
             }
         }
     }
-    draw();
 
 </script>
+
+
+<body>
+    <script>
+        init(5);
+        makeBoard();
+        draw();
+    </script>
+</body>
