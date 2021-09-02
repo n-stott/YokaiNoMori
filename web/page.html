@@ -43,7 +43,7 @@
         reserve1.align = 'center';
         for(i = 0; i < 7; ++i) {
             let tile = document.createElement('th');
-            tile.className = (i+1)&1 ? 'whitetile' : 'blacktile';
+            tile.className = ((i+1)&1 ? 'white' : 'black') + ' tile';
             (function(ii) { tile.onclick = function() { C('r',ii,1); } })(i);
             tile.id = 'r'+i+1;
             reserve1.appendChild(tile);
@@ -59,7 +59,7 @@
             let row = document.createElement('tr');
             for(j = 0; j < 3; ++j) {
                 let tile = document.createElement('th');
-                tile.className = (3*i+j)&1 ? 'whitetile' : 'blacktile';
+                tile.className = ((3*i+j)&1 ? 'white' : 'black') + ' tile';
                 (function(ii, jj) { tile.onclick = function() { C('b', ii, jj); } })(i, j);
                 tile.id = "b"+i+j;
                 row.appendChild(tile);
@@ -74,7 +74,7 @@
         reserve0.align = 'center';
         for(i = 0; i < 7; ++i) {
             let tile = document.createElement('th');
-            tile.className = i&1 ? 'whitetile' : 'blacktile';
+            tile.className = (i&1 ? 'white' : 'black') + ' tile';
             (function(ii) { tile.onclick = function() { C('r', ii, 0); } })(i);
             tile.id = 'r'+i+0;
             reserve0.appendChild(tile);
