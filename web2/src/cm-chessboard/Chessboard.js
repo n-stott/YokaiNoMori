@@ -35,16 +35,18 @@ export const PIECE = {
     wp: "wp", wq: "wq", wb: "wb", wr: "wr", wk: "wk",
     bp: "bp", bq: "bq", bb: "bb", br: "br", bk: "bk",
 }
-export const FEN_START_POSITION = "BKR/.P./.p./rkb/......./......."
-export const FEN_EMPTY_POSITION = ".../.../.../.../......./......."
+export const FEN_START_POSITION = "......./BKR/.P./.p./rkb/......."
+export const FEN_EMPTY_POSITION = "......./.../.../.../.../......."
 
 export class Chessboard {
 
-    constructor(board_element, props = {}) {
-        if (!board_element) {
-            throw new Error("container board_element is " + board_element)
+    constructor(board_element, res0_element, res1_element, props = {}) {
+        if (!board_element || !res0_element || !res1_element) {
+            throw new Error("container board_element is " + board_element + " " + res0_element + " " + res1_element)
         }
         this.board_element = board_element
+        this.res0_element = res0_element
+        this.res1_element = res1_element
         let defaultProps = {
             position: "empty", // set as fen, "start" or "empty"
             orientation: COLOR.white, // white on bottom
@@ -52,14 +54,14 @@ export class Chessboard {
                 cssClass: "default",
                 showCoordinates: true, // show ranks and files
                 borderType: BORDER_TYPE.thin, // thin: thin border, frame: wide border with coordinates in it, none: no border
-                aspectRatio: 4/3, // height/width. Set to `undefined`, if you want to define it only in the css.
+                aspectRatio: 6/7, // height/width. Set to `undefined`, if you want to define it only in the css.
                 moveFromMarker: MARKER_TYPE.frame, // the marker used to mark the start square
                 moveToMarker: MARKER_TYPE.frame, // the marker used to mark the square where the figure is moving to
                 moveMarker: MARKER_TYPE.frame, // deprecated => moveFromMarker // TODO remove in future
                 hoverMarker: MARKER_TYPE.frame // deprecated => moveToMarker // TODO remove in future
             },
             responsive: true, // resizes the board based on board_element size
-            animationDuration: 300, // pieces animation duration in milliseconds
+            animationDuration: 200, // pieces animation duration in milliseconds
             sprite: {
                 url: "./assets/images/chessboard-sprite-staunty.svg", // pieces and markers are stored as svg sprite
                 size: 40, // the sprite size, defaults to 40x40px
@@ -148,33 +150,6 @@ export class Chessboard {
         return this.state.getPosition()
     }
 
-    addMarker(square, type) {
-        if (!type) {
-            console.error("Error addMarker(), type is " + type)
-        }
-        this.state.addMarker(this.state.squareToIndex(square), type)
-        this.view.drawMarkers()
-    }
-
-    getMarkers(square = undefined, type = undefined) {
-        const markersFound = []
-        this.state.markers.forEach((marker) => {
-            const markerSquare = SQUARE_COORDINATES[marker.index]
-            if (!square && (!type || type === marker.type) ||
-                !type && square === markerSquare ||
-                type === marker.type && square === markerSquare) {
-                markersFound.push({square: SQUARE_COORDINATES[marker.index], type: marker.type})
-            }
-        })
-        return markersFound
-    }
-
-    removeMarkers(square = undefined, type = undefined) {
-        const index = square ? this.state.squareToIndex(square) : undefined
-        this.state.removeMarkers(index, type)
-        this.view.drawMarkers()
-    }
-
     setOrientation(color) {
         this.state.orientation = color
         return this.view.redraw()
@@ -192,6 +167,12 @@ export class Chessboard {
             this.board_element.removeEventListener("contextmenu", this.squareSelectListener)
             this.board_element.removeEventListener("mouseup", this.squareSelectListener)
             this.board_element.removeEventListener("touchend", this.squareSelectListener)
+            this.res0_element.removeEventListener("contextmenu", this.squareSelectListener)
+            this.res0_element.removeEventListener("mouseup", this.squareSelectListener)
+            this.res0_element.removeEventListener("touchend", this.squareSelectListener)
+            this.res1_element.removeEventListener("contextmenu", this.squareSelectListener)
+            this.res1_element.removeEventListener("mouseup", this.squareSelectListener)
+            this.res1_element.removeEventListener("touchend", this.squareSelectListener)
         }
     }
 
@@ -241,6 +222,12 @@ export class Chessboard {
         this.board_element.addEventListener("contextmenu", this.squareSelectListener)
         this.board_element.addEventListener("mouseup", this.squareSelectListener)
         this.board_element.addEventListener("touchend", this.squareSelectListener)
+        this.res0_element.addEventListener("contextmenu", this.squareSelectListener)
+        this.res0_element.addEventListener("mouseup", this.squareSelectListener)
+        this.res0_element.addEventListener("touchend", this.squareSelectListener)
+        this.res1_element.addEventListener("contextmenu", this.squareSelectListener)
+        this.res1_element.addEventListener("mouseup", this.squareSelectListener)
+        this.res1_element.addEventListener("touchend", this.squareSelectListener)
         this.state.squareSelectEnabled = true
         this.view.setCursor()
     }
@@ -249,6 +236,12 @@ export class Chessboard {
         this.board_element.removeEventListener("contextmenu", this.squareSelectListener)
         this.board_element.removeEventListener("mouseup", this.squareSelectListener)
         this.board_element.removeEventListener("touchend", this.squareSelectListener)
+        this.res0_element.removeEventListener("contextmenu", this.squareSelectListener)
+        this.res0_element.removeEventListener("mouseup", this.squareSelectListener)
+        this.res0_element.removeEventListener("touchend", this.squareSelectListener)
+        this.res1_element.removeEventListener("contextmenu", this.squareSelectListener)
+        this.res1_element.removeEventListener("mouseup", this.squareSelectListener)
+        this.res1_element.removeEventListener("touchend", this.squareSelectListener)
         this.squareSelectListener = undefined
         this.state.squareSelectEnabled = false
         this.view.setCursor()

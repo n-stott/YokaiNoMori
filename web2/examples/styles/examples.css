@@ -42,6 +42,12 @@ div.board {
   margin-right: 20px;
   margin-bottom: 20px; }
 
+div.reserve {
+  float: left;
+  width: calc(100vw - 40px);
+  margin-right: 20px;
+  margin-bottom: 20px; }
+
 .clearfix::after {
   content: "";
   clear: both;

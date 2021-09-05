@@ -9,10 +9,12 @@ import {COLOR, INPUT_EVENT_TYPE, BORDER_TYPE} from "./Chessboard.js"
 import {ChessboardPiecesAnimation} from "./ChessboardPiecesAnimation.js"
 
 export const SQUARE_COORDINATES = [
+    "r1a", "r1b", "r1c", "r1d", "r1e", "r1f", "r1g", 
     "a1", "b1", "c1",
     "a2", "b2", "c2",
     "a3", "b3", "c3",
-    "a4", "b4", "c4"
+    "a4", "b4", "c4",
+    "r0a", "r0b", "r0c", "r0d", "r0e", "r0f", "r0g"
 ]
 
 export class ChessboardView {
@@ -47,6 +49,10 @@ export class ChessboardView {
         this.pointerDownListener = this.pointerDownHandler.bind(this)
         this.chessboard.board_element.addEventListener("mousedown", this.pointerDownListener)
         this.chessboard.board_element.addEventListener("touchstart", this.pointerDownListener)
+        this.chessboard.res0_element.addEventListener("mousedown", this.pointerDownListener)
+        this.chessboard.res0_element.addEventListener("touchstart", this.pointerDownListener)
+        this.chessboard.res1_element.addEventListener("mousedown", this.pointerDownListener)
+        this.chessboard.res1_element.addEventListener("touchstart", this.pointerDownListener)
 
         this.createSvgAndGroups()
         this.updateMetrics()
@@ -70,6 +76,10 @@ export class ChessboardView {
         }
         this.chessboard.board_element.removeEventListener("mousedown", this.pointerDownListener)
         this.chessboard.board_element.removeEventListener("touchstart", this.pointerDownListener)
+        this.chessboard.res0_element.removeEventListener("mousedown", this.pointerDownListener)
+        this.chessboard.res0_element.removeEventListener("touchstart", this.pointerDownListener)
+        this.chessboard.res1_element.removeEventListener("mousedown", this.pointerDownListener)
+        this.chessboard.res1_element.removeEventListener("touchstart", this.pointerDownListener)
         Svg.removeElement(this.board_svg)
         this.animationQueue = []
         if (this.currentAnimation) {
@@ -121,8 +131,8 @@ export class ChessboardView {
         }
         this.innerWidth = this.width - 2 * this.borderSize
         this.innerHeight = this.height - 2 * this.borderSize
-        this.squareWidth = this.innerWidth / 3
-        this.squareHeight = this.innerHeight / 4
+        this.squareWidth = this.innerWidth / 7
+        this.squareHeight = this.innerHeight / 6
         this.scalingX = this.squareWidth / this.chessboard.props.sprite.size
         this.scalingY = this.squareHeight / this.chessboard.props.sprite.size
         this.pieceXTranslate = (this.squareWidth / 2 - this.chessboard.props.sprite.size * this.scalingY / 2)
@@ -155,25 +165,25 @@ export class ChessboardView {
         while (boardGroup.firstChild) {
             boardGroup.removeChild(boardGroup.lastChild)
         }
-        if (this.chessboard.props.style.borderType !== BORDER_TYPE.none) {
-            let boardBorder = Svg.addElement(boardGroup, "rect", {width: this.width, height: this.height})
-            boardBorder.setAttribute("class", "border")
-            if (this.chessboard.props.style.borderType === BORDER_TYPE.frame) {
-                const innerPos = this.borderSize
-                let borderInner = Svg.addElement(boardGroup, "rect", {
-                    x: innerPos,
-                    y: innerPos,
-                    width: this.width - innerPos * 2,
-                    height: this.height - innerPos * 2
-                })
-                borderInner.setAttribute("class", "border-inner")
-            }
-        }
-        for (let i = 0; i < 12; i++) {
-            const index = this.chessboard.state.orientation === COLOR.white ? i : 11 - i
-            const squareColor = ((index) & 1) === 0 ? 'black' : 'white'
+        // if (this.chessboard.props.style.borderType !== BORDER_TYPE.none) {
+        //     let boardBorder = Svg.addElement(boardGroup, "rect", {width: this.width, height: this.height})
+        //     boardBorder.setAttribute("class", "border")
+        //     if (this.chessboard.props.style.borderType === BORDER_TYPE.frame) {
+        //         const innerPos = this.borderSize
+        //         let borderInner = Svg.addElement(boardGroup, "rect", {
+        //             x: innerPos,
+        //             y: innerPos,
+        //             width: this.width - innerPos * 2,
+        //             height: this.height - innerPos * 2
+        //         })
+        //         borderInner.setAttribute("class", "border-inner")
+        //     }
+        // }
+        for (let i = 0; i < 7+12+7; i++) {
+            const index = i
+            const squareColor = (i & 1) === 0 ? 'black' : 'white'
             const fieldClass = `square ${squareColor}`
-            const point = this.squareIndexToPoint(index)
+            const point = this.indexToPoint(index)
             const squareRect = Svg.addElement(boardGroup, "rect", {
                 x: point.x, y: point.y, width: this.squareWidth, height: this.squareHeight
             })
@@ -181,7 +191,7 @@ export class ChessboardView {
             squareRect.setAttribute("data-index", "" + index)
         }
     }
-
+    
     drawCoordinates() {
         if (!this.chessboard.props.style.showCoordinates) {
             return
@@ -190,12 +200,12 @@ export class ChessboardView {
             this.coordinatesGroup.removeChild(this.coordinatesGroup.lastChild)
         }
         const inline = this.chessboard.props.style.borderType !== BORDER_TYPE.frame
-        for (let file = 0; file < 4; file++) {
+        for (let file = 0; file < 3; file++) {
             let x = this.borderSize + (17 + this.chessboard.props.sprite.size * file) * this.scalingX
-            let y = this.height - this.scalingY * 3.5
+            let y = this.height - this.scalingY * 3.5 - this.squareWidth
             let cssClass = "coordinate file"
             if (inline) {
-                x = x + this.scalingX * 15.5
+                x = x + 2*this.squareWidth + this.scalingX * 15.5
                 cssClass += file % 2 ? " white" : " black"
             }
             const textElement = Svg.addElement(this.coordinatesGroup, "text", {
@@ -217,11 +227,11 @@ export class ChessboardView {
             if (inline) {
                 cssClass += rank % 2 ? " black" : " white"
                 if (this.chessboard.props.style.borderType === BORDER_TYPE.frame) {
-                    x = x + this.scalingX * 10
-                    y = y - this.scalingY * 15
+                    x = x + this.squareWidth * 2 + this.scalingX * 10
+                    y = y - this.scalingY * 15 + this.squareHeight
                 } else {
-                    x = x + this.scalingX * 2
-                    y = y - this.scalingY * 15
+                    x = x + this.squareWidth * 2 + this.scalingX * 2
+                    y = y - this.scalingY * 15 + this.squareHeight
                 }
             }
             const textElement = Svg.addElement(this.coordinatesGroup, "text", {
@@ -242,7 +252,7 @@ export class ChessboardView {
 
     drawPieces(squares = this.chessboard.state.squares) {
         const childNodes = Array.from(this.piecesGroup.childNodes)
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 7+12+7; i++) {
             const pieceName = squares[i]
             if (pieceName) {
                 this.drawPiece(i, pieceName)
@@ -257,7 +267,7 @@ export class ChessboardView {
         const pieceGroup = Svg.addElement(this.piecesGroup, "g")
         pieceGroup.setAttribute("data-piece", pieceName)
         pieceGroup.setAttribute("data-index", index)
-        const point = this.squareIndexToPoint(index)
+        const point = this.indexToPoint(index)
         const transform = (this.board_svg.createSVGTransform())
         transform.setTranslate(point.x, point.y)
         pieceGroup.transform.baseVal.appendItem(transform)
@@ -306,7 +316,7 @@ export class ChessboardView {
     drawMarker(marker) {
         const markerGroup = Svg.addElement(this.markersGroup, "g")
         markerGroup.setAttribute("data-index", marker.index)
-        const point = this.squareIndexToPoint(marker.index)
+        const point = this.indexToPoint(marker.index)
         const transform = (this.board_svg.createSVGTransform())
         transform.setTranslate(point.x, point.y)
         markerGroup.transform.baseVal.appendItem(transform)
@@ -426,14 +436,35 @@ export class ChessboardView {
         }
     }
 
+    indexToPoint(index) {
+        if(index >= 7 && index < 7+12) {
+            return this.squareIndexToPoint(index)
+        } else {
+            return this.resIndexToPoint(index)
+        }
+    }
+
     squareIndexToPoint(index) {
         let x, y
+        index = index-7
         if (this.chessboard.state.orientation === COLOR.white) {
-            x = this.borderSize + (index % 3) * this.squareWidth
-            y = this.borderSize + (3 - Math.floor(index / 3)) * this.squareHeight
+            x = this.borderSize + (2 + index % 3) * this.squareWidth
+            y = this.borderSize + (1 + 3 - Math.floor(index / 3)) * this.squareHeight
         } else {
-            x = this.borderSize + (3 - index % 3) * this.squareWidth
-            y = this.borderSize + (Math.floor(index / 3)) * this.squareHeight
+            x = this.borderSize + (2 + 3 - index % 3) * this.squareWidth
+            y = this.borderSize + (1 + Math.floor(index / 3)) * this.squareHeight
+        }
+        return {x: x, y: y}
+    }
+
+    resIndexToPoint(index) {
+        let x, y
+        if (this.chessboard.state.orientation === COLOR.white) {
+            x = this.borderSize + (index % (12+7)) * this.squareWidth
+            y = this.borderSize + (index < 7 ? 0 : 5) * this.squareHeight
+        } else {
+            x = this.borderSize + (index % (12+7)) * this.squareWidth
+            y = this.borderSize + (index < 7 ? 0 : 5) * this.squareHeight
         }
         return {x: x, y: y}
     }

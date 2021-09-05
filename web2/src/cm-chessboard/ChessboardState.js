@@ -13,9 +13,7 @@ export const REGION = {
 export class ChessboardState {
 
     constructor() {
-        this.squares = new Array(12).fill(undefined)
-        this.reserve0 = new Array(7).fill(undefined)
-        this.reserve1 = new Array(7).fill(undefined)
+        this.squares = new Array(7+12+7).fill(undefined)
         this.orientation = undefined
         this.markers = []
         this.res0markers = []
@@ -58,23 +56,8 @@ export class ChessboardState {
     setPosition(fen) {
         if (fen) {
             const parts = fen.split(/\//)
-            for (let part = 0; part < 4; part++) {
-                const row = parts[part]
-                for (let c = 0; c < 3; c++) {
-                    const char = row.substr(c, 1)
-                    let piece = undefined
-                    if (char !== '.') {
-                        if (char.toUpperCase() === char) {
-                            piece = `w${char.toLowerCase()}`
-                        } else {
-                            piece = `b${char}`
-                        }
-                    }
-                    this.squares[part * 3 + c] = piece
-                }
-            }
             {
-                const row = parts[4]
+                const row = parts[0]
                 for (let c = 0; c < 7; c++) {
                     const char = row.substr(c, 1)
                     let piece = undefined
@@ -85,7 +68,22 @@ export class ChessboardState {
                             piece = `b${char}`
                         }
                     }
-                    this.reserve0[c] = piece
+                    this.squares[c] = piece
+                }
+            }
+            for (let part = 0; part < 4; part++) {
+                const row = parts[1+part]
+                for (let c = 0; c < 3; c++) {
+                    const char = row.substr(c, 1)
+                    let piece = undefined
+                    if (char !== '.') {
+                        if (char.toUpperCase() === char) {
+                            piece = `w${char.toLowerCase()}`
+                        } else {
+                            piece = `b${char}`
+                        }
+                    }
+                    this.squares[7+part * 3 + c] = piece
                 }
             }
             {
@@ -100,7 +98,7 @@ export class ChessboardState {
                             piece = `b${char}`
                         }
                     }
-                    this.reserve1[c] = piece
+                    this.squares[7+12+c] = piece
                 }
             }
         }
@@ -108,41 +106,41 @@ export class ChessboardState {
 
     getPosition() {
         let parts = new Array(6).fill("")
+        {
+            for (let i = 0; i < 7; i++) {
+                const piece = this.squares[i]
+                if (!piece) {
+                    parts[0] += "."
+                } else {
+                    const color = piece.substr(0, 1)
+                    const name = piece.substr(1, 1)
+                    if (color === "w") {
+                        parts[0] += name.toUpperCase()
+                    } else {
+                        parts[0] += name
+                    }
+                }
+            }
+        }
         for (let part = 0; part < 4; part++) {
             for (let i = 0; i < 3; i++) {
-                const piece = this.squares[part * 3 + i]
+                const piece = this.squares[7 + part * 3 + i]
                 if (!piece) {
-                    parts[part] += "."
+                    parts[1+part] += "."
                 } else {
                     const color = piece.substr(0, 1)
                     const name = piece.substr(1, 1)
                     if (color === "w") {
-                        parts[part] += name.toUpperCase()
+                        parts[1+part] += name.toUpperCase()
                     } else {
-                        parts[part] += name
+                        parts[1+part] += name
                     }
                 }
             }
         }
         {
             for (let i = 0; i < 7; i++) {
-                const piece = this.reserve0[i]
-                if (!piece) {
-                    parts[4] += "."
-                } else {
-                    const color = piece.substr(0, 1)
-                    const name = piece.substr(1, 1)
-                    if (color === "w") {
-                        parts[4] += name.toUpperCase()
-                    } else {
-                        parts[4] += name
-                    }
-                }
-            }
-        }
-        {
-            for (let i = 0; i < 7; i++) {
-                const piece = this.reserve1[i]
+                const piece = this.squares[7+12+i]
                 if (!piece) {
                     parts[5] += "."
                 } else {
@@ -162,7 +160,7 @@ export class ChessboardState {
     squareToIndex(square) {
         const file = square.substr(0, 1).charCodeAt(0) - 97
         const rank = square.substr(1, 1) - 1
-        return 3 * rank + file
+        return 7+3 * rank + file
     }
 
 }

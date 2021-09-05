@@ -39,7 +39,7 @@ export class ChessboardMoveInput {
 
     setMoveInputState(newState, params = undefined) {
 
-        console.log("setMoveInputState", Object.keys(STATE)[this.moveInputState], "=>", Object.keys(STATE)[newState]);
+        // console.log("setMoveInputState", Object.keys(STATE)[this.moveInputState], "=>", Object.keys(STATE)[newState]);
 
         const prevState = this.moveInputState
         this.moveInputState = newState
@@ -212,7 +212,8 @@ export class ChessboardMoveInput {
     onPointerDown(e) {
         if (e.type === "mousedown" && e.button === 0 || e.type === "touchstart") {
             const index = e.target.getAttribute("data-index")
-            const pieceElement = this.view.getPiece(index)
+            const region = e.target.getAttribute("data-region")
+            const pieceElement = this.view.getPiece(index, region)
             let pieceName, color
             if (pieceElement) {
                 pieceName = pieceElement.getAttribute("data-piece")

@@ -24,7 +24,7 @@ export class ChessboardPiecesAnimation {
 
     seekChanges(fromSquares, toSquares) {
         const appearedList = [], disappearedList = [], changes = []
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 7+12+7; i++) {
             const previousSquare = fromSquares[i]
             const newSquare = toSquares[i]
             if (newSquare !== previousSquare) {
@@ -37,7 +37,7 @@ export class ChessboardPiecesAnimation {
             }
         }
         appearedList.forEach((appeared) => {
-            let shortestDistance = 4
+            let shortestDistance = 10000
             let foundMoved = undefined
             disappearedList.forEach((disappeared) => {
                 if (appeared.piece === disappeared.piece) {
@@ -76,8 +76,8 @@ export class ChessboardPiecesAnimation {
             switch (change.type) {
                 case CHANGE_TYPE.move:
                     animatedItem.element = this.view.getPiece(change.atIndex)
-                    animatedItem.atPoint = this.view.squareIndexToPoint(change.atIndex)
-                    animatedItem.toPoint = this.view.squareIndexToPoint(change.toIndex)
+                    animatedItem.atPoint = this.view.indexToPoint(change.atIndex)
+                    animatedItem.toPoint = this.view.indexToPoint(change.toIndex)
                     break
                 case CHANGE_TYPE.appear:
                     animatedItem.element = this.view.drawPiece(change.atIndex, change.piece)
@@ -131,11 +131,10 @@ export class ChessboardPiecesAnimation {
     }
 
     squareDistance(index1, index2) {
-        const file1 = index1 % 3
-        const rank1 = Math.floor(index1 / 3)
-        const file2 = index2 % 4
-        const rank2 = Math.floor(index2 / 4)
-        return Math.max(Math.abs(rank2 - rank1), Math.abs(file2 - file1))
+        const src = this.view.indexToPoint(index1)
+        const dst = this.view.indexToPoint(index2)
+        const value = Math.max(Math.abs(src.x - dst.x), Math.abs(src.y - dst.y))
+        return value
     }
 
 }

@@ -9,14 +9,19 @@
 </head>
 <body>
 <h1>cm-chessboard</h1>
+<div class="reserve" id="reserve1"></div>
 <div class="board" id="board"></div>
+<div class="reserve" id="reserve0"></div>
 <script type="module">
     import {Chessboard} from "./src/cm-chessboard/Chessboard.js"
 
-    const board = new Chessboard(document.getElementById("board"), {
+    const board = new Chessboard(document.getElementById("board"), document.getElementById("reserve0"), document.getElementById("reserve1"), {
         position: "start"
     })
-    board.enableMoveInput()
+    board.enableMoveInput((event) => {
+        console.log(event)
+        return true
+    })
 </script>
 </body>
 </html>
