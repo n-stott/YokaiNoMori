@@ -1,0 +1,285 @@
+<!-- The main function of my C++ code is executed at the beginning after importing this js file, which also exposes the Module object -->
+<script src="./js/yokai-lib.js"></script>
+<script src="./js/yokai-api.js"></script>
+<script src="./js/dragdrop.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<script language="javascript">
+    var selectedPos;
+    var game;
+    var difficulty;
+    var history;
+
+    function init(d) {
+        selectedPos = -1;
+        game = Yokai.Default();
+        difficulty = d;
+        history = new GameHistory()
+        // history.game += game;
+        updateDifficulty();
+    }
+
+    function makeBoard() {
+        {
+            let easy = document.createElement('button');
+            easy.innerHTML = 'Easy';
+            easy.onclick = function() { init(3); }
+            let medium = document.createElement('button');
+            medium.innerHTML = 'Medium';
+            medium.onclick = function() { init(5); }
+            let hard = document.createElement('button');
+            hard.innerHTML = 'Hard';
+            hard.onclick = function() { init(6); }
+            document.body.appendChild(easy);
+            document.body.appendChild(medium);
+            document.body.appendChild(hard);
+
+            let difficultyDisplay = document.createElement('div');
+            difficultyDisplay.id = 'difficulty';
+            document.body.appendChild(difficultyDisplay);
+        }
+
+        let reserve1div = document.createElement('div');
+        let reserve1 = document.createElement('table');
+        reserve1.cellSpacing = 0;
+        reserve1.align = 'center';
+        for(i = 0; i < 7; ++i) {
+            let tile = document.createElement('th');
+            tile.className = ((i+1)&1 ? 'white' : 'black') + ' tile';
+            (function(ii) { tile.onclick = function() { C('r',ii,1); } })(i);
+            tile.id = 'r'+i+1;
+            reserve1.appendChild(tile);
+        }
+        reserve1div.appendChild(reserve1);
+
+        let boardDiv = document.createElement('div');
+        let board = document.createElement('table');
+        board.cellSpacing = 0;
+        board.align = 'center';
+        board.className = 'board';
+        for(i = 0; i < 4; ++i) {
+            let row = document.createElement('tr');
+            for(j = 0; j < 3; ++j) {
+                let tile = document.createElement('th');
+                tile.className = ((3*i+j)&1 ? 'white' : 'black') + ' tile';
+                (function(ii, jj) { tile.onclick = function() { C('b', ii, jj); } })(i, j);
+                tile.id = "b"+i+j;
+                row.appendChild(tile);
+            }
+            board.appendChild(row);
+        }
+        boardDiv.appendChild(board);
+
+        let reserve0div = document.createElement('div');
+        let reserve0 = document.createElement('table');
+        reserve0.cellSpacing = 0;
+        reserve0.align = 'center';
+        for(i = 0; i < 7; ++i) {
+            let tile = document.createElement('th');
+            tile.className = (i&1 ? 'white' : 'black') + ' tile';
+            (function(ii) { tile.onclick = function() { C('r', ii, 0); } })(i);
+            tile.id = 'r'+i+0;
+            reserve0.appendChild(tile);
+        }
+        reserve0div.appendChild(reserve0);
+
+        let gamespace = document.createElement('div');
+        gamespace.appendChild(reserve1div);
+        gamespace.appendChild(boardDiv);
+        gamespace.appendChild(reserve0div);
+        document.body.appendChild(gamespace);
+
+
+        const tiles = document.querySelectorAll('.tile');
+
+        tiles.forEach(tile => {
+            tile.addEventListener('dragenter', dragEnter)
+            tile.addEventListener('dragover', dragOver);
+            tile.addEventListener('dragleave', dragLeave);
+            tile.addEventListener('drop', drop);
+        });
+    }
+
+    function play(src, dst) {
+        console.log('play', src, dst);
+        idst = parseInt(dst[1]);
+        jdst = parseInt(dst[2]);
+        d = 3*idst+jdst;
+        if(src[0] == 'b' && dst[0] == 'b') {
+            isrc = parseInt(src[1]);
+            jsrc = parseInt(src[2]);
+            s = 3*isrc+jsrc;
+            game.play("move", game.board[s], s, d);
+        } else if(src[0] == 'r' && src[2] == '0' && dst[0] == 'b'){
+            i0 = parseInt(src[1]);
+            p = i0;
+            game.play("drop", game.reserve0[p], p, d);
+        }
+        draw();
+        if(game.winner() != -1) {
+            alert("Player : " + game.winner() + " has won !");
+            d = difficulty;
+            init(d);
+            draw();
+        }
+        if(game.currentPlayer == 1) {
+            game.autoPlay(difficulty);
+            draw();
+            if(game.winner() != -1) {
+                alert("Player " + game.winner() + " has won !");
+                d = difficulty;
+                init(d);
+                draw();
+            }
+        }
+    }
+
+    function C(part, i, j) {
+        if(selectedPos == -1) {
+            selectedPos = part+i+j;
+        } else {
+            if(selectedPos[0] == 'b' && part == 'b') {
+                i0 = parseInt(selectedPos[1]);
+                j0 = parseInt(selectedPos[2]);
+                p = 3*i0+j0;
+                game.play("move", game.board[p], p, 3*i+j);
+            } else if(selectedPos[0] == 'r' && selectedPos[2] == '0' && part == 'b'){
+                i0 = parseInt(selectedPos[1]);
+                p = i0;
+                game.play("drop", game.reserve0[p], p, 3*i+j);
+            }
+            draw();
+            if(game.winner() != -1) {
+                alert("Player : " + game.winner() + " has won !");
+                d = difficulty;
+                init(d);
+                draw();
+            }
+            selectedPos = -1;
+            if(game.currentPlayer == 1) {
+                game.autoPlay(difficulty);
+                draw();
+                if(game.winner() != -1) {
+                    alert("Player " + game.winner() + " has won !");
+                    d = difficulty;
+                    init(d);
+                    draw();
+                }
+            }
+        }
+        draw();
+    }
+
+    function clear() {
+        for(i = 0; i < 4; ++i) {
+            for(j = 0; j < 3; ++j) {
+                id = "b"+i+j;
+                if (q = document.getElementById(id)) {
+                    q.innerHTML = '';
+                }
+            }
+        }
+        for(i = 0; i < 7; ++i) {
+            id = "r"+i+0;
+            if (q = document.getElementById(id)) {
+                q.innerHTML = '';
+            }
+        }
+        for(i = 0; i < 7; ++i) {
+            id = "r"+i+1;
+            if (q = document.getElementById(id)) {
+                q.innerHTML = '';
+            }
+        }
+    }
+
+    function makePiece(charCode, parentId) {
+        path = "img/own/";
+        ext = ".png"
+        pieceDiv = document.createElement('div');
+        piece = document.createElement('img');
+        // pieceDiv.appendChild(piece);
+        pieceDiv.className = 'piece';
+        pieceDiv.id = charCode+parentId;
+        pieceDiv.draggable = true;
+        piece.draggable = false;
+        // pieceDiv.innerHTML = charCode;
+        image = path + charCode + ext;
+        pieceDiv.style.cssText += 'background-image:url('+image+')';
+        piece.className = 'piece';
+        piece.src = path + charCode + ext;
+        // piece.className = 'piece';
+
+        pieceDiv.addEventListener('dragstart', dragStart);
+        pieceDiv.addEventListener('dragend', dragEnd);
+        return pieceDiv;
+    }
+
+    function initBoard() {
+        for(i = 0; i < 4; ++i) {
+            for(j = 0; j < 3; ++j) {
+                id = "b"+i+j;
+                if (q = document.getElementById(id)) {
+                    charCode = game.board[3*i+j];
+                    if(charCode != '.') {
+                        piece = makePiece(charCode, q.id);
+                        q.appendChild(piece);
+                    }
+                }
+            }
+        }
+    }
+
+    function updateDifficulty() {
+        if(q = document.getElementById("difficulty")) {
+            q.innerHTML = (difficulty == 3 ? 'Easy' : (difficulty == 5 ? 'Medium' : 'Hard'));
+        }
+    }
+
+    function draw() {
+        clear();
+        for(i = 0; i < 4; ++i) {
+            for(j = 0; j < 3; ++j) {
+                id = "b"+i+j;
+                if (q = document.getElementById(id)) {
+                    charCode = game.board[3*i+j];
+                    if(charCode != '.') {
+                        piece = makePiece(charCode, q.id);
+                        q.appendChild(piece);
+                    }
+                }
+            }
+        }
+        for(i = 0; i < 7; ++i) {
+            id = "r"+i+0;
+            if (q = document.getElementById(id)) {
+                charCode = (i < game.reserve0.length ? game.reserve0[i] : '.');
+                if(charCode != '.') {
+                    piece = makePiece(charCode, q.id);
+                    q.appendChild(piece);
+                }
+            }
+        }
+        for(i = 0; i < 7; ++i) {
+            id = "r"+i+1;
+            if (q = document.getElementById(id)) {
+                charCode = (i < game.reserve1.length ? game.reserve1[i] : '.');
+                if(charCode != '.') {
+                    piece = makePiece(charCode, q.id);
+                    q.appendChild(piece);
+                }
+            }
+        }
+    }
+
+</script>
+
+
+<body>
+    <script>
+        init(5);
+        makeBoard();
+        clear();
+        initBoard();
+        draw();
+    </script>
+</body>
