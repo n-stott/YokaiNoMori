@@ -12,10 +12,9 @@
 <body>
 <h1>yokai no mori</h1>
 <div class="board" id="board"></div>
+
 <script language="javascript">
     let yokai = Yokai.Default()
-
-    console.log(yokai.getPosition())
 </script>
 <script type="module">
     import { INPUT_EVENT_TYPE, COLOR, Chessboard, MARKER_TYPE } from "./src/cm-chessboard/Chessboard.js"
@@ -43,7 +42,7 @@
                 const gameover = yokai.winner() != -1
                 if(!gameover) {
                     setTimeout(() => { // smoother with 500ms delay
-                        yokai.autoMove(5)
+                        yokai.autoMove(difficulty)
                         event.chessboard.enableMoveInput(inputHandler, COLOR.white)
                         event.chessboard.setPosition(yokai.getPosition())
                         console.log(yokai.winner())
@@ -74,6 +73,21 @@
     })
     
     board.enableMoveInput(inputHandler, COLOR.white)
+</script>
+
+<script language="javascript">
+    function setDifficulty(diff) {
+        difficulty = diff;
+        const field = document.getElementById("difficultyField")
+        field.innerHTML = "Selected difficulty : " + (difficulty == 3 ? "Easy" : (difficulty == 5 ? "Medium" : "Hard"))
+    }
+</script>
+<button onclick="setDifficulty(3)"> Easy </button>
+<button onclick="setDifficulty(5)"> Medium </button>
+<button onclick="setDifficulty(7)"> Hard </button>
+<div id="difficultyField"></div>
+<script>
+    setDifficulty(5)
 </script>
 </body>
 </html>
