@@ -26,6 +26,142 @@ class Yokai {
         this.currentPlayer = 1-this.currentPlayer
     }
 
+    setPosition(fen) {
+        if (fen) {
+            const parts = fen.split(/\//)
+            {
+                const row = parts[0]
+                const reserve0 = ""
+                for (let c = 0; c < row.length; c++) {
+                    const char = row.substr(c, 1)
+                    let piece = '.'
+                    if (char !== '.') {
+                        if (char.toUpperCase() === char) {
+                            piece = char.toLowerCase()
+                        } else {
+                            piece = char.toUpperCase()
+                        }
+                        if(piece === 'r') piece = 't'
+                        if(piece === 'R') piece = 'T'
+                        if(piece === 'q') piece = 's'
+                        if(piece === 'Q') piece = 'S'
+                    }
+                    reserve0 += piece
+                }
+                this.reserve0 = reserve0
+            }
+            {
+                const board = "";
+                for (let part = 3; part >= 0; --part) {
+                    const row = parts[1+3-part]
+                    for (let c = 0; c < 3; c++) {
+                        const char = row.substr(c, 1)
+                        let piece = '.'
+                        if (char !== '.') {
+                            if (char.toUpperCase() === char) {
+                                piece = char.toLowerCase()
+                            } else {
+                                piece = char.toUpperCase()
+                            }
+                            if(piece === 'r') piece = 't'
+                            if(piece === 'R') piece = 'T'
+                            if(piece === 'q') piece = 's'
+                            if(piece === 'Q') piece = 'S'
+                        }
+                        board += piece
+                    }
+                }
+                this.board = board
+            }
+            {
+                const row = parts[5]
+                const reserve1 = ""
+                for (let c = 0; c < row.length; c++) {
+                    const char = row.substr(c, 1)
+                    let piece = '.'
+                    if (char !== '.') {
+                        if (char.toUpperCase() === char) {
+                            piece = char.toLowerCase()
+                        } else {
+                            piece = char.toUpperCase()
+                        }
+                        if(piece === 'r') piece = 't'
+                        if(piece === 'R') piece = 'T'
+                        if(piece === 'q') piece = 's'
+                        if(piece === 'Q') piece = 'S'
+                    }
+                    reserve1 += piece
+                }
+                this.reserve1 = reserve1
+            }
+        }
+        console.log("set fen : ", fen, this.board, this.reserve0, this.reserve1)
+    }
+
+    getPosition() {
+        let parts = new Array(6).fill("")
+        {
+            for (let i = 0; i < this.reserve0.length; i++) {
+                let piece = this.reserve0[i]
+                if (!piece) {
+                } else {
+                    if(piece === 't') piece = 'r'
+                    if(piece === 'T') piece = 'R'
+                    if(piece === 's') piece = 'q'
+                    if(piece === 'S') piece = 'Q'
+                    if (piece.toUpperCase() === piece) {
+                        piece = piece.toLowerCase()
+                    } else {
+                        piece = piece.toUpperCase()
+                    }
+                    parts[0] += piece
+                }
+            }
+            for (let i = this.reserve0.length; i < 7; i++) parts[0] += '.'
+        }
+        for (let part = 3; part >= 0; --part) {
+            for (let i = 0; i < 3; i++) {
+                let piece = this.board[3*part+i]
+                if (!piece) {
+                    parts[1+part] += "."
+                } else {
+                    if(piece === 't') piece = 'r'
+                    if(piece === 'T') piece = 'R'
+                    if(piece === 's') piece = 'q'
+                    if(piece === 'S') piece = 'Q'
+                    if (piece.toUpperCase() === piece) {
+                        piece = piece.toLowerCase()
+                    } else {
+                        piece = piece.toUpperCase()
+                    }
+                    parts[1+3-part] += piece
+                }
+            }
+        }
+        {
+            for (let i = 0; i < this.reserve1.length; i++) {
+                let piece = this.reserve1[i]
+                if (!piece) {
+                } else {
+                    if(piece === 't') piece = 'r'
+                    if(piece === 'T') piece = 'R'
+                    if(piece === 's') piece = 'q'
+                    if(piece === 'S') piece = 'Q'
+                    if (piece.toUpperCase() === piece) {
+                        piece = piece.toLowerCase()
+                    } else {
+                        piece = piece.toUpperCase()
+                    }
+                    parts[5] += piece
+                }
+            }
+            for (let i = this.reserve1.length; i < 7; i++) parts[5] += '.'
+        }
+        const fen = parts.join("/")
+        console.log("get fen : ", this.board, this.reserve0, this.reserve1, fen)
+        return fen
+    }
+
     autoPlay(depth) {
         console.log("before AI : ", this.toString());
         searchBestMove(
@@ -39,7 +175,40 @@ class Yokai {
         console.log("after AI : ", this.toString());
     }
 
+    autoMove(depth) {
+        console.log("before AI : ", this.toString());
+        searchBestMove(
+            this.board,
+            this.reserve0,
+            this.reserve1,
+            this.currentPlayer,
+            depth
+        )
+        this.update()
+        console.log("after AI : ", this.toString());
+    }
+
+    move(move) {
+        const src = move.from
+        const dst = move.to
+        console.log('play', src, dst);
+        const idst = parseInt(dst[1]);
+        const jdst = parseInt(dst[2]);
+        const d = 3*idst+jdst;
+        if(src[0] == 'b' && dst[0] == 'b') {
+            const isrc = parseInt(src[1]);
+            const jsrc = parseInt(src[2]);
+            const s = 3*isrc+jsrc;
+            return this.play("move", this.board[s], s, d);
+        } else if(src[0] == 'r' && src[2] == '0' && dst[0] == 'b'){
+            const i0 = parseInt(src[1]);
+            const p = i0;
+            return this.play("drop", this.reserve0[p], p, d);
+        }
+    }
+
     play(action, piece, start, end) {
+        console.log("attempting : ", action, piece, start, end, this.board, this.reserve0, this.reserve1)
         let valid = validAction(
             this.board,
             this.reserve0,
@@ -65,6 +234,7 @@ class Yokai {
             this.update()
             console.log("after HU : ", this.toString());
         }
+        return valid;
     }
 
     winner() {

@@ -40,13 +40,11 @@ export const FEN_EMPTY_POSITION = "......./.../.../.../.../......."
 
 export class Chessboard {
 
-    constructor(board_element, res0_element, res1_element, props = {}) {
-        if (!board_element || !res0_element || !res1_element) {
-            throw new Error("container board_element is " + board_element + " " + res0_element + " " + res1_element)
+    constructor(board_element, props = {}) {
+        if (!board_element) {
+            throw new Error("container board_element is " + board_element)
         }
         this.board_element = board_element
-        this.res0_element = res0_element
-        this.res1_element = res1_element
         let defaultProps = {
             position: "empty", // set as fen, "start" or "empty"
             orientation: COLOR.white, // white on bottom
@@ -117,6 +115,7 @@ export class Chessboard {
     }
 
     setPosition(fen, animated = true) {
+        console.log("setPosition : ", FEN_START_POSITION, fen)
         return new Promise((resolve) => {
             if (fen === "start") {
                 fen = FEN_START_POSITION
@@ -150,6 +149,34 @@ export class Chessboard {
         return this.state.getPosition()
     }
 
+    addMarker(square, type) {
+        if (!type) {
+            console.error("Error addMarker(), type is " + type)
+        }
+        this.state.addMarker(this.state.squareToIndex(square), type)
+        this.view.drawMarkers()
+    }
+
+    getMarkers(square = undefined, type = undefined) {
+        const markersFound = []
+        this.state.markers.forEach((marker) => {
+            const markerSquare = SQUARE_COORDINATES[marker.index]
+            if (!square && (!type || type === marker.type) ||
+                !type && square === markerSquare ||
+                type === marker.type && square === markerSquare) {
+                markersFound.push({square: SQUARE_COORDINATES[marker.index], type: marker.type})
+            }
+        })
+        return markersFound
+    }
+
+    removeMarkers(square = undefined, type = undefined) {
+        console.log(square)
+        const index = square ? this.state.squareToIndex(square) : undefined
+        this.state.removeMarkers(index, type)
+        this.view.drawMarkers()
+    }
+
     setOrientation(color) {
         this.state.orientation = color
         return this.view.redraw()
@@ -167,12 +194,6 @@ export class Chessboard {
             this.board_element.removeEventListener("contextmenu", this.squareSelectListener)
             this.board_element.removeEventListener("mouseup", this.squareSelectListener)
             this.board_element.removeEventListener("touchend", this.squareSelectListener)
-            this.res0_element.removeEventListener("contextmenu", this.squareSelectListener)
-            this.res0_element.removeEventListener("mouseup", this.squareSelectListener)
-            this.res0_element.removeEventListener("touchend", this.squareSelectListener)
-            this.res1_element.removeEventListener("contextmenu", this.squareSelectListener)
-            this.res1_element.removeEventListener("mouseup", this.squareSelectListener)
-            this.res1_element.removeEventListener("touchend", this.squareSelectListener)
         }
     }
 
@@ -222,12 +243,6 @@ export class Chessboard {
         this.board_element.addEventListener("contextmenu", this.squareSelectListener)
         this.board_element.addEventListener("mouseup", this.squareSelectListener)
         this.board_element.addEventListener("touchend", this.squareSelectListener)
-        this.res0_element.addEventListener("contextmenu", this.squareSelectListener)
-        this.res0_element.addEventListener("mouseup", this.squareSelectListener)
-        this.res0_element.addEventListener("touchend", this.squareSelectListener)
-        this.res1_element.addEventListener("contextmenu", this.squareSelectListener)
-        this.res1_element.addEventListener("mouseup", this.squareSelectListener)
-        this.res1_element.addEventListener("touchend", this.squareSelectListener)
         this.state.squareSelectEnabled = true
         this.view.setCursor()
     }
@@ -236,12 +251,6 @@ export class Chessboard {
         this.board_element.removeEventListener("contextmenu", this.squareSelectListener)
         this.board_element.removeEventListener("mouseup", this.squareSelectListener)
         this.board_element.removeEventListener("touchend", this.squareSelectListener)
-        this.res0_element.removeEventListener("contextmenu", this.squareSelectListener)
-        this.res0_element.removeEventListener("mouseup", this.squareSelectListener)
-        this.res0_element.removeEventListener("touchend", this.squareSelectListener)
-        this.res1_element.removeEventListener("contextmenu", this.squareSelectListener)
-        this.res1_element.removeEventListener("mouseup", this.squareSelectListener)
-        this.res1_element.removeEventListener("touchend", this.squareSelectListener)
         this.squareSelectListener = undefined
         this.state.squareSelectEnabled = false
         this.view.setCursor()

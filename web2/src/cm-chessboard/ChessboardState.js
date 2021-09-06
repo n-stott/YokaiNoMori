@@ -24,6 +24,34 @@ export class ChessboardState {
         this.squareSelectEnabled = false
     }
 
+    // square codes
+
+    // const SQUARE_COORDINATES = [
+    //     "r00", "r10", "r20", "r30", "r40", "r50", "r60"
+    //     "b30", "b31", "b32",
+    //     "b20", "b21", "b22",
+    //     "b10", "b11", "b12",
+    //     "b00", "b01", "b02",
+    //     "r01", "r11", "r22", "r31", "r41", "r51", "r61"
+    // ]
+
+    squareToIndex(square) {
+        console.log(square)
+        if(square.charAt(0) == 'r') {
+            const reserve = square.charAt(2) + 0
+            const column = square.charAt(1) + 0
+            if(reserve == 0) {
+                return 7+12+column
+            } else {
+                return column
+            }
+        } else {
+            const row = square.charAt(1) + 0
+            const col = square.charAt(2) + 0
+            return 7 + 3*(3-row) + col
+        }
+    }
+
     setPiece(index, piece) {
         this.squares[index] = piece
     }
@@ -155,12 +183,6 @@ export class ChessboardState {
             }
         }
         return parts.join("/")
-    }
-
-    squareToIndex(square) {
-        const file = square.substr(0, 1).charCodeAt(0) - 97
-        const rank = square.substr(1, 1) - 1
-        return 7+3 * rank + file
     }
 
 }

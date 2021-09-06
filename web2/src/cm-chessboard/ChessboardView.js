@@ -9,12 +9,12 @@ import {COLOR, INPUT_EVENT_TYPE, BORDER_TYPE} from "./Chessboard.js"
 import {ChessboardPiecesAnimation} from "./ChessboardPiecesAnimation.js"
 
 export const SQUARE_COORDINATES = [
-    "r1a", "r1b", "r1c", "r1d", "r1e", "r1f", "r1g", 
-    "a1", "b1", "c1",
-    "a2", "b2", "c2",
-    "a3", "b3", "c3",
-    "a4", "b4", "c4",
-    "r0a", "r0b", "r0c", "r0d", "r0e", "r0f", "r0g"
+    "r00", "r10", "r20", "r30", "r40", "r50", "r60",
+    "b30", "b31", "b32",
+    "b20", "b21", "b22",
+    "b10", "b11", "b12",
+    "b00", "b01", "b02",
+    "r01", "r11", "r21", "r31", "r41", "r51", "r61", 
 ]
 
 export class ChessboardView {
@@ -49,10 +49,6 @@ export class ChessboardView {
         this.pointerDownListener = this.pointerDownHandler.bind(this)
         this.chessboard.board_element.addEventListener("mousedown", this.pointerDownListener)
         this.chessboard.board_element.addEventListener("touchstart", this.pointerDownListener)
-        this.chessboard.res0_element.addEventListener("mousedown", this.pointerDownListener)
-        this.chessboard.res0_element.addEventListener("touchstart", this.pointerDownListener)
-        this.chessboard.res1_element.addEventListener("mousedown", this.pointerDownListener)
-        this.chessboard.res1_element.addEventListener("touchstart", this.pointerDownListener)
 
         this.createSvgAndGroups()
         this.updateMetrics()
@@ -76,10 +72,6 @@ export class ChessboardView {
         }
         this.chessboard.board_element.removeEventListener("mousedown", this.pointerDownListener)
         this.chessboard.board_element.removeEventListener("touchstart", this.pointerDownListener)
-        this.chessboard.res0_element.removeEventListener("mousedown", this.pointerDownListener)
-        this.chessboard.res0_element.removeEventListener("touchstart", this.pointerDownListener)
-        this.chessboard.res1_element.removeEventListener("mousedown", this.pointerDownListener)
-        this.chessboard.res1_element.removeEventListener("touchstart", this.pointerDownListener)
         Svg.removeElement(this.board_svg)
         this.animationQueue = []
         if (this.currentAnimation) {
@@ -206,7 +198,7 @@ export class ChessboardView {
             let cssClass = "coordinate file"
             if (inline) {
                 x = x + 2*this.squareWidth + this.scalingX * 15.5
-                cssClass += file % 2 ? " white" : " black"
+                cssClass += (file+1) % 2 ? " white" : " black"
             }
             const textElement = Svg.addElement(this.coordinatesGroup, "text", {
                 class: cssClass,
@@ -225,7 +217,7 @@ export class ChessboardView {
             let y = this.borderSize + 25 * this.scalingY + rank * this.squareHeight
             let cssClass = "coordinate rank"
             if (inline) {
-                cssClass += rank % 2 ? " black" : " white"
+                cssClass += (rank+1) % 2 ? " black" : " white"
                 if (this.chessboard.props.style.borderType === BORDER_TYPE.frame) {
                     x = x + this.squareWidth * 2 + this.scalingX * 10
                     y = y - this.scalingY * 15 + this.squareHeight
@@ -461,10 +453,10 @@ export class ChessboardView {
         let x, y
         if (this.chessboard.state.orientation === COLOR.white) {
             x = this.borderSize + (index % (12+7)) * this.squareWidth
-            y = this.borderSize + (index < 7 ? 0 : 5) * this.squareHeight
+            y = this.borderSize + (index < 7 ? 5 : 0) * this.squareHeight
         } else {
             x = this.borderSize + (index % (12+7)) * this.squareWidth
-            y = this.borderSize + (index < 7 ? 0 : 5) * this.squareHeight
+            y = this.borderSize + (index < 7 ? 5 : 0) * this.squareHeight
         }
         return {x: x, y: y}
     }
