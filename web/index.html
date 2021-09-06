@@ -17,7 +17,7 @@
     let yokai = Yokai.Default()
 </script>
 <script type="module">
-    import { INPUT_EVENT_TYPE, COLOR, Chessboard, MARKER_TYPE } from "./js/cm-chessboard/Chessboard.js"
+    import { INPUT_EVENT_TYPE, COLOR, Chessboard, MARKER_TYPE } from "./js/interface/Chessboard.js"
 
     function inputHandler(event) {
         event.chessboard.removeMarkers(undefined, MARKER_TYPE.dot)
@@ -31,11 +31,10 @@
             return true
         } else if (event.type === INPUT_EVENT_TYPE.moveDone) {
             const move = { from: event.squareFrom, to: event.squareTo }
-            console.log(move)
             const result = yokai.move(move)
             if (result) {
                 event.chessboard.removeMarkers(undefined, MARKER_TYPE.square)
-                // event.chessboard.disableMoveInput()
+                event.chessboard.disableMoveInput()
                 event.chessboard.setPosition(yokai.getPosition())
                 const gameover = yokai.winner() != -1
                 if(!gameover) {
@@ -43,7 +42,6 @@
                         yokai.autoMove(difficulty)
                         event.chessboard.enableMoveInput(inputHandler, COLOR.white)
                         event.chessboard.setPosition(yokai.getPosition())
-                        console.log(yokai.winner())
                     }, 500)
                     setTimeout(() => {
                         if (yokai.winner() != -1) {
@@ -57,6 +55,7 @@
                         alert("You have won !")
                         yokai = Yokai.Default()
                         event.chessboard.setPosition(yokai.getPosition())
+                        event.chessboard.enableMoveInput(inputHandler, COLOR.white)
                     }, 1000)
                 }
             } else {
