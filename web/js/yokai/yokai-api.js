@@ -95,7 +95,6 @@ class Yokai {
                 this.reserve1 = reserve1
             }
         }
-        console.log("set fen : ", fen, this.board, this.reserve0, this.reserve1)
     }
 
     getPosition() {
@@ -158,12 +157,10 @@ class Yokai {
             for (let i = this.reserve1.length; i < 7; i++) parts[5] += '.'
         }
         const fen = parts.join("/")
-        console.log("get fen : ", this.board, this.reserve0, this.reserve1, fen)
         return fen
     }
 
     autoPlay(depth) {
-        console.log("before AI : ", this.toString());
         searchBestMove(
             this.board,
             this.reserve0,
@@ -172,11 +169,9 @@ class Yokai {
             depth
         )
         this.update()
-        console.log("after AI : ", this.toString());
     }
 
     autoMove(depth) {
-        console.log("before AI : ", this.toString());
         searchBestMove(
             this.board,
             this.reserve0,
@@ -185,13 +180,11 @@ class Yokai {
             depth
         )
         this.update()
-        console.log("after AI : ", this.toString());
     }
 
     move(move) {
         const src = move.from
         const dst = move.to
-        console.log('play', src, dst);
         const idst = parseInt(dst[1]);
         const jdst = parseInt(dst[2]);
         const d = 3*idst+jdst;
@@ -207,8 +200,52 @@ class Yokai {
         }
     }
 
+    moves(square) {
+        let moves = [];
+        for(let i = 0; i < 4; ++i) {
+            for(let j = 0; j < 3; ++j) {
+                const to = 'b'+i+j;
+                const move = {from:square, to:to}
+                if(this.validMove(move)) {
+                    moves.push(move)
+                }
+            }
+        }
+        return moves
+    }
+
+    validMove(move) {
+        const src = move.from
+        const dst = move.to
+        const idst = parseInt(dst[1]);
+        const jdst = parseInt(dst[2]);
+        const d = 3*idst+jdst;
+        if(src[0] == 'b' && dst[0] == 'b') {
+            const isrc = parseInt(src[1]);
+            const jsrc = parseInt(src[2]);
+            const s = 3*isrc+jsrc;
+            return this.validPlay("move", this.board[s], s, d);
+        } else if(src[0] == 'r' && src[2] == '0' && dst[0] == 'b'){
+            const i0 = parseInt(src[1]);
+            const p = i0;
+            return this.validPlay("drop", this.reserve0[p], p, d);
+        }
+    }
+
+    validPlay(action, piece, start, end) {
+        return validAction(
+            this.board,
+            this.reserve0,
+            this.reserve1,
+            this.currentPlayer,
+            action,
+            piece,
+            start,
+            end
+        )
+    }
+
     play(action, piece, start, end) {
-        console.log("attempting : ", action, piece, start, end, this.board, this.reserve0, this.reserve1)
         let valid = validAction(
             this.board,
             this.reserve0,
@@ -220,7 +257,6 @@ class Yokai {
             end
         )
         if(valid) {
-            console.log("before HU : ", this.toString());
             playAction(
                 this.board,
                 this.reserve0,
@@ -232,7 +268,6 @@ class Yokai {
                 end
             )
             this.update()
-            console.log("after HU : ", this.toString());
         }
         return valid;
     }
