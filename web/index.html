@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <title>cm-chessboard</title>
     <link rel="stylesheet" href="assets/styles/cm-chessboard.css"/>
-    <link rel="stylesheet" href="examples/styles/examples.css"/>
+    <link rel="stylesheet" href="css/styles/examples.css"/>
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0"/>
-    <script src="../web/js/yokai-lib.js"></script>
-    <script src="../web/js/yokai-api.js"></script>
+    <script src="js/yokai/yokai-lib.js"></script>
+    <script src="js/yokai/yokai-api.js"></script>
 </head>
 <body>
 <h1>yokai no mori</h1>
@@ -17,7 +17,7 @@
     let yokai = Yokai.Default()
 </script>
 <script type="module">
-    import { INPUT_EVENT_TYPE, COLOR, Chessboard, MARKER_TYPE } from "./src/cm-chessboard/Chessboard.js"
+    import { INPUT_EVENT_TYPE, COLOR, Chessboard, MARKER_TYPE } from "./js/interface/Chessboard.js"
 
     function inputHandler(event) {
         event.chessboard.removeMarkers(undefined, MARKER_TYPE.dot)
@@ -32,12 +32,11 @@
             return true
         } else if (event.type === INPUT_EVENT_TYPE.moveDone) {
             const move = { from: event.squareFrom, to: event.squareTo }
-            console.log(move)
             const result = yokai.move(move)
             // const result = true
             if (result) {
                 event.chessboard.removeMarkers(undefined, MARKER_TYPE.square)
-                // event.chessboard.disableMoveInput()
+                event.chessboard.disableMoveInput()
                 event.chessboard.setPosition(yokai.getPosition())
                 const gameover = yokai.winner() != -1
                 if(!gameover) {
@@ -45,7 +44,6 @@
                         yokai.autoMove(difficulty)
                         event.chessboard.enableMoveInput(inputHandler, COLOR.white)
                         event.chessboard.setPosition(yokai.getPosition())
-                        console.log(yokai.winner())
                     }, 500)
                     setTimeout(() => {
                         if (yokai.winner() != -1) {
