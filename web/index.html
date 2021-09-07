@@ -42,21 +42,21 @@
                             yokai.autoMove(difficulty)
                             event.chessboard.enableMoveInput(inputHandler, COLOR.white)
                             event.chessboard.setPosition(yokai.getPosition())
-                        }, 500)
-                        setTimeout(() => {
-                            if (yokai.winner() != -1) {
-                                alert("You have lost :(")
-                                yokai = Yokai.Default(m)
-                                event.chessboard.setPosition(yokai.getPosition())
-                            }
-                        }, 1000)
+                            setTimeout(() => {
+                                if (yokai.winner() != -1) {
+                                    alert("You have lost :(")
+                                    yokai = Yokai.Default(m)
+                                    event.chessboard.setPosition(yokai.getPosition())
+                                }
+                            }, 500)
+                        }, 200)
                     } else {
                         setTimeout(() => {
                             alert("You have won !")
                             yokai = Yokai.Default(m)
                             event.chessboard.setPosition(yokai.getPosition())
                             event.chessboard.enableMoveInput(inputHandler, COLOR.white)
-                        }, 1000)
+                        }, 500)
                     }
                 } else {
                     console.warn("invalid move", move)
