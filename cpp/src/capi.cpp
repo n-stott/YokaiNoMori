@@ -14,6 +14,12 @@ extern "C" {
     char reserve0_buffer[256];
     char reserve1_buffer[256];
 
+    void init() {
+        std::fill(board_buffer, board_buffer+256, '\0');
+        std::fill(reserve0_buffer, reserve0_buffer+256, '\0');
+        std::fill(reserve1_buffer, reserve1_buffer+256, '\0');
+    }
+
     int validAction(
         const char* board,
         const char* reserve1,
@@ -63,9 +69,7 @@ extern "C" {
         Action<Easy> action { p, type, src, dst };
         state.apply(action);
 
-        std::fill(board_buffer, board_buffer+256, '\0');
-        std::fill(reserve0_buffer, reserve0_buffer+256, '\0');
-        std::fill(reserve1_buffer, reserve1_buffer+256, '\0');
+        init();
 
         std::strcpy(board_buffer, state.board.toString().c_str());
         std::strcpy(reserve0_buffer, state.reserve1.toString().c_str());
@@ -101,9 +105,7 @@ extern "C" {
             state.apply(action.value());
         } 
 
-        std::fill(board_buffer, board_buffer+256, '\0');
-        std::fill(reserve0_buffer, reserve0_buffer+256, '\0');
-        std::fill(reserve1_buffer, reserve1_buffer+256, '\0');
+        init();
         
         std::strcpy(board_buffer, state.board.toString().c_str());
         std::strcpy(reserve0_buffer, state.reserve1.toString().c_str());

@@ -1,4 +1,5 @@
 searchBestMove = Module.cwrap('searchBestMove', 'number', ['string', 'string', 'string', 'number', 'number'])
+init = Module.cwrap('init', 'void', [])
 get_board = Module.cwrap('board', 'string', [])
 get_reserve0 = Module.cwrap('reserve0', 'string', [])
 get_reserve1 = Module.cwrap('reserve1', 'string', [])
@@ -13,6 +14,7 @@ class Yokai {
         this.reserve0 = reserve0;
         this.reserve1 = reserve1;
         this.currentPlayer = player;
+        init();
     }
 
     static Default() {
