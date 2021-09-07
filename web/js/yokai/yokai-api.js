@@ -113,7 +113,10 @@ class Yokai {
     }
 
     autoMove(depth) {
+        var t0 = performance.now()
         this.searchBestMove(depth)
+        var t1 = performance.now()
+        console.log("AutoMove took " + (t1 - t0) + " milliseconds.")
         this.update()
         this.swapPlayer()
     }
