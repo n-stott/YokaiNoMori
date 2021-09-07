@@ -13,63 +13,64 @@
 <h1>yokai no mori</h1>
 <div class="board" id="board"></div>
 
-<script language="javascript">
-    let yokai = Yokai.Default()
-</script>
 <script type="module">
     import { INPUT_EVENT_TYPE, COLOR, Chessboard, MARKER_TYPE } from "./js/interface/Chessboard.js"
 
-    function inputHandler(event) {
-        event.chessboard.removeMarkers(undefined, MARKER_TYPE.dot)
-        event.chessboard.removeMarkers(undefined, MARKER_TYPE.square)
-        if (event.type === INPUT_EVENT_TYPE.moveStart) {
-            const moves = yokai.moves(event.square);
-            event.chessboard.addMarker(event.square, MARKER_TYPE.square)
-            for (const move of moves) {
-                event.chessboard.addMarker(move.to, MARKER_TYPE.dot)
-            }
-            return true
-        } else if (event.type === INPUT_EVENT_TYPE.moveDone) {
-            const move = { from: event.squareFrom, to: event.squareTo }
-            const result = yokai.move(move)
-            if (result) {
-                event.chessboard.removeMarkers(undefined, MARKER_TYPE.square)
-                event.chessboard.disableMoveInput()
-                event.chessboard.setPosition(yokai.getPosition())
-                const gameover = yokai.winner() != -1
-                if(!gameover) {
-                    setTimeout(() => { // smoother with 500ms delay
-                        yokai.autoMove(difficulty)
-                        event.chessboard.enableMoveInput(inputHandler, COLOR.white)
-                        event.chessboard.setPosition(yokai.getPosition())
-                    }, 500)
-                    setTimeout(() => {
-                        if (yokai.winner() != -1) {
-                            alert("You have lost :(")
-                            yokai = Yokai.Default()
-                            event.chessboard.setPosition(yokai.getPosition())
-                        }
-                    }, 1000)
-                } else {
-                    setTimeout(() => {
-                        alert("You have won !")
-                        yokai = Yokai.Default()
-                        event.chessboard.setPosition(yokai.getPosition())
-                        event.chessboard.enableMoveInput(inputHandler, COLOR.white)
-                    }, 1000)
-                }
-            } else {
-                console.warn("invalid move", move)
-            }
-            return result
-        }
-    }
+    Module().then(function(m) {
+        let yokai = Yokai.Default(m)
 
-    const board = new Chessboard(document.getElementById("board"), {
-        position: "start"
+        function inputHandler(event) {
+            event.chessboard.removeMarkers(undefined, MARKER_TYPE.dot)
+            event.chessboard.removeMarkers(undefined, MARKER_TYPE.square)
+            if (event.type === INPUT_EVENT_TYPE.moveStart) {
+                const moves = yokai.moves(event.square);
+                event.chessboard.addMarker(event.square, MARKER_TYPE.square)
+                for (const move of moves) {
+                    event.chessboard.addMarker(move.to, MARKER_TYPE.dot)
+                }
+                return true
+            } else if (event.type === INPUT_EVENT_TYPE.moveDone) {
+                const move = { from: event.squareFrom, to: event.squareTo }
+                const result = yokai.move(move)
+                if (result) {
+                    event.chessboard.removeMarkers(undefined, MARKER_TYPE.square)
+                    event.chessboard.disableMoveInput()
+                    event.chessboard.setPosition(yokai.getPosition())
+                    const gameover = yokai.winner() != -1
+                    if(!gameover) {
+                        setTimeout(() => { // smoother with 500ms delay
+                            yokai.autoMove(difficulty)
+                            event.chessboard.enableMoveInput(inputHandler, COLOR.white)
+                            event.chessboard.setPosition(yokai.getPosition())
+                        }, 500)
+                        setTimeout(() => {
+                            if (yokai.winner() != -1) {
+                                alert("You have lost :(")
+                                yokai = Yokai.Default(m)
+                                event.chessboard.setPosition(yokai.getPosition())
+                            }
+                        }, 1000)
+                    } else {
+                        setTimeout(() => {
+                            alert("You have won !")
+                            yokai = Yokai.Default(m)
+                            event.chessboard.setPosition(yokai.getPosition())
+                            event.chessboard.enableMoveInput(inputHandler, COLOR.white)
+                        }, 1000)
+                    }
+                } else {
+                    console.warn("invalid move", move)
+                }
+                return result
+            }
+        }
+
+        const board = new Chessboard(document.getElementById("board"), {
+            position: "start"
+        })
+        
+        board.enableMoveInput(inputHandler, COLOR.white)
     })
-    
-    board.enableMoveInput(inputHandler, COLOR.white)
 </script>
 
 <script language="javascript">

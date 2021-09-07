@@ -148,6 +148,7 @@ struct GameState {
     void fillAllowedActions(ActionSet<config>*) const;
 
     bool apply(Action<config> action) {
+        assert(winner == None);
         assert(checkAction(action));
         bool res = false;
         if(action.type == Move) {
@@ -171,6 +172,7 @@ struct GameState {
 
     void revert() {
         if(history) history->pop();
+        winner = None;
     }
     
 public:

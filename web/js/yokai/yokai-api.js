@@ -1,23 +1,24 @@
-apiSearchBestMove = Module.cwrap('searchBestMove', 'number', ['string', 'string', 'string', 'number', 'number'])
-apiInit = Module.cwrap('init', 'void', [])
-apiBoard = Module.cwrap('board', 'string', [])
-apiReserve0 = Module.cwrap('reserve0', 'string', [])
-apiReserve1 = Module.cwrap('reserve1', 'string', [])
-apiValidAction = Module.cwrap('validAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
-apiPlayAction = Module.cwrap('playAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
+
 
 class Yokai {
 
-    constructor(board, reserve0, reserve1, player) {
+    constructor(WasmModule, board, reserve0, reserve1, player) {
         this.board = board;
         this.reserve0 = reserve0;
         this.reserve1 = reserve1;
         this.currentPlayer = player;
+        this.apiSearchBestMove = WasmModule.cwrap('searchBestMove', 'number', ['string', 'string', 'string', 'number', 'number'])
+        this.apiInit = WasmModule.cwrap('init', 'void', [])
+        this.apiBoard = WasmModule.cwrap('board', 'string', [])
+        this.apiReserve0 = WasmModule.cwrap('reserve0', 'string', [])
+        this.apiReserve1 = WasmModule.cwrap('reserve1', 'string', [])
+        this.apiValidAction = WasmModule.cwrap('validAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
+        this.apiPlayAction = WasmModule.cwrap('playAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
         this.initInternal()
     }
 
-    static Default() {
-        return new Yokai('TKB.P..p.bkt', '', '', 0);
+    static Default(WasmModule) {
+        return new Yokai(WasmModule, 'TKB.P..p.bkt', '', '', 0);
     }
 
     pieceToInternal(piece) {
@@ -198,25 +199,26 @@ class Yokai {
     // Low level api
 
     initInternal() {
-        apiInit();
+        this.apiInit();
     }
 
     validAction(action, piece, start, end) {
-        return apiValidAction(this.board, this.reserve0, this.reserve1, this.currentPlayer, action, piece, start, end)
+        return this.apiValidAction(this.board, this.reserve0, this.reserve1, this.currentPlayer, action, piece, start, end)
     }
 
     playAction(action, piece, start, end) {
-        return apiPlayAction(this.board, this.reserve0, this.reserve1, this.currentPlayer, action, piece, start, end)
+        return this.apiPlayAction(this.board, this.reserve0, this.reserve1, this.currentPlayer, action, piece, start, end)
     }
 
     searchBestMove(depth) {
-        return apiSearchBestMove(this.board, this.reserve0, this.reserve1, this.currentPlayer, depth)
+        console.log("searchBestMove", this.board, this.reserve0, this.reserve1, this.currentPlayer, depth)
+        return this.apiSearchBestMove(this.board, this.reserve0, this.reserve1, this.currentPlayer, depth)
     }
 
     update() {
-        this.board = apiBoard()
-        this.reserve0 = apiReserve0()
-        this.reserve1 = apiReserve1()
+        this.board = this.apiBoard()
+        this.reserve0 = this.apiReserve0()
+        this.reserve1 = this.apiReserve1()
     }
     
 }
