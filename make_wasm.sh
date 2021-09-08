@@ -1,4 +1,4 @@
-cd cpp
+cd ai
 ~/git/emsdk/upstream/emscripten/em++ src/*.cpp -Iinclude -Ilib/include\
     -std=c++2a -O3 -march=native -DNDEBUG\
     -o ../web/js/yokai/yokai-lib.js\
