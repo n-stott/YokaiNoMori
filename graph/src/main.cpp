@@ -7,9 +7,9 @@
 #include "nodetracker.h"
 
 
-std::deque<Node> storage;
+std::deque<Node> queue;
 NodeTracker tracker;
-std::deque<const Node*> queue;
+// std::deque<const Node*> queue;
 size_t contained = 0;
 
 size_t nodes = 0;
@@ -25,13 +25,12 @@ void push(const Node& node) {
     }
     ++nodes;
     tracker.push(node);
-    storage.push_back(node);
-    queue.push_back(&storage.back());
+    queue.push_back(node);
+    // queue.push_back(&storage.back());
 }
 
-const Node* pop() {
-    if(queue.empty()) return nullptr;
-    const Node* n = queue.front();
+Node pop() {
+    Node n = queue.front();
     queue.pop_front();
     return n;
 }
@@ -46,12 +45,11 @@ int main() {
     push(node);
     while(!queue.empty()) {
         ++iter;
-        const Node* np = pop();
-        if(!np) break;
+        Node np = pop();
         if(iter % iterlog == 0) {
-            std::cout << storage.size() << "  " << queue.size() << "  " << np->age << "  " << np->toString() << "  " << contained << "  " << tracker.count() << "  " << tracker.toString() << std::endl;
+            std::cout << queue.size() << "  " << np.age << "  " << np.toString() << "  " << contained << "  " << tracker.count() << "  " << tracker.toString() << std::endl;
         }
-        auto successors = np->successors<1>();
+        auto successors = np.successors<1>();
         for(const Node& n : successors) {
             push(n);
         }
