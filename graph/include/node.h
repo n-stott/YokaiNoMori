@@ -95,6 +95,10 @@ struct Node {
             for(int i = 0; i < 12; ++i) {
                 Piece p = board[i];
                 if(isPlayer0(p)) {
+                    if(isKing(p) && i / 3 == 3) {
+                        s.clear();
+                        return s;
+                    }
                     for(uint8_t dst : moveSet(p, i)) {
                         Piece q = board[dst];
                         if(not_stupid && isPlayer1(q) && isKing(q)) {
@@ -113,7 +117,7 @@ struct Node {
                         }
                         if(isEmpty(q)) {
                             board_t newboard = board;
-                            newboard[dst] = p;
+                            newboard[dst] = (isPawn(p) && (dst/3 == 0 || dst/3 ==3)) ? Piece::Q : p;
                             newboard[i] = Piece::E;
                             s.emplace_back(res0, newboard, res1, !player, age+1);
                         }
@@ -140,6 +144,10 @@ struct Node {
             for(int i = 0; i < 12; ++i) {
                 Piece p = board[i];
                 if(isPlayer1(p)) {
+                    if(isKing(p) && i / 3 == 0) {
+                        s.clear();
+                        return s;
+                    }
                     for(uint8_t dst : moveSet(p, i)) {
                         Piece q = board[dst];
                         if(not_stupid && isPlayer0(q) && isKing(q)) {
@@ -158,7 +166,7 @@ struct Node {
                         }
                         if(isEmpty(q)) {
                             board_t newboard = board;
-                            newboard[dst] = p;
+                            newboard[dst] = (isPawn(p) && (dst/3 == 0 || dst/3 ==3)) ? Piece::q : p;
                             newboard[i] = Piece::E;
                             s.emplace_back(res0, newboard, res1, !player, age+1);
                         }
@@ -178,11 +186,25 @@ struct Node {
 
     std::size_t hash() const {
         std::size_t hash = 0;
-        for(Piece p : res0) hash_combine(hash, static_cast<char>(p));
-        for(Piece p : res1) hash_combine(hash, static_cast<char>(p));
-        for(Piece p : board) hash_combine(hash, static_cast<char>(p));
-        hash_combine(hash, player);
+        for(Piece p : res0) hash_combine(hash, static_cast<char>(p)-player);
+        for(Piece p : res1) hash_combine(hash, static_cast<char>(p)-player);
+        std::size_t hashl = 0;
+        std::size_t hashr = 0;
+        for(int i = 0; i < 4; ++i) {
+            hash_combine(hashl, static_cast<char>(board[3*i+0])-player);
+            hash_combine(hash,  static_cast<char>(board[3*i+1])-player);
+            hash_combine(hashr, static_cast<char>(board[3*i+2])-player);
+        }
+        hash_combine(hash, hashl ^ hashr);
         return hash;
+    }
+
+    bool operator<(const Node& n) const {
+        if(player < n.player) return true;
+        for(int i = 0; i < 7; ++i) if(res0[i] < n.res0[i]) return true;
+        for(int i = 0; i < 7; ++i) if(res1[i] < n.res1[i]) return true;
+        for(int i = 0; i < 7; ++i) if(board[i] < n.board[i]) return true;
+        return false;
     }
 };
 

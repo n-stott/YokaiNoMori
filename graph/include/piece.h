@@ -46,6 +46,10 @@ constexpr bool isQueen(Piece p)   { return p == Piece::Q || p == Piece::q; }
 constexpr bool isEmpty(Piece p)   { return p == Piece::E; }
 constexpr bool isPlayer0(Piece p) { return p == Piece::K || p == Piece::P || p == Piece::B || p == Piece::R || p == Piece::Q; }
 constexpr bool isPlayer1(Piece p) { return p == Piece::k || p == Piece::p || p == Piece::b || p == Piece::r || p == Piece::q; }
-constexpr Piece swapColor(Piece p) { char c = static_cast<char>(p); return isEmpty(p) ? p : static_cast<Piece>(c&1 ? c-1 : c+1); }
+constexpr Piece swapColor(Piece p) {
+    if(p == Piece::Q) p = Piece::P;
+    if(p == Piece::q) p = Piece::p;
+    char c = static_cast<char>(p); return isEmpty(p) ? p : static_cast<Piece>(c&1 ? c-1 : c+1);
+}
 
 #endif

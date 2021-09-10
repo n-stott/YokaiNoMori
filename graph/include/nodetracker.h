@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <string>
 #include <algorithm>
 #include <numeric>
@@ -44,14 +45,35 @@ struct PosTracker {
             trackers[p].push(node);
         }
     }
+
+    size_t count() const {
+        return std::accumulate(trackers.begin(), trackers.end(), 0, [](size_t c, const Tracker& t) { return c + t.count(); });
+    }
+
+    std::string toString() const {
+        std::string s;
+        for(const Tracker& t : trackers) {
+            std::string ts = t.toString();
+            if(ts.size() > 0) s += ts + " ";
+        }
+        return s;
+    }
 };
 
 struct TrivialTracker {
-    std::set<size_t> hashes;
+    std::unordered_set<size_t> hashes;
 
     bool contains(const Node& node) const { return hashes.contains(node.hash()); }
 
     void push(const Node& node) { hashes.insert(node.hash()); }
+
+    size_t count() const { return hashes.size(); }
+
+    std::string toString() const {
+        std::string s;
+        if(count() > 0) s += std::to_string(count());
+        return s;
+    }
 };
 
 
@@ -60,7 +82,7 @@ struct TrivialTracker {
 struct NodeTracker {
 
     using Tracker = PosTracker<0, 0, 
-                        PosTracker<0, 1, 
+                        PosTracker<1, 0, 
                             TrivialTracker
                         >
                     >;
@@ -70,6 +92,9 @@ struct NodeTracker {
 
     void push(const Node& node) { tracker.push(node); }
 
+    size_t count() const { return tracker.count(); }
+
+    std::string toString() const { return tracker.toString(); }
 
 };
 

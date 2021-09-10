@@ -10,9 +10,20 @@
 std::deque<Node> storage;
 NodeTracker tracker;
 std::deque<const Node*> queue;
+size_t contained = 0;
+
+size_t nodes = 0;
+size_t edges = 0;
+
+// TODO : use a heap based on the structure of the node
 
 void push(const Node& node) {
-    if(tracker.contains(node)) return;
+    ++edges;
+    if(tracker.contains(node)) {
+        contained++;
+        return;
+    }
+    ++nodes;
     tracker.push(node);
     storage.push_back(node);
     queue.push_back(&storage.back());
@@ -38,12 +49,14 @@ int main() {
         const Node* np = pop();
         if(!np) break;
         if(iter % iterlog == 0) {
-            std::cout << storage.size() << "  " << queue.size() << "  " << np->age << "  " << np->toString() << std::endl;
+            std::cout << storage.size() << "  " << queue.size() << "  " << np->age << "  " << np->toString() << "  " << contained << "  " << tracker.count() << "  " << tracker.toString() << std::endl;
         }
         auto successors = np->successors<1>();
         for(const Node& n : successors) {
             push(n);
         }
     }
+
+    std::cout << nodes << "  " << edges << std::endl;
 
 }
