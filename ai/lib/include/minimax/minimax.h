@@ -255,6 +255,7 @@ private:
             });
             bestScore = alphaBetaSearchWithHint(currentState, depth, depth, -inf, inf, hint);
             currentBest = bestAction;
+            if(bestScore == std::numeric_limits<double>::infinity()) break;
         }
         return bestScore;
     }
