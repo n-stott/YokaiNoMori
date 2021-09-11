@@ -9,8 +9,7 @@
 #include <cassert>
 #include <array>
 
-template<BoardConfig config>
-using mask_t = SmallBitset<GameConfig<config>::rows*GameConfig<config>::cols, unsigned int>;
+using mask_t = SmallBitset<GameConfig::rows*GameConfig::cols, unsigned int>;
 
 template<typename T, unsigned int N, unsigned int... Ns>
 struct multi_array {
@@ -29,21 +28,21 @@ struct multi_array<T, N> {
 };
 
 
-template<BoardConfig config, unsigned int rows = GameConfig<config>::rows, unsigned int cols = GameConfig<config>::cols>
-using mask_storage = multi_array<mask_t<config>, 2, NB_PIECE_TYPE, rows*cols>;
+template<unsigned int rows = GameConfig::rows, unsigned int cols = GameConfig::cols>
+using mask_storage = multi_array<mask_t, 2, NB_PIECE_TYPE, rows*cols>;
 
-template<BoardConfig config, unsigned int rows = GameConfig<config>::rows, unsigned int cols = GameConfig<config>::cols>
-constexpr mask_storage<config> computeAllMasks() {
-    using mask = mask_t<config>;
+template<unsigned int rows = GameConfig::rows, unsigned int cols = GameConfig::cols>
+constexpr mask_storage<> computeAllMasks() {
+    using mask = mask_t;
 
-    mask_storage<config> result;
+    mask_storage<> result;
     for(uint8_t player = 0; player < 2; ++player) {
         for(uint8_t id = 0; id < NB_PIECE_TYPE; ++id) {
             for(uint8_t pos = 0; pos < rows*cols; ++pos) {
                 Piece piece((PieceType)id, (Color)player);
                 Pos current(pos);
                 unsigned long mask_proxy = 0;
-                for(Pos p : GameLogic<config>::moveSet(piece, current)) mask_proxy |= (1 << p.idx());
+                for(Pos p : GameLogic::moveSet(piece, current)) mask_proxy |= (1 << p.idx());
                 mask m(mask_proxy);
                 result[player][id][pos] = m;
             }
@@ -52,55 +51,63 @@ constexpr mask_storage<config> computeAllMasks() {
     return result;
 }
 
-template<BoardConfig config>
 struct StateAnalysis {
 
-    static constexpr unsigned int rows = GameConfig<config>::rows;
-    static constexpr unsigned int cols = GameConfig<config>::cols;
-    static constexpr unsigned int ressize = GameConfig<config>::ressize;
+    static constexpr unsigned int rows = GameConfig::rows;
+    static constexpr unsigned int cols = GameConfig::cols;
+    static constexpr unsigned int ressize = GameConfig::ressize;
 
-    using mask = mask_t<config>;
+    using mask = mask_t;
 
-    static constexpr mask_storage<config> allMasks = computeAllMasks<config>();
+    static constexpr mask_storage<> allMasks = computeAllMasks();
 
+    mask occupied0;
     mask occupied1;
-    mask occupied2;
 
+    mask controlled0;
     mask controlled1;
-    mask controlled2;
 
+    mask kingPosition0;
     mask kingPosition1;
-    mask kingPosition2;
 
+    mask kingControl0;
     mask kingControl1;
-    mask kingControl2;
 
+    std::array<short, NB_PIECE_TYPE> onBoard0;
     std::array<short, NB_PIECE_TYPE> onBoard1;
-    std::array<short, NB_PIECE_TYPE> onBoard2;
 
+    std::array<short, NB_PIECE_TYPE> inReserve0;
     std::array<short, NB_PIECE_TYPE> inReserve1;
-    std::array<short, NB_PIECE_TYPE> inReserve2;
 
     StateAnalysis() = default;
 
-    StateAnalysis(const Board<rows, cols>& board, const Reserve<P1, ressize>& reserve1, const Reserve<P2, ressize>& reserve2) :
+    StateAnalysis(const Board& board, const Reserve<P0, ressize>& reserve0, const Reserve<P1, ressize>& reserve1) :
+        occupied0(),
         occupied1(),
-        occupied2(),
+        controlled0(),
         controlled1(),
-        controlled2(),
+        kingPosition0(),
         kingPosition1(),
-        kingPosition2(),
+        kingControl0(),
         kingControl1(),
-        kingControl2(),
+        onBoard0(),
         onBoard1(),
-        onBoard2(),
-        inReserve1(),
-        inReserve2()
+        inReserve0(),
+        inReserve1()
     {
+        std::fill(onBoard0.begin(), onBoard0.end(), 0);
         std::fill(onBoard1.begin(), onBoard1.end(), 0);
-        std::fill(onBoard2.begin(), onBoard2.end(), 0);
         size_t pos = 0;
         for(Piece piece : board) {
+            if(piece.color() == Color::P0) {
+                occupied0.set(pos);
+                ++onBoard0[(int)piece.type()];
+                controlled0 |= allMasks[Color::P0][piece.type()][pos];
+                if(piece.type() == PieceType::King) {
+                    kingPosition0.set(pos);
+                    kingControl0 = allMasks[Color::P0][PieceType::King][pos];
+                }
+            }
             if(piece.color() == Color::P1) {
                 occupied1.set(pos);
                 ++onBoard1[(int)piece.type()];
@@ -110,58 +117,49 @@ struct StateAnalysis {
                     kingControl1 = allMasks[Color::P1][PieceType::King][pos];
                 }
             }
-            if(piece.color() == Color::P2) {
-                occupied2.set(pos);
-                ++onBoard2[(int)piece.type()];
-                controlled2 |= allMasks[Color::P2][piece.type()][pos];
-                if(piece.type() == PieceType::King) {
-                    kingPosition2.set(pos);
-                    kingControl2 = allMasks[Color::P2][PieceType::King][pos];
-                }
-            }
             ++pos;
         }
+        std::fill(inReserve0.begin(), inReserve0.end(), 0);
+        for(Piece piece : reserve0) ++inReserve0[(int)piece.type()];
         std::fill(inReserve1.begin(), inReserve1.end(), 0);
         for(Piece piece : reserve1) ++inReserve1[(int)piece.type()];
-        std::fill(inReserve2.begin(), inReserve2.end(), 0);
-        for(Piece piece : reserve2) ++inReserve2[(int)piece.type()];
     }
 
+    size_t nbOccupied0() const { return occupied0.count(); }
     size_t nbOccupied1() const { return occupied1.count(); }
-    size_t nbOccupied2() const { return occupied2.count(); }
 
+    size_t nbControlled0() const { return controlled0.count(); }
     size_t nbControlled1() const { return controlled1.count(); }
-    size_t nbControlled2() const { return controlled2.count(); }
 
-    size_t nbDisputed() const { return (controlled1&controlled2).count(); }
+    size_t nbDisputed() const { return (controlled0&controlled1).count(); }
 
-    size_t nbDanger1() const { return (occupied1&controlled2).count(); }
-    size_t nbDanger2() const { return (occupied2&controlled1).count(); }
+    size_t nbDanger0() const { return (occupied0&controlled1).count(); }
+    size_t nbDanger1() const { return (occupied1&controlled0).count(); }
 
-    bool isKingAttacked1() const { return (controlled2&kingPosition1).any(); }
-    bool isKingAttacked2() const { return (controlled1&kingPosition2).any(); }
+    bool isKingAttacked0() const { return (controlled1&kingPosition0).any(); }
+    bool isKingAttacked1() const { return (controlled0&kingPosition1).any(); }
 
+    bool hasKing0() const { return kingPosition0.any(); }
     bool hasKing1() const { return kingPosition1.any(); }
-    bool hasKing2() const { return kingPosition2.any(); }
+
+    size_t nbKingEscapes0() const { 
+        mask invalid = occupied0 | controlled1;
+        return (kingControl0&(~invalid)).count();
+    }
 
     size_t nbKingEscapes1() const { 
-        mask invalid = occupied1 | controlled2;
+        mask invalid = occupied1 | controlled0;
         return (kingControl1&(~invalid)).count();
     }
 
-    size_t nbKingEscapes2() const { 
-        mask invalid = occupied2 | controlled1;
-        return (kingControl2&(~invalid)).count();
+    size_t kingDistance0() const {
+        if(!hasKing0()) return 0;
+        return __builtin_ctz(kingPosition0.val)/cols;
     }
 
     size_t kingDistance1() const {
         if(!hasKing1()) return 0;
-        return __builtin_ctz(kingPosition1.val)/cols;
-    }
-
-    size_t kingDistance2() const {
-        if(!hasKing2()) return 0;
-        return rows-1-__builtin_ctz(kingPosition2.val)/cols;
+        return rows-1-__builtin_ctz(kingPosition1.val)/cols;
     }
 
 };

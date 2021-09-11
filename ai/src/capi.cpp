@@ -22,8 +22,8 @@ extern "C" {
 
     int validAction(
         const char* board,
+        const char* reserve0,
         const char* reserve1,
-        const char* reserve2,
         int player,
         const char* actiontype,
         const char* piece,
@@ -38,9 +38,9 @@ extern "C" {
         Pos src { static_cast<uint8_t>(start) };
         Pos dst { static_cast<uint8_t>(end) };
 
-        GameHistory<Easy> history;
-        GameState<Easy> state(&history, board, reserve1, reserve2, (Color)player);
-        Action<Easy> action { p, type, src, dst };
+        GameHistory history;
+        GameState state(&history, board, reserve0, reserve1, (Color)player);
+        Action action { p, type, src, dst };
         bool check = state.checkAction(action);
 
         return check;
@@ -48,8 +48,8 @@ extern "C" {
 
     int playAction(
         const char* board,
+        const char* reserve0,
         const char* reserve1,
-        const char* reserve2,
         int player,
         const char* actiontype,
         const char* piece,
@@ -64,24 +64,24 @@ extern "C" {
         Pos src { static_cast<uint8_t>(start) };
         Pos dst { static_cast<uint8_t>(end) };
 
-        GameHistory<Easy> history;
-        GameState<Easy> state(&history, board, reserve1, reserve2, (Color)player);
-        Action<Easy> action { p, type, src, dst };
+        GameHistory history;
+        GameState state(&history, board, reserve0, reserve1, (Color)player);
+        Action action { p, type, src, dst };
         state.apply(action);
 
         init();
 
         std::strcpy(board_buffer, state.board.toString().c_str());
-        std::strcpy(reserve0_buffer, state.reserve1.toString().c_str());
-        std::strcpy(reserve1_buffer, state.reserve2.toString().c_str());
+        std::strcpy(reserve0_buffer, state.reserve0.toString().c_str());
+        std::strcpy(reserve1_buffer, state.reserve1.toString().c_str());
 
         return 1;
     }
 
     int searchBestMove(
         const char* board,
+        const char* reserve0,
         const char* reserve1,
-        const char* reserve2,
         int player,
         int depth
     ) {
@@ -91,13 +91,13 @@ extern "C" {
         if(depth < 1) depth = 1;
         if(depth > 8) depth = 8;
 
-        GameHistory<Easy> history;
-        GameState<Easy> state(&history, board, reserve1, reserve2, (Color)player);
+        GameHistory history;
+        GameState state(&history, board, reserve0, reserve1, (Color)player);
 
-        Agent<Easy> agent;
-        using MyMinimax = Minimax<Mode::IterativeDeepening, Action<Easy>, ActionSet<Easy>, GameState<Easy>, Agent<Easy>, ActionOrdering<Easy>>;
+        Agent agent;
+        using MyMinimax = Minimax<Mode::IterativeDeepening, Action, ActionSet, GameState, Agent, ActionOrdering>;
 
-        std::optional<Action<Easy>> action;
+        std::optional<Action> action;
         MyMinimax search(state, agent);
         search.run(depth);
         action = search.bestAction;
@@ -108,8 +108,8 @@ extern "C" {
         init();
         
         std::strcpy(board_buffer, state.board.toString().c_str());
-        std::strcpy(reserve0_buffer, state.reserve1.toString().c_str());
-        std::strcpy(reserve1_buffer, state.reserve2.toString().c_str());
+        std::strcpy(reserve0_buffer, state.reserve0.toString().c_str());
+        std::strcpy(reserve1_buffer, state.reserve1.toString().c_str());
 
         return action.has_value();
     }

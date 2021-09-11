@@ -13,28 +13,27 @@
 #include <string>
 #include <minimax/logger.h>
 
-template<BoardConfig config>
 struct GameState {
 
-    static constexpr unsigned int rows = GameConfig<config>::rows;
-    static constexpr unsigned int cols = GameConfig<config>::cols;
-    static constexpr unsigned int ressize = GameConfig<config>::ressize;
+    static constexpr unsigned int rows = GameConfig::rows;
+    static constexpr unsigned int cols = GameConfig::cols;
+    static constexpr unsigned int ressize = GameConfig::ressize;
 
-    GameHistory<config>* history;
-    Board<rows, cols> board;
+    GameHistory* history;
+    Board board;
+    Reserve<P0, ressize> reserve0;
     Reserve<P1, ressize> reserve1;
-    Reserve<P2, ressize> reserve2;
     Color currentPlayer;
     Color winner;
     uint8_t nbTurns;
     uint8_t maxTurns;
 
-    GameState(GameHistory<config>* history) : 
+    GameState(GameHistory* history) : 
         history(history),
         board(),
+        reserve0(),
         reserve1(),
-        reserve2(),
-        currentPlayer(P1),
+        currentPlayer(P0),
         winner(None),
         nbTurns(0),
         maxTurns(MAX_TURNS)
@@ -43,38 +42,38 @@ struct GameState {
     }
 
 
-    GameState(GameHistory<config>* history, 
-            Board<rows, cols> b,
-            Reserve<P1, GameConfig<config>::ressize> r1,
-            Reserve<P2, GameConfig<config>::ressize> r2,
+    GameState(GameHistory* history, 
+            Board b,
+            Reserve<P0, GameConfig::ressize> r0,
+            Reserve<P1, GameConfig::ressize> r1,
             Color player) :
         history(history),
         board(b),
+        reserve0(r0),
         reserve1(r1),
-        reserve2(r2),
         currentPlayer(player),
         winner(None),
         nbTurns(0),
         maxTurns(MAX_TURNS)
     {
         if(history) history->push(board);
+        if(hasWon(P0)) winner = P0;
         if(hasWon(P1)) winner = P1;
-        if(hasWon(P2)) winner = P2;
     }
 
-    GameState(GameHistory<config>* history, const char* sboard, const std::string& sres1, const std::string& sres2, Color player) :
+    GameState(GameHistory* history, const char* sboard, const std::string& sres0, const std::string& sres1, Color player) :
         history(history),
         board(sboard),
+        reserve0(sres0),
         reserve1(sres1),
-        reserve2(sres2),
         currentPlayer(player),
         winner(None),
         nbTurns(0),
         maxTurns(150)
     {
         if(history) history->push(board);
+        if(hasWon(P0)) winner = P0;
         if(hasWon(P1)) winner = P1;
-        if(hasWon(P2)) winner = P2;
     }
 
 
@@ -82,9 +81,9 @@ struct GameState {
         std::string s;
         s += board.toString();
         s += '|';
-        s += reserve1.toString();
+        s += reserve0.toString();
         s += '|';
-        s += reserve2.toString();
+        s += reserve1.toString();
         return s;
     }
 
@@ -102,28 +101,26 @@ struct GameState {
             'i', // P2 Pawn
             'e', // P1 SuperPawn
             'j', // P2 SuperPawn
-            'x', // P1 Archbishop
-            'y', // P2 Archbishop
         };
         std::string b;
         for(Piece p : board) b += pieceCode[p.id()];
+        std::string r0("vvvvvvvv");
         std::string r1("vvvvvvvv");
-        std::string r2("vvvvvvvv");
+        for(unsigned int i = 0; i < reserve0.size; ++i) 
+            r0[i] = pieceCode[reserve0[i].id()];
         for(unsigned int i = 0; i < reserve1.size; ++i) 
             r1[i] = pieceCode[reserve1[i].id()];
-        for(unsigned int i = 0; i < reserve2.size; ++i) 
-            r2[i] = pieceCode[reserve2[i].id()];
 
-        std::string s = b + " " + r1 + " " + r2;
+        std::string s = b + " " + r0 + " " + r1;
         return s;
     }
 
     inline std::string niceToString() const {
         std::string s;
         s += "-----------------\n";
-        s += (currentPlayer == P2 ? "> " : "  ");
+        s += (currentPlayer == P1 ? "> " : "  ");
         s += "Player B | ";
-        s += reserve2.toString();
+        s += reserve1.toString();
         s += '\n';
         s += "-----------------";
         for(uint8_t i = 0; i < rows*cols; ++i) {
@@ -131,23 +128,19 @@ struct GameState {
             s += board.get(i).toChar();
         }
         s += '\n';
-        if(config == Easy) {
-            s += "  ABC\n";
-        } else {
-            s += "  ABCDE\n";
-        }
+        s += "  ABC\n";
         s += "-----------------\n";
-        s += (currentPlayer == P1 ? "> " : "  ");
+        s += (currentPlayer == P0 ? "> " : "  ");
         s += "Player a | ";
-        s += reserve1.toString();
+        s += reserve0.toString();
         s += '\n';
         s += "-----------------";
         return s;
     }
 
-    void fillAllowedActions(ActionSet<config>*) const;
+    void fillAllowedActions(ActionSet*) const;
 
-    bool apply(Action<config> action) {
+    bool apply(Action action) {
         assert(winner == None);
         assert(checkAction(action));
         bool res = false;
@@ -162,9 +155,9 @@ struct GameState {
             // player wins if he ate king, so they win if a king is at the top of their reserve
             assert(action.p.color() != None);
             if(action.p.color() == P1) {
-                if(reserve1.size > 0 && reserve1[reserve1.size-1].type() == King) winner = P1;
+                if(reserve0.size > 0 && reserve0[reserve0.size-1].type() == King) winner = P0;
             } else {
-                if(reserve2.size > 0 && reserve2[reserve2.size-1].type() == King) winner = P2;
+                if(reserve1.size > 0 && reserve1[reserve1.size-1].type() == King) winner = P1;
             }
         }
         return res;
@@ -177,7 +170,7 @@ struct GameState {
     
 public:
 
-    bool checkAction(Action<config> action) const {
+    bool checkAction(Action action) const {
         if(action.type == Move) {
             return checkMove(action.p, action.src, action.dst);
         }
@@ -198,10 +191,10 @@ public:
     inline bool hasWon(Color player) const { return winner == player; }
 
     inline bool hasLost(Color player) const {
-        if(player == Color::P1) {
-            return hasWon(Color::P2);
-        } else {
+        if(player == Color::P0) {
             return hasWon(Color::P1);
+        } else {
+            return hasWon(Color::P0);
         }
     }
 
@@ -216,7 +209,7 @@ public:
     }
 
     void swapPlayer() {
-        currentPlayer = (currentPlayer == P1 ? P2 : P1);
+        currentPlayer = (currentPlayer == P0 ? P1 : P0);
         ++nbTurns;
     }
 

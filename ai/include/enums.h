@@ -7,27 +7,21 @@
 enum PieceType : char {
     NoType,
     King,
-    Tower,
+    Rook,
     Bishop,
     Pawn,
-    SuperPawn,
-    ArchBishop,
+    Queen
 };
 
 enum Color : char {
+    P0,
     P1,
-    P2,
     None,
 };
 
 enum ActionType : char {
     Move,
     Drop
-};
-
-enum BoardConfig : char {
-    Easy,
-    Medium   
 };
 
 #endif

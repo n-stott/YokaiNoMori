@@ -120,6 +120,9 @@ private:
 
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
+        if(actionset.empty()) {
+            return -std::numeric_limits<double>::infinity();
+        }
         assert(!actionset.empty());
 
         {

@@ -18,11 +18,10 @@ constexpr int iabs(int z) {
     return (z >= 0 ? z : -z);
 }
 
-template<BoardConfig config>
 struct AllowedMove {
 
-    static constexpr unsigned int rows = GameConfig<config>::rows;
-    static constexpr unsigned int cols = GameConfig<config>::cols;
+    static constexpr unsigned int rows = GameConfig::rows;
+    static constexpr unsigned int cols = GameConfig::cols;
 
     using move_set = static_vector<Pos, 8>;
     using move_sets = static_vector<move_set, rows*cols>;
@@ -49,27 +48,23 @@ struct AllowedMove {
         };
 
         auto pawn_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
-            if(player == Color::P1) {
+            if(player == Color::P0) {
                 return xsrc == xdst && ydst == ysrc-1;
             }
-            if(player == Color::P2) {
+            if(player == Color::P1) {
                 return xsrc == xdst && ydst == ysrc+1;
             }
             return false;
         };
 
-        auto superpawn_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
-            if(player == Color::P1) {
+        auto queen_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
+            if(player == Color::P0) {
                 return (ydst <= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc+1 && xsrc == xdst);
             }
-            if(player == Color::P2) {
+            if(player == Color::P1) {
                 return (ydst >= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc-1 && xsrc == xdst);
             }
             return false;
-        };
-
-        auto archbishop_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
-            return bishop_valid_move(xsrc, ysrc, xdst, ydst) || pawn_valid_move(xsrc, ysrc, xdst, ydst);
         };
 
         int i = 0;
@@ -83,7 +78,7 @@ struct AllowedMove {
                 if(pt == PieceType::King && king_valid_move(xsrc, ysrc, xdst, ydst)) {
                     movesAtPos.emplace_back(j);
                 }
-                if(pt == PieceType::Tower && tower_valid_move(xsrc, ysrc, xdst, ydst)) {
+                if(pt == PieceType::Rook && tower_valid_move(xsrc, ysrc, xdst, ydst)) {
                     movesAtPos.emplace_back(j);
                 }
                 if(pt == PieceType::Bishop && bishop_valid_move(xsrc, ysrc, xdst, ydst)) {
@@ -92,10 +87,7 @@ struct AllowedMove {
                 if(pt == PieceType::Pawn && pawn_valid_move(xsrc, ysrc, xdst, ydst)) {
                     movesAtPos.emplace_back(j);
                 }
-                if(pt == PieceType::SuperPawn && superpawn_valid_move(xsrc, ysrc, xdst, ydst)) {
-                    movesAtPos.emplace_back(j);
-                }
-                if(pt == PieceType::ArchBishop && archbishop_valid_move(xsrc, ysrc, xdst, ydst)) {
+                if(pt == PieceType::Queen && queen_valid_move(xsrc, ysrc, xdst, ydst)) {
                     movesAtPos.emplace_back(j);
                 }
             }
@@ -137,25 +129,25 @@ namespace {
         { 4, 10 },{ 3, 5, 9, 11}, { 4, 10},
         { 7 },    { 6, 8 },       { 7 }
     };
-    static constexpr move_sets p1Pawn { 
+    static constexpr move_sets p0Pawn { 
         { }, { }, { },
         { 0 }, { 1 }, { 2 },
         { 3 }, { 4 }, { 5 },
         { 6 }, { 7 }, { 8 }
     };
-    static constexpr move_sets p2Pawn { 
+    static constexpr move_sets p1Pawn { 
         { 3 }, { 4 }, { 5 },
         { 6 }, { 7 }, { 8 },
         { 9 }, { 10 }, { 11 },
         { }, { }, { }
     };
-    static constexpr move_sets p1SuperPawn { 
+    static constexpr move_sets p0Queen { 
         { 1, 3 },       { 0, 2, 4 },          { 1, 5 },
         { 0, 1, 4, 6 }, { 0, 1, 2, 3, 5, 7 }, { 1, 2, 4, 8 },
         { 3, 4, 7, 9 }, { 3, 4, 5, 6, 8, 10}, { 4, 5, 7, 11 },
         { 6, 7, 10},    { 6, 7, 8, 9, 11 },   { 7, 8, 10 }
     };
-    static constexpr move_sets p2SuperPawn { 
+    static constexpr move_sets p1Queen { 
         { 1, 3, 4 },    { 0, 2, 3, 4, 5 },     { 1, 4, 5 },
         { 0, 4, 6, 7 }, { 1, 3, 5, 6, 7, 8 },  { 2, 4 ,7, 8 },
         { 3, 7, 9, 10}, { 4, 6, 8, 9, 10, 11}, { 5, 7, 10, 11 },
@@ -163,18 +155,18 @@ namespace {
     };
 
 
-    static_assert(empty       == AllowedMove<Easy>::computeMoveSets(PieceType::NoType   , Color::P1));
-    static_assert(empty       == AllowedMove<Easy>::computeMoveSets(PieceType::NoType   , Color::P2));
-    static_assert(king        == AllowedMove<Easy>::computeMoveSets(PieceType::King     , Color::P1));
-    static_assert(king        == AllowedMove<Easy>::computeMoveSets(PieceType::King     , Color::P2));
-    static_assert(tower       == AllowedMove<Easy>::computeMoveSets(PieceType::Tower    , Color::P1));
-    static_assert(tower       == AllowedMove<Easy>::computeMoveSets(PieceType::Tower    , Color::P2));
-    static_assert(bishop      == AllowedMove<Easy>::computeMoveSets(PieceType::Bishop   , Color::P1));
-    static_assert(bishop      == AllowedMove<Easy>::computeMoveSets(PieceType::Bishop   , Color::P2));
-    static_assert(p1Pawn      == AllowedMove<Easy>::computeMoveSets(PieceType::Pawn     , Color::P1));
-    static_assert(p2Pawn      == AllowedMove<Easy>::computeMoveSets(PieceType::Pawn     , Color::P2));
-    static_assert(p1SuperPawn == AllowedMove<Easy>::computeMoveSets(PieceType::SuperPawn, Color::P1));
-    static_assert(p2SuperPawn == AllowedMove<Easy>::computeMoveSets(PieceType::SuperPawn, Color::P2));
+    static_assert(empty   == AllowedMove::computeMoveSets(PieceType::NoType, Color::P0));
+    static_assert(empty   == AllowedMove::computeMoveSets(PieceType::NoType, Color::P1));
+    static_assert(king    == AllowedMove::computeMoveSets(PieceType::King  , Color::P0));
+    static_assert(king    == AllowedMove::computeMoveSets(PieceType::King  , Color::P1));
+    static_assert(tower   == AllowedMove::computeMoveSets(PieceType::Rook  , Color::P0));
+    static_assert(tower   == AllowedMove::computeMoveSets(PieceType::Rook  , Color::P1));
+    static_assert(bishop  == AllowedMove::computeMoveSets(PieceType::Bishop, Color::P0));
+    static_assert(bishop  == AllowedMove::computeMoveSets(PieceType::Bishop, Color::P1));
+    static_assert(p0Pawn  == AllowedMove::computeMoveSets(PieceType::Pawn  , Color::P0));
+    static_assert(p1Pawn  == AllowedMove::computeMoveSets(PieceType::Pawn  , Color::P1));
+    static_assert(p0Queen == AllowedMove::computeMoveSets(PieceType::Queen , Color::P0));
+    static_assert(p1Queen == AllowedMove::computeMoveSets(PieceType::Queen , Color::P1));
 
 }
 #endif

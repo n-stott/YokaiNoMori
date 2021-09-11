@@ -8,7 +8,6 @@
 #include <string>
 #include <utility>
 
-template<BoardConfig config>
 struct Action {
     Piece p;
     ActionType type;
@@ -30,28 +29,20 @@ struct Action {
         message += ('A'+(unsigned char)p.color());
         message += " ";
         if(type == Move) {
-            message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString<config>() + " to " + dst.toString<config>();
+            message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();
         } else {
-            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)src.pos) + " on " + dst.toString<config>();
+            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)src.pos) + " on " + dst.toString();
         }
         return message;
     }
 };
 
-static_assert(sizeof(Action<Easy>) == 4);
-static_assert(sizeof(Action<Medium>) == 4);
+using aspair = std::pair<Action, double>;
 
-template<BoardConfig config>
-using aspair = std::pair<Action<config>, double>;
-
-template<BoardConfig config>
 struct ActionSet {
 
-    static constexpr unsigned int maxSizeEasy = 64;
-    static constexpr unsigned int maxSizeMedium = 128;
-
-    using value_type = Action<config>;
-    using storage = static_vector<value_type, (config == Easy ? maxSizeEasy : maxSizeMedium)>;
+    using value_type = Action;
+    using storage = static_vector<value_type, 64>;
 
     storage actions;
 

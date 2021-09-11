@@ -7,13 +7,11 @@
 #include "constants.h"
 #include <vector>
 
-
-template<BoardConfig config>
 struct GameHistory {
 
-    using board_t = Board<GameLogic<config>::rows, GameLogic<config>::cols>;
+    using board_t = Board;
 
-    static constexpr unsigned int nbKingPos = GameLogic<config>::rows*GameLogic<config>::cols;
+    static constexpr unsigned int nbKingPos = GameLogic::rows*GameLogic::cols;
 
     static_vector<board_t, MAX_TURNS+2> positions;
     std::array<uint8_t, nbKingPos*nbKingPos> countKingPos;
@@ -31,13 +29,13 @@ struct GameHistory {
     
     void push(const board_t& board) {
         positions.push_back(board);
-        ++countKingPos[board.king1()*nbKingPos+board.king2()];
+        ++countKingPos[board.king0()*nbKingPos+board.king1()];
         cache_valid = false;
     }
 
     void pop() {
         const board_t& board = positions.back();
-        --countKingPos[board.king1()*nbKingPos+board.king2()];
+        --countKingPos[board.king0()*nbKingPos+board.king1()];
         positions.pop_back();
         cache_valid = false;
     }
@@ -50,7 +48,7 @@ struct GameHistory {
             return false;
         }
         const board_t& h = positions.back();
-        if(countKingPos[h.king1()*nbKingPos+h.king2()] < 3) {
+        if(countKingPos[h.king0()*nbKingPos+h.king1()] < 3) {
             set_cache(false);
             return false;
         }

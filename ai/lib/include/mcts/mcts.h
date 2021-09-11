@@ -15,8 +15,8 @@ struct MctsNode {
     MctsNode* root;
     MctsNode* parent;
     std::vector<MctsNode> children;
+    size_t wins0;
     size_t wins1;
-    size_t wins2;
     size_t draws;
     size_t simulations;
     NodeData data;
@@ -27,8 +27,8 @@ struct MctsNode {
             root(nullptr),
             parent(nullptr),
             children(),
+            wins0(0),
             wins1(0),
-            wins2(0),
             draws(0),
             simulations(0),
             data(),
@@ -39,8 +39,8 @@ struct MctsNode {
             root(root),
             parent(parent),
             children(),
+            wins0(0),
             wins1(0),
-            wins2(0),
             draws(0),
             simulations(0),
             data(data),
@@ -49,9 +49,9 @@ struct MctsNode {
 
     void backPropagate(int winningPlayer) {
         ++simulations;
-        draws += (winningPlayer == 0);
+        draws += (winningPlayer == -1);
+        wins0 += (winningPlayer == 0);
         wins1 += (winningPlayer == 1);
-        wins2 += (winningPlayer == 2);
         if(parent) parent->backPropagate(winningPlayer);
     }
 
@@ -69,7 +69,7 @@ struct MctsNode {
     double UCT(int player) const {
         // if(simulations == 0) return std::numeric_limits<double>::infinity();
         // assert(simulations > 0);
-        double exploitation = ((player == 1 ? wins1 : wins2) + 0.5*draws) / (double)(1+simulations);
+        double exploitation = ((player == 0 ? wins0 : wins1) + 0.5*draws) / (double)(1+simulations);
         double exploration = ((!!parent) ? c * std::sqrt( rlog(1+parent->simulations) / (1+simulations) ) : 0.0);
         return (exploitation + exploration);
     }
@@ -120,8 +120,8 @@ struct MctsNode {
         // s += prefix + "uct : " + std::to_string(UCT(1)) + "   " + std::to_string(UCT(2)) + '\n';
 
         s += prefix + "simulations : " + std::to_string(simulations) + "sim ";
-        s += std::to_string(wins1) + " w1 " + std::to_string(wins2) + " w2 ";
-        s += std::to_string(UCT(1)) + " uct1  " + std::to_string(UCT(2)) + " uct2\n";
+        s += std::to_string(wins0) + " w0 " + std::to_string(wins1) + " w1 ";
+        s += std::to_string(UCT(0)) + " uct0  " + std::to_string(UCT(1)) + " uct1\n";
 
         s += prefix + data.toString() + '\n';
         if(depth == maxdepth) return s;

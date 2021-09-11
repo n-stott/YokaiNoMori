@@ -19,10 +19,9 @@ struct Pos {
         return pos;
     }
 
-    template<BoardConfig config>
     constexpr bool valid() const noexcept {
-        constexpr unsigned int rows = GameConfig<config>::rows;
-        constexpr unsigned int cols = GameConfig<config>::cols;
+        constexpr unsigned int rows = GameConfig::rows;
+        constexpr unsigned int cols = GameConfig::cols;
         return pos >= 0 && pos < rows*cols;
     }
 
@@ -30,11 +29,10 @@ struct Pos {
         return pos == p.pos;
     }
 
-    template<BoardConfig config>
     std::string toString() const noexcept {
         std::string s;
-        s += ('A' + pos%GameConfig<config>::cols);
-        s += std::to_string((pos/GameConfig<config>::cols)+1);
+        s += ('A' + pos%GameConfig::cols);
+        s += std::to_string((pos/GameConfig::cols)+1);
         return s;
     }
 };
