@@ -18,7 +18,7 @@ class Yokai {
     }
 
     static Default(WasmModule) {
-        return new Yokai(WasmModule, 'TKB.P..p.bkt', '', '', 0);
+        return new Yokai(WasmModule, 'RKB.P..p.bkr', '', '', 0);
     }
 
     pieceToInternal(piece) {
@@ -28,20 +28,12 @@ class Yokai {
             } else {
                 piece = piece.toUpperCase()
             }
-            if(piece === 'r') piece = 't'
-            if(piece === 'R') piece = 'T'
-            if(piece === 'q') piece = 's'
-            if(piece === 'Q') piece = 'S'
         }
         return piece
     }
 
     pieceFromInternal(piece) {
         if (piece !== '.') {
-            if(piece === 't') piece = 'r'
-            if(piece === 'T') piece = 'R'
-            if(piece === 's') piece = 'q'
-            if(piece === 'S') piece = 'Q'
             if (piece.toUpperCase() === piece) {
                 piece = piece.toLowerCase()
             } else {
@@ -93,11 +85,7 @@ class Yokai {
         for (let part = 3; part >= 0; --part) {
             for (let i = 0; i < 3; i++) {
                 let piece = this.board[3*part+i]
-                if (!piece) {
-                    parts[1+part] += "."
-                } else {
-                    parts[1+3-part] += this.pieceFromInternal(piece)
-                }
+                parts[1+3-part] += this.pieceFromInternal(piece)
             }
         }
 
