@@ -154,12 +154,12 @@ struct StateAnalysis {
 
     size_t kingDistance0() const {
         if(!hasKing0()) return 0;
-        return __builtin_ctz(kingPosition0.val)/cols;
+        return rows-1-__builtin_ctz(kingPosition0.val)/cols;
     }
 
     size_t kingDistance1() const {
         if(!hasKing1()) return 0;
-        return rows-1-__builtin_ctz(kingPosition1.val)/cols;
+        return __builtin_ctz(kingPosition1.val)/cols;
     }
 
 };

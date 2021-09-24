@@ -57,10 +57,10 @@ std::optional<Pos> readBoardPosition() {
         if(pc0 == 'A' || pc0 == 'a') y = 0;
         if(pc0 == 'B' || pc0 == 'b') y = 1;
         if(pc0 == 'C' || pc0 == 'c') y = 2;
-        if(pc1 == '1') x = 0;
-        if(pc1 == '2') x = 1;
-        if(pc1 == '3') x = 2;
-        if(pc1 == '4') x = 3;
+        if(pc1 == '1') x = 3;
+        if(pc1 == '2') x = 2;
+        if(pc1 == '3') x = 1;
+        if(pc1 == '4') x = 0;
         if(x != -1 && y != -1) {
             return std::make_optional(Pos(3*x+y));
         }
@@ -127,7 +127,6 @@ void oneVsOne() {
             s += state.niceToString() + '\n';
             s += "Turn of player : ";
             s += (state.currentPlayer == P1 ? 'A' : 'B');
-            s += '\n';
             return s;
         });
         std::optional<Action> action = readAction(state.currentPlayer);
@@ -226,9 +225,9 @@ Color aivsAiFrom(
             [&]() {
                 std::string s;
                 s += game.niceToString() + '\n';
+                s += '\n';
                 s += "Turn of player : ";
                 s += (game.currentPlayer == P0 ? 'A' : 'B');
-                s += '\n';
                 return s;
             });
         std::optional<Action> action;
@@ -243,7 +242,7 @@ Color aivsAiFrom(
             action = search1.bestAction;
         }
         if(action) {
-            Logger::log(Verb::Std, [&]() { return action.value().toString(); });
+            Logger::log(Verb::Std, [&]() { return action.value().toString() + '\n'; });
             game.apply(action.value());
         } else {
             Logger::log(Verb::Std, [&]() {
@@ -251,6 +250,7 @@ Color aivsAiFrom(
                 s += "Player ";
                 s += (char)('A'+(int)game.currentPlayer);
                 s += " did not find a suitable action";
+                s += '\n';
                 return s;
             });
             break;

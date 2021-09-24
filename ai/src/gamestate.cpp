@@ -118,10 +118,10 @@ bool GameState::move(Piece p, Pos a, Pos b) {
     board.set(a.idx(), Piece());
     constexpr unsigned int rows = GameConfig::rows;
     constexpr unsigned int cols = GameConfig::cols;
-    if(c == P0 && b.idx()/cols == 0) {
+    if(c == P0 && b.idx()/cols == rows-1) {
         src.promote();
     }
-    if(c == P1 && b.idx()/cols == rows-1) {
+    if(c == P1 && b.idx()/cols == 0) {
         src.promote();
     }
     board.set(b.idx(), src);

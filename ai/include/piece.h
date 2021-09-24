@@ -25,16 +25,16 @@ public:
     constexpr explicit Piece(char asChar) noexcept : data_(Empty) {
         switch(asChar) {
             case '.': data_ = 0; return;
-            case 'k': data_ = P0 | (King << 1); return;
-            case 'r': data_ = P0 | (Rook << 1); return;
-            case 'b': data_ = P0 | (Bishop << 1); return;
-            case 'p': data_ = P0 | (Pawn << 1); return;
-            case 'q': data_ = P0 | (Queen << 1); return;
-            case 'K': data_ = P1 | (King << 1); return;
-            case 'R': data_ = P1 | (Rook << 1); return;
-            case 'B': data_ = P1 | (Bishop << 1); return;
-            case 'P': data_ = P1 | (Pawn << 1); return;
-            case 'Q': data_ = P1 | (Queen << 1); return;
+            case 'K': data_ = P0 | (King << 1); return;
+            case 'R': data_ = P0 | (Rook << 1); return;
+            case 'B': data_ = P0 | (Bishop << 1); return;
+            case 'P': data_ = P0 | (Pawn << 1); return;
+            case 'Q': data_ = P0 | (Queen << 1); return;
+            case 'k': data_ = P1 | (King << 1); return;
+            case 'r': data_ = P1 | (Rook << 1); return;
+            case 'b': data_ = P1 | (Bishop << 1); return;
+            case 'p': data_ = P1 | (Pawn << 1); return;
+            case 'q': data_ = P1 | (Queen << 1); return;
         }
         assert(false);
     }
@@ -73,16 +73,16 @@ private:
     static constexpr static_vector<char, NB_PLAYERS*NB_PIECE_TYPE> charCodes {
         '.',
         '.',
-        'k',
         'K',
-        'r',
+        'k',
         'R',
-        'b',
+        'r',
         'B',
-        'p',
+        'b',
         'P',
-        'q',
+        'p',
         'Q',
+        'q',
     };
 
 };

@@ -119,19 +119,21 @@ struct GameState {
         std::string s;
         s += "-----------------\n";
         s += (currentPlayer == P1 ? "> " : "  ");
-        s += "Player B | ";
+        s += "Player b | ";
         s += reserve1.toString();
         s += '\n';
         s += "-----------------";
-        for(uint8_t i = 0; i < rows*cols; ++i) {
-            if(i%cols == 0) s += '\n' + std::to_string(1+i/cols) + ' ';
-            s += board.get(i).toChar();
+        for(uint8_t i = rows; i --> 0;) {
+            s += '\n' + std::to_string(i+1) + ' ';
+            for(uint8_t j = 0; j < cols; ++j) {
+                s += board.get(3*i+j).toChar();
+            }
         }
         s += '\n';
         s += "  ABC\n";
         s += "-----------------\n";
         s += (currentPlayer == P0 ? "> " : "  ");
-        s += "Player a | ";
+        s += "Player A | ";
         s += reserve0.toString();
         s += '\n';
         s += "-----------------";
@@ -154,7 +156,7 @@ struct GameState {
             if(history) history->push(board);
             // player wins if he ate king, so they win if a king is at the top of their reserve
             assert(action.p.color() != None);
-            if(action.p.color() == P1) {
+            if(action.p.color() == P0) {
                 if(reserve0.size > 0 && reserve0[reserve0.size-1].type() == King) winner = P0;
             } else {
                 if(reserve1.size > 0 && reserve1[reserve1.size-1].type() == King) winner = P1;

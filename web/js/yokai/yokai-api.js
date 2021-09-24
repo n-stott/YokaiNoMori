@@ -18,29 +18,7 @@ class Yokai {
     }
 
     static Default(WasmModule) {
-        return new Yokai(WasmModule, 'RKB.P..p.bkr', '', '', 0);
-    }
-
-    pieceToInternal(piece) {
-        if (piece !== '.') {
-            if (piece.toUpperCase() === piece) {
-                piece = piece.toLowerCase()
-            } else {
-                piece = piece.toUpperCase()
-            }
-        }
-        return piece
-    }
-
-    pieceFromInternal(piece) {
-        if (piece !== '.') {
-            if (piece.toUpperCase() === piece) {
-                piece = piece.toLowerCase()
-            } else {
-                piece = piece.toUpperCase()
-            }
-        }
-        return piece
+        return new Yokai(WasmModule, 'BKR.P..p.rkb', '', '', 0);
     }
 
     setPosition(fen) {
@@ -53,21 +31,21 @@ class Yokai {
             const res0 = parts[0]
             for (let c = 0; c < res0.length; c++) {
                 const piece = res0.substr(c, 1)
-                this.reserve0 += this.pieceToInternal(piece)
+                this.reserve0 += piece
             }
 
             for (let part = 3; part >= 0; --part) {
-                const row = parts[1+3-part]
+                const row = parts[1+part]
                 for (let c = 0; c < 3; c++) {
                     const piece = row.substr(c, 1)
-                    this.board += this.pieceToInternal(piece)
+                    this.board += piece
                 }
             }
             
             const res1 = parts[5]
             for (let c = 0; c < res1.length; c++) {
                 const piece = res1.substr(c, 1)
-                this.reserve1 += this.pieceToInternal(piece)
+                this.reserve1 += piece
             }
         }
     }
@@ -77,7 +55,7 @@ class Yokai {
         for (let i = 0; i < this.reserve0.length; i++) {
             let piece = this.reserve0[i]
             if (!piece) { } else {
-                parts[0] += this.pieceFromInternal(piece)
+                parts[0] += piece
             }
         }
         for (let i = this.reserve0.length; i < 7; i++) parts[0] += '.'
@@ -85,14 +63,14 @@ class Yokai {
         for (let part = 3; part >= 0; --part) {
             for (let i = 0; i < 3; i++) {
                 let piece = this.board[3*part+i]
-                parts[1+3-part] += this.pieceFromInternal(piece)
+                parts[1+part] += piece
             }
         }
 
         for (let i = 0; i < this.reserve1.length; i++) {
             let piece = this.reserve1[i]
             if (!piece) { } else {
-                parts[5] += this.pieceFromInternal(piece)
+                parts[5] += piece
             }
         }
         for (let i = this.reserve1.length; i < 7; i++) parts[5] += '.'
@@ -171,8 +149,8 @@ class Yokai {
     }
 
     winner() {
-        if(this.reserve0.length > 0 && this.reserve0[this.reserve0.length-1] == 'k') return 0;
-        if(this.reserve1.length > 0 && this.reserve1[this.reserve1.length-1] == 'K') return 1;
+        if(this.reserve0.length > 0 && this.reserve0[this.reserve0.length-1] == 'K') return 0;
+        if(this.reserve1.length > 0 && this.reserve1[this.reserve1.length-1] == 'k') return 1;
         return -1;
     }
 

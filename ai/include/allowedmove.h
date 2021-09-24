@@ -9,10 +9,10 @@
 #include <algorithm>
 
 // for rows = 4, cols = 3
-// 0  1  2
-// 3  4  5
-// 6  7  8
 // 9  10 11
+// 6  7  8
+// 3  4  5
+// 0  1  2
 
 constexpr int iabs(int z) {
     return (z >= 0 ? z : -z);
@@ -49,20 +49,20 @@ struct AllowedMove {
 
         auto pawn_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
             if(player == Color::P0) {
-                return xsrc == xdst && ydst == ysrc-1;
+                return xsrc == xdst && ydst == ysrc+1;
             }
             if(player == Color::P1) {
-                return xsrc == xdst && ydst == ysrc+1;
+                return xsrc == xdst && ydst == ysrc-1;
             }
             return false;
         };
 
         auto queen_valid_move = [&](int xsrc, int ysrc, int xdst, int ydst) {
             if(player == Color::P0) {
-                return (ydst <= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc+1 && xsrc == xdst);
+                return (ydst >= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc-1 && xsrc == xdst);
             }
             if(player == Color::P1) {
-                return (ydst >= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc-1 && xsrc == xdst);
+                return (ydst <= ysrc && std::max(iabs(xsrc-xdst), iabs(ysrc-ydst)) == 1) || (ydst == ysrc+1 && xsrc == xdst);
             }
             return false;
         };
@@ -129,25 +129,25 @@ namespace {
         { 4, 10 },{ 3, 5, 9, 11}, { 4, 10},
         { 7 },    { 6, 8 },       { 7 }
     };
-    static constexpr move_sets p0Pawn { 
+    static constexpr move_sets p1Pawn { 
         { }, { }, { },
         { 0 }, { 1 }, { 2 },
         { 3 }, { 4 }, { 5 },
         { 6 }, { 7 }, { 8 }
     };
-    static constexpr move_sets p1Pawn { 
+    static constexpr move_sets p0Pawn { 
         { 3 }, { 4 }, { 5 },
         { 6 }, { 7 }, { 8 },
         { 9 }, { 10 }, { 11 },
         { }, { }, { }
     };
-    static constexpr move_sets p0Queen { 
+    static constexpr move_sets p1Queen { 
         { 1, 3 },       { 0, 2, 4 },          { 1, 5 },
         { 0, 1, 4, 6 }, { 0, 1, 2, 3, 5, 7 }, { 1, 2, 4, 8 },
         { 3, 4, 7, 9 }, { 3, 4, 5, 6, 8, 10}, { 4, 5, 7, 11 },
         { 6, 7, 10},    { 6, 7, 8, 9, 11 },   { 7, 8, 10 }
     };
-    static constexpr move_sets p1Queen { 
+    static constexpr move_sets p0Queen { 
         { 1, 3, 4 },    { 0, 2, 3, 4, 5 },     { 1, 4, 5 },
         { 0, 4, 6, 7 }, { 1, 3, 5, 6, 7, 8 },  { 2, 4 ,7, 8 },
         { 3, 7, 9, 10}, { 4, 6, 8, 9, 10, 11}, { 5, 7, 10, 11 },

@@ -192,7 +192,9 @@ private:
 
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
-        assert(!actionset.empty());
+        if(actionset.empty()) {
+            return -std::numeric_limits<double>::infinity();
+        }
 
         {
             ActionOrdering orderer(&actionset, currentState);

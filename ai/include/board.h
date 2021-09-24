@@ -14,13 +14,14 @@ struct Board {
     static constexpr int cols = 3;
 
     Board() :
-        k0(10),
-        k1(1),
+        k0(1),
+        k1(10),
         pieces({
-            Piece(Bishop, P1), Piece(King, P1), Piece(Rook, P1),
-            Piece(),           Piece(Pawn, P1), Piece(),
+            // it's backwards in the initializer...
+            Piece(Bishop, P0), Piece(King, P0), Piece(Rook, P0),
             Piece(),           Piece(Pawn, P0), Piece(),
-            Piece(Rook, P0),  Piece(King, P0), Piece(Bishop, P0)
+            Piece(),           Piece(Pawn, P1), Piece(),
+            Piece(Rook, P1),   Piece(King, P1), Piece(Bishop, P1),
         })
     { }
 
@@ -45,7 +46,7 @@ struct Board {
         return s;
     }
     
-    void  set(uint8_t i, Piece p) {
+    void set(uint8_t i, Piece p) {
         if(pieces[i].type() == PieceType::King) {
             if(pieces[i].color() == Color::P0) k0 = Pos(-1);
             if(pieces[i].color() == Color::P1) k1 = Pos(-1);

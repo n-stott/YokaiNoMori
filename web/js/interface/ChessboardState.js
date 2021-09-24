@@ -26,10 +26,10 @@ export class ChessboardState {
 
     // const SQUARE_COORDINATES = [
     //     "r00", "r10", "r20", "r30", "r40", "r50", "r60"
-    //     "b30", "b31", "b32",
-    //     "b20", "b21", "b22",
-    //     "b10", "b11", "b12",
     //     "b00", "b01", "b02",
+    //     "b10", "b11", "b12",
+    //     "b20", "b21", "b22",
+    //     "b30", "b31", "b32",
     //     "r01", "r11", "r22", "r31", "r41", "r51", "r61"
     // ]
 
@@ -45,7 +45,7 @@ export class ChessboardState {
         } else {
             const row = parseInt(square.charAt(1))
             const col = parseInt(square.charAt(2))
-            return 7 + 3*(3-row) + col
+            return 7 + 3*row + col
         }
     }
 
