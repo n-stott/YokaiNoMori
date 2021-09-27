@@ -4,6 +4,6 @@ cd ai
     -o ../web/js/yokai/yokai-lib.js\
     -s SINGLE_FILE\
     -s WASM=1\
-    -s EXPORTED_FUNCTIONS='["_validAction", "_playAction", "_searchBestMove", "_board", "_reserve0", "_reserve1", "_init"]'\
+    -s EXPORTED_FUNCTIONS='["_validAction", "_playAction", "_searchBestMove", "_board", "_reserve0", "_reserve1", "_init", "_set_state"]'\
     -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]'\
     -s MODULARIZE\

@@ -41,7 +41,9 @@ struct GameHistory {
     }
 
     bool hasDraw() {
-        if(cache_valid) return cached_draw;
+        if(cache_valid) {
+            return cached_draw;
+        }
         // We only need to check if the last move was a draw
         if(positions.begin() == positions.end()) {
             set_cache(false);

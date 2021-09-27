@@ -7,13 +7,13 @@ class Yokai {
         this.reserve0 = reserve0;
         this.reserve1 = reserve1;
         this.currentPlayer = player;
-        this.apiSearchBestMove = WasmModule.cwrap('searchBestMove', 'number', ['string', 'string', 'string', 'number', 'number'])
+        this.apiSearchBestMove = WasmModule.cwrap('searchBestMove', 'number', ['number'])
         this.apiInit = WasmModule.cwrap('init', 'void', [])
         this.apiBoard = WasmModule.cwrap('board', 'string', [])
         this.apiReserve0 = WasmModule.cwrap('reserve0', 'string', [])
         this.apiReserve1 = WasmModule.cwrap('reserve1', 'string', [])
-        this.apiValidAction = WasmModule.cwrap('validAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
-        this.apiPlayAction = WasmModule.cwrap('playAction', 'number', ['string', 'string', 'string', 'number', 'string', 'string', 'number', 'number'])
+        this.apiValidAction = WasmModule.cwrap('validAction', 'number', ['string', 'string', 'number', 'number'])
+        this.apiPlayAction = WasmModule.cwrap('playAction', 'number', ['string', 'string', 'number', 'number'])
         this.initInternal()
     }
 
@@ -169,16 +169,16 @@ class Yokai {
     }
 
     validAction(action, piece, start, end) {
-        return this.apiValidAction(this.board, this.reserve0, this.reserve1, this.currentPlayer, action, piece, start, end)
+        return this.apiValidAction(action, piece, start, end)
     }
 
     playAction(action, piece, start, end) {
-        return this.apiPlayAction(this.board, this.reserve0, this.reserve1, this.currentPlayer, action, piece, start, end)
+        return this.apiPlayAction(action, piece, start, end)
     }
 
     searchBestMove(depth) {
-        console.log("searchBestMove", this.board, this.reserve0, this.reserve1, this.currentPlayer, depth)
-        return this.apiSearchBestMove(this.board, this.reserve0, this.reserve1, this.currentPlayer, depth)
+        console.log("searchBestMove", depth)
+        return this.apiSearchBestMove(depth)
     }
 
     update() {
