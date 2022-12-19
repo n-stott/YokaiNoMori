@@ -5,6 +5,8 @@
 #include <limits>
 #include <optional>
 
+#define DEBUG_LOG 0
+
 
 enum Mode {
     PureMinimax,
@@ -84,7 +86,9 @@ private:
             assert(validMove);
             int evaluation = -search(tmp, maxDepth, depth-1);
             if(depth == maxDepth) {
+#if DEBUG_LOG
                 Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
+#endif
             }
             assert(evaluation == evaluation);
             if(evaluation > bestEvaluation) {
@@ -140,7 +144,9 @@ private:
             assert(validMove);
             int evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
             if(depth == maxDepth) {
+#if DEBUG_LOG
                 Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
+#endif
             }
             assert(evaluation == evaluation);
             if(evaluation > beta) {
@@ -208,7 +214,9 @@ private:
             assert(validMove);
             int evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
             if(depth == maxDepth) {
+#if DEBUG_LOG
                 Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
+#endif
             }
             assert(evaluation == evaluation);
             if(evaluation > beta) {
@@ -229,9 +237,9 @@ private:
 
         if(hint) {
             int val = tryAction(*hint);
-            Logger::with(Verb::Dev, [&](){
-                fmt::print("hint returns : {} {} {}\n", val, alpha, beta);
-            });
+#if DEBUG_LOG
+            Logger::with(Verb::Dev, [&](){ fmt::print("hint returns : {} {} {}\n", val, alpha, beta); });
+#endif
             if(val != std::numeric_limits<int>::min()) return val;
         }
         for(Action action : actionset) {
@@ -252,9 +260,9 @@ private:
             Action hintAction;
             if(currentBest.has_value()) hintAction = currentBest.value();
             Action* hint = (currentBest.has_value() ? &hintAction : nullptr);
-            Logger::with(Verb::Dev, [&](){
-                fmt::print("Current hint is : {}\n", hint ? hint->toString() : "none");
-            });
+#if DEBUG_LOG
+            Logger::with(Verb::Dev, [&](){ fmt::print("Current hint is : {}\n", hint ? hint->toString() : "none"); });
+#endif
             bestScore = alphaBetaSearchWithHint(currentState, depth, depth, -inf, inf, hint);
             currentBest = bestAction;
             if(bestScore == std::numeric_limits<int>::max()) break;

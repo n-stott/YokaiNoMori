@@ -10,6 +10,7 @@
 #include <cstring>
 
 #define ENABLE_HUMAN_PLAYER 0
+#define ENABLE_INTERACTIVE 0
 #define ENABLE_ENUMERATOR 0
 
 #if ENABLE_HUMAN_PLAYER
@@ -432,6 +433,7 @@ int main(int argc, char** argv) {
             }
         }
     }
+#if ENABLE_INTERACTIVE
     if(argc >= 1 && std::strcmp(argv[1], "--interactive") == 0) {
         if(argc <= 6) {
             Logger::with(Verb::Std, [](){
@@ -497,5 +499,6 @@ int main(int argc, char** argv) {
             fmt::print("{}\n", state.niceToString());
         });
     }
+#endif
     return 0;
 }
