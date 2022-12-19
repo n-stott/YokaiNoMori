@@ -185,7 +185,7 @@ public:
     bool checkDrop(Piece p, Pos res, Pos dst) const;
 
     bool allowedMove(Piece p, Pos a, Pos b) const;
-    bool allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const;
+    bool allowedDrop(Piece p, uint8_t posInReserve, Pos a) const;
     bool move(Piece p, Pos a, Pos b);
     bool drop(Piece p, Pos res, Pos dst);
     static bool allowedOffset(Piece p, Pos a, Pos b);

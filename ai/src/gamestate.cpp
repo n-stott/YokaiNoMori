@@ -129,7 +129,7 @@ bool GameState::move(Piece p, Pos a, Pos b) {
     return true;
 }
 
-bool GameState::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
+bool GameState::allowedDrop(Piece p, uint8_t posInReserve, Pos a) const {
     assert(a.valid());
     Color c = p.color();
     PieceType pt = p.type();
@@ -141,7 +141,6 @@ bool GameState::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
     if(c == P0) {
         auto pos = std::find_if(reserve0.begin(), reserve0.end(), [&](Piece p) { return p.type() == pt; });
         if(pos == reserve0.end()) return false;
-        posInReserve = std::distance(reserve0.begin(), pos);
 #ifndef NDEBUG
         const Piece src = reserve0[posInReserve];
         assert(src.type() == pt);
@@ -152,7 +151,6 @@ bool GameState::allowedDrop(Piece p, uint8_t& posInReserve, Pos a) const {
     } else {
         auto pos = std::find_if(reserve1.begin(), reserve1.end(), [&](Piece p) { return p.type() == pt; });
         if(pos == reserve1.end()) return false;
-        posInReserve = std::distance(reserve1.begin(), pos);
 #ifndef NDEBUG
         const Piece src = reserve1[posInReserve];
         assert(src.type() == pt);

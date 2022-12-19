@@ -54,7 +54,7 @@ private:
     };
 
     template<typename GameState>
-    static double score0(const Action& action, const GameState& state, const StateAnalysis& analyzer) {
+    static double score0(const Action action, const GameState& state, const StateAnalysis& analyzer) {
         double score = 0;
         if(analyzer.controlled1[action.dst.idx()]) {
             double val = pieceValue[action.p.type()];
@@ -66,7 +66,7 @@ private:
     }
 
     template<typename GameState>
-    static double score1(const Action& action, const GameState& state, const StateAnalysis& analyzer) {
+    static double score1(const Action action, const GameState& state, const StateAnalysis& analyzer) {
         double score = 0;
         if(analyzer.controlled0[action.dst.idx()]) {
             double val = pieceValue[action.p.type()];
