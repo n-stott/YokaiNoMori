@@ -121,23 +121,19 @@ void oneVsOne() {
     GameHistory history;
     GameState state(&history);
     while(!state.hasWinner()) {
-        Logger::log(Verb::Std, [&]() {
-            std::string s;
-            s += state.niceToString() + '\n';
-            s += "Turn of player : ";
-            s += (state.currentPlayer == P1 ? 'A' : 'B');
-            return s;
+        Logger::with(Verb::Std, [&]() {
+            fmt::print("{}\nTurn of player : {}\n", state.niceToString(), state.currentPlayer == P1 ? 'A' : 'B');
         });
         std::optional<Action> action = readAction(state.currentPlayer);
         if(action) {
-            Logger::log(Verb::Dev, [&]() { return action.value().toString(); });
+            Logger::with(Verb::Dev, [&]() { fmt::print("{}\n", action.value().toString(); });
             bool ok = state.checkAction(action.value());
             if(!ok) {
-                Logger::log(Verb::Std, [&](){ return "invalid move"; });
+                Logger::with(Verb::Std, [&](){ fmt::print("invalid move\n"); });
                 continue;
             }
             bool success = state.apply(action.value());
-            Logger::log(Verb::Dev, [&](){ return "move success : " + std::to_string(success); });
+            Logger::with(Verb::Dev, [&](){ fmt::print("move success : {}\n", success); });
         }
     }
 }
@@ -190,7 +186,14 @@ void oneVsAi(int depth) {
 }
 #endif
 
-
+static const char* modeToString(Mode mode) {
+    switch(mode) {
+        case Mode::PureMinimax: return "PureMinimax";
+        case Mode::AlphaBeta: return "AlphaBeta";
+        case Mode::IterativeDeepening: return "IterativeDeepening";
+    }
+    return "";
+}
 
 template<Mode mode>
 Color aivsAiFrom(
@@ -201,12 +204,11 @@ Color aivsAiFrom(
     int depth0, 
     int depth1) {
 
-    Logger::log(Verb::Dev, [&](){
-        std::string ss;
-        ss += "Starting AIvAI mode with :\n";
-        ss += " depths : " + std::to_string(depth0) + " vs " + std::to_string(depth1) + '\n';
-        ss += " mode   : " + (mode == Mode::PureMinimax ? std::string("pure") : (mode == AlphaBeta ? std::string("AlphaBeta") : std::string("Iterative deepening"))) + '\n';
-        return ss;
+    Logger::with(Verb::Dev, [&](){
+        fmt::print("Starting AIvAI mode with :\n"
+                   " depths : {} vs {}\n"
+                   " mode   : {}\n",
+        depth0, depth1, modeToString(mode));
     });
 
     GameHistory history;
@@ -220,14 +222,9 @@ Color aivsAiFrom(
     using MyMinimax = Minimax<mode, Action, ActionSet, GameState, Agent, ActionOrdering>;
 
     while(!game.gameOver()) {
-        Logger::log(Verb::Std,
+        Logger::with(Verb::Std,
             [&]() {
-                std::string s;
-                s += game.niceToString() + '\n';
-                s += '\n';
-                s += "Turn of player : ";
-                s += (game.currentPlayer == P0 ? 'A' : 'B');
-                return s;
+                fmt::print("{}\nTurn of player {}\n", game.niceToString(), game.currentPlayer == P0 ? 'A' : 'B');
             });
         std::optional<Action> action;
         if(game.currentPlayer == P0) {
@@ -241,23 +238,18 @@ Color aivsAiFrom(
             action = search1.bestAction;
         }
         if(action) {
-            Logger::log(Verb::Std, [&]() { return action.value().toString() + '\n'; });
+            Logger::with(Verb::Std, [&]() { fmt::print("{}\n", action.value().toString()); });
             game.apply(action.value());
         } else {
-            Logger::log(Verb::Std, [&]() {
-                std::string s;
-                s += "Player ";
-                s += (char)('A'+(int)game.currentPlayer);
-                s += " did not find a suitable action";
-                s += '\n';
-                return s;
+            Logger::with(Verb::Std, [&]() {
+                fmt::print("Player {} did not find a suitable action\n", (char)('A'+(int)game.currentPlayer));
             });
             break;
         }
     }
 
-    Logger::log(Verb::Std, [&]() {
-        return game.niceToString();
+    Logger::with(Verb::Std, [&]() {
+        fmt::print("{}\n", game.niceToString());
     });
     
     Color winner = Color::None;
@@ -267,13 +259,13 @@ Color aivsAiFrom(
         winner = Color::P1;
     }
 
-    Logger::log(Verb::Std, [&]() {
+    Logger::with(Verb::Std, [&]() {
         if(winner == Color::P0) {
-            return "Player A has won";
+            fmt::print("Player A has won\n");
         } else if(winner == Color::P1) {
-            return "Player B has won";
+            fmt::print("Player B has won\n");
         } else {
-            return "Draw";
+            fmt::print("Draw\n");
         }
     });
 
@@ -350,8 +342,12 @@ void enumeratePositions(unsigned int maxdepth, std::string filename) {
 
 int main(int argc, char** argv) {
     if(argc <= 1) {
-        Logger::log(Verb::Std, []() {
-            return "Available game modes : --1v1, --1vAI, --AIvAI";
+        Logger::with(Verb::Std, []() {
+#if ENABLE_HUMAN_PLAYER
+            fmt::print("Available game modes : --1v1, --1vAI, --AIvAI\n");
+#else
+            fmt::print("Available game modes : --AIvAI\n");
+#endif
         });
         return 0;
     }
@@ -402,20 +398,20 @@ int main(int argc, char** argv) {
 
     if(std::strcmp(argv[1], "--AIvAI") == 0) {
         if(argc <= 3) {
-            Logger::log(Verb::Std, [](){
-                return "Usage : exe --AIvAI depth0 depth1 [mode = pure|alphabeta|iterdeepen]";
+            Logger::with(Verb::Std, [](){
+                fmt::print("Usage : exe --AIvAI depth0 depth1 [mode = pure|alphabeta|iterdeepen]\n");
             });
             return 0;
         }
         int d0 = std::atoi(argv[2]);
         int d1 = std::atoi(argv[3]);
-        Logger::log(Verb::Std, [&](){
-            std::string ss;
-            ss += "Starting AIvAI mode with :\n";
-            ss += " depths : " + std::to_string(d0) + " vs " + std::to_string(d1) + '\n';
-            ss += " mode   : " + (argc <= 4 ? std::string("pure") : std::string(argv[4])) + '\n';
-            ss += " config : " + (argc <= 5 ? std::string("easy") : std::string(argv[5])) + '\n';
-            return ss;
+        Logger::with(Verb::Std, [&](){
+            fmt::print(
+                "Starting AIvAI mode with :\n"
+                " depths : {} vs {}\n"
+                " mode   : {}\n"
+                " config : {}\n",
+                d0, d1, (argc <= 4 ? "pure" : argv[4]), (argc <= 5 ? "easy" : argv[5]));
         });
         if(argc >= 5 && std::strcmp(argv[4], "alphabeta") == 0) {
             if(argc < 6 || (argc == 6 && std::strcmp(argv[5], "easy") == 0)) {
@@ -438,26 +434,26 @@ int main(int argc, char** argv) {
     }
     if(argc >= 1 && std::strcmp(argv[1], "--interactive") == 0) {
         if(argc <= 6) {
-            Logger::log(Verb::Std, [](){
-                return "Usage : exe --interactive boardstate reserve1 reserve2 currentplayer depth\nempty reserve = '.'";
+            Logger::with(Verb::Std, [](){
+                fmt::print("Usage : exe --interactive boardstate reserve1 reserve2 currentplayer depth\nempty reserve = '.'\n");
             });
             return 0;
         }
 
         if(std::strlen(argv[2]) != 12) {
-            Logger::log(Verb::Std, []() { return "invalid board : must have 12 characters"; });
+            Logger::with(Verb::Std, []() { fmt::print("invalid board : must have 12 characters\n"); });
         }
 
         if(std::strlen(argv[3]) > 7) {
-            Logger::log(Verb::Std, []() { return "invalid reserve 1 : cannot have more than 7 pieces"; });
+            Logger::with(Verb::Std, []() { fmt::print("invalid reserve 1 : cannot have more than 7 pieces\n"); });
         }
 
         if(std::strlen(argv[4]) > 7) {
-            Logger::log(Verb::Std, []() { return "invalid reserve 2 : cannot have more than 7 pieces"; });
+            Logger::with(Verb::Std, []() { fmt::print("invalid reserve 2 : cannot have more than 7 pieces\n"); });
         }
 
         if (std::strlen(argv[5]) > 1) {
-            Logger::log(Verb::Std, []() { return "invalid player"; });
+            Logger::with(Verb::Std, []() { fmt::print("invalid player\n"); });
             return 0;
         }
         char p = argv[5][0];
@@ -465,7 +461,7 @@ int main(int argc, char** argv) {
             p != 'a' && 
             p != 'B' && 
             p != 'b') {
-            Logger::log(Verb::Std, []() { return "invalid player"; });
+            Logger::with(Verb::Std, []() { fmt::print("invalid player\n"); });
             return 0;
         }
         Color player = (p == 'A' || p == 'a') ? Color::P0 : Color::P1;
@@ -477,8 +473,8 @@ int main(int argc, char** argv) {
         GameState state(&history, argv[2], argv[3], argv[4], player);
 
 
-        Logger::log(Verb::Std, [&]() {
-            return state.niceToString();
+        Logger::with(Verb::Std, [&]() {
+            fmt::print("{}\n", state.niceToString());
         });
 
         Agent agent;
@@ -489,20 +485,16 @@ int main(int argc, char** argv) {
         search.run(depth);
         action = search.bestAction;
         if(action) {
-            Logger::log(Verb::Std, [&](){ return action->toString(); });
+            Logger::with(Verb::Std, [&](){ fmt::print("{}\n", action->toString()); });
             state.apply(action.value());
         } else {
-            Logger::log(Verb::Std, [&]() {
-                std::string s;
-                s += "Player ";
-                s += p;
-                s += " did not find a suitable action";
-                return s;
+            Logger::with(Verb::Std, [&]() {
+                fmt::print("Player {} did not find a suitable action\n", p);
             });
         }
 
-        Logger::log(Verb::Dev, [&]() {
-            return state.niceToString();
+        Logger::with(Verb::Dev, [&]() {
+            fmt::print("{}\n", state.niceToString());
         });
     }
     return 0;

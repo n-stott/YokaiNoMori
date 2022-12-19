@@ -84,7 +84,7 @@ private:
             assert(validMove);
             double evaluation = -search(tmp, maxDepth, depth-1);
             if(depth == maxDepth) {
-                Logger::log(Verb::Dev, [&](){ return action.toString() + " : " + std::to_string(evaluation); });
+                Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
             }
             assert(evaluation == evaluation);
             if(evaluation > bestEvaluation) {
@@ -140,7 +140,7 @@ private:
             assert(validMove);
             double evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
             if(depth == maxDepth) {
-                Logger::log(Verb::Dev, [&](){ return action.toString() + " : " + std::to_string(evaluation); });
+                Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
             }
             assert(evaluation == evaluation);
             if(evaluation > beta) {
@@ -208,7 +208,7 @@ private:
             assert(validMove);
             double evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
             if(depth == maxDepth) {
-                Logger::log(Verb::Dev, [&](){ return action.toString() + " : " + std::to_string(evaluation); });
+                Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
             }
             assert(evaluation == evaluation);
             if(evaluation > beta) {
@@ -229,12 +229,9 @@ private:
 
         if(hint) {
             double val = tryAction(*hint);
-            Logger::log(Verb::Dev, [&](){
-                return R"(hint returns : )" 
-                    + std::to_string(val) + R"( )"
-                    + std::to_string(alpha) + R"( )"
-                    + std::to_string(beta);
-                });
+            Logger::with(Verb::Dev, [&](){
+                fmt::print("hint returns : {} {} {}\n", val, alpha, beta);
+            });
             if(val == val) return val;
         }
         for(Action action : actionset) {
@@ -255,8 +252,8 @@ private:
             Action hintAction;
             if(currentBest.has_value()) hintAction = currentBest.value();
             Action* hint = (currentBest.has_value() ? &hintAction : nullptr);
-            Logger::log(Verb::Dev, [&](){
-                return R"(Current hint is : )" + (hint ? hint->toString() : "none");    
+            Logger::with(Verb::Dev, [&](){
+                fmt::print("Current hint is : {}\n", hint ? hint->toString() : "none");
             });
             bestScore = alphaBetaSearchWithHint(currentState, depth, depth, -inf, inf, hint);
             currentBest = bestAction;

@@ -1,8 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <cstdio>
-#include <string>
+#include <fmt/core.h>
 
 #define USE_LOGGER 0
 
@@ -16,11 +15,10 @@ struct Logger {
 
     static constexpr Verb verbosity = Verb::Std;
 
-    template<typename Message>
-    static void log(Verb v, Message message) {
+    template<typename WriteMessage>
+    static void with(Verb v, WriteMessage writeMessage) {
         if(static_cast<int>(v) <= static_cast<int>(verbosity)) {
-            const std::string s = message();
-            std::puts(s.c_str());
+            writeMessage();
         }
     }
 

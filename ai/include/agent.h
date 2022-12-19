@@ -52,7 +52,7 @@ struct Agent {
     { }
 
     ~Agent() {
-        Logger::log(Verb::Dev, [&](){ return "Agent has evaluated : " + std::to_string(nbEvals) + " positions"; });
+        Logger::with(Verb::Dev, [&](){ fmt::print("Agent has evaluated {} positions\n", nbEvals); });
     }
 
     score evaluate(const GameState& state) {
