@@ -12,41 +12,41 @@
 struct Agent {
 
     struct score {
-        double s0 = 0; // estimated score of p0
-        double s1 = 0; // estimated score of p1
-        double p = 0;  // penalty
+        int s0 = 0; // estimated score of p0
+        int s1 = 0; // estimated score of p1
+        int p = 0;  // penalty
 
-        double value(Color player) const { return (player == Color::P0 ? (s0-s1) : (s1-s0))+p; }
+        int value(Color player) const { return (player == Color::P0 ? (s0-s1) : (s1-s0))+p; }
     };
 
     size_t nbEvals;
 
     // scores
-    std::array<double, NB_PIECE_TYPE> boardValue;
-    std::array<double, NB_PIECE_TYPE> reserveValue;
-    double occupiedValue;
-    double controlledValue;
-    double disputedValue;
-    double dangerValue;
-    double kingAttackedValue;
-    double kingEscapesValue;
-    double kingDistanceValue;
-    double kingDeadValue;
-    double endGamePenalty;
-    double drawPenalty;
+    std::array<int, NB_PIECE_TYPE> boardValue;
+    std::array<int, NB_PIECE_TYPE> reserveValue;
+    int occupiedValue;
+    int controlledValue;
+    int disputedValue;
+    int dangerValue;
+    int kingAttackedValue;
+    int kingEscapesValue;
+    int kingDistanceValue;
+    int kingDeadValue;
+    int endGamePenalty;
+    int drawPenalty;
 
     Agent() : 
         nbEvals(0),
         boardValue{0, 0, 5, 3, 1, 4},
         reserveValue{0, 1000, 10, 6, 2, 0},
-        occupiedValue(1),
-        controlledValue(0.5),
+        occupiedValue(2),
+        controlledValue(1),
         disputedValue(0),
-        dangerValue(-0.5),
-        kingAttackedValue(-5),
+        dangerValue(-1),
+        kingAttackedValue(-10),
         kingEscapesValue(1),
         kingDistanceValue(1),
-        kingDeadValue(-std::numeric_limits<double>::infinity()),
+        kingDeadValue(-std::numeric_limits<int>::max()/4),
         endGamePenalty(-500),
         drawPenalty(-5000)
     { }

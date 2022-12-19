@@ -11,7 +11,7 @@
 struct ActionOrdering {
 
     ActionSet* const actions;
-    static_vector<double, 64> scores;
+    static_vector<int, 64> scores;
 
     template<typename GameState>
     ActionOrdering(ActionSet* actions, const GameState& state) :
@@ -44,20 +44,20 @@ struct ActionOrdering {
 
 private:
 
-    static constexpr std::array<double, NB_PIECE_TYPE> pieceValue {
-        0.0,     // NoType,
-        1000.0,  // King,
-        50.0,    // Rook,
-        50.0,    // Bishop,
-        10.0,    // Pawn,
-        30.0,    // Queen,
+    static constexpr std::array<int, NB_PIECE_TYPE> pieceValue {
+        0,     // NoType,
+        1000,  // King,
+        50,    // Rook,
+        50,    // Bishop,
+        10,    // Pawn,
+        30,    // Queen,
     };
 
     template<typename GameState>
-    static double score0(const Action action, const GameState& state, const StateAnalysis& analyzer) {
-        double score = 0;
+    static int score0(const Action action, const GameState& state, const StateAnalysis& analyzer) {
+        int score = 0;
         if(analyzer.controlled1[action.dst.idx()]) {
-            double val = pieceValue[action.p.type()];
+            int val = pieceValue[action.p.type()];
             score -= val;
             if(!analyzer.controlled0[action.dst.idx()]) score -= val;
         }
@@ -66,10 +66,10 @@ private:
     }
 
     template<typename GameState>
-    static double score1(const Action action, const GameState& state, const StateAnalysis& analyzer) {
-        double score = 0;
+    static int score1(const Action action, const GameState& state, const StateAnalysis& analyzer) {
+        int score = 0;
         if(analyzer.controlled0[action.dst.idx()]) {
-            double val = pieceValue[action.p.type()];
+            int val = pieceValue[action.p.type()];
             score -= val;
             if(!analyzer.controlled1[action.dst.idx()]) score -= val;
         }

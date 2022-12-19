@@ -37,7 +37,7 @@ struct Action {
     }
 };
 
-using aspair = std::pair<Action, double>;
+using aspair = std::pair<Action, int>;
 
 struct ActionSet {
 
