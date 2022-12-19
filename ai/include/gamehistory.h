@@ -5,7 +5,6 @@
 #include "staticvector.h"
 #include "board.h"
 #include "constants.h"
-#include <vector>
 
 struct GameHistory {
 

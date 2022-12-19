@@ -8,10 +8,9 @@
 #include "minimax/minimax.h"
 #include "minimax/logger.h"
 #include <cstring>
-#include <ostream>
-#include <fstream>
 
-#define ENABLE_HUMAN_PLAYER 1
+#define ENABLE_HUMAN_PLAYER 0
+#define ENABLE_ENUMERATOR 0
 
 #if ENABLE_HUMAN_PLAYER
 #include <iostream>
@@ -203,11 +202,11 @@ Color aivsAiFrom(
     int depth1) {
 
     Logger::log(Verb::Dev, [&](){
-        std::stringstream ss;
-        ss << "Starting AIvAI mode with :\n";
-        ss << " depths : " + std::to_string(depth0) + " vs " + std::to_string(depth1) << '\n';
-        ss << " mode   : " << (mode == Mode::PureMinimax ? "pure" : (mode == AlphaBeta ? "AlphaBeta" : "Iterative deepening")) << '\n';
-        return ss.str();
+        std::string ss;
+        ss += "Starting AIvAI mode with :\n";
+        ss += " depths : " + std::to_string(depth0) + " vs " + std::to_string(depth1) + '\n';
+        ss += " mode   : " + (mode == Mode::PureMinimax ? std::string("pure") : (mode == AlphaBeta ? std::string("AlphaBeta") : std::string("Iterative deepening"))) + '\n';
+        return ss;
     });
 
     GameHistory history;
@@ -292,6 +291,11 @@ Color aivsAi(int depth0, int depth1) {
     return aivsAiFrom<mode>(b, r0, r1, player, depth0, depth1);
 }
 
+#if ENABLE_ENUMERATOR
+
+#include <ostream>
+#include <fstream>
+
 template<typename Func>
 void enumeratePositionsHelper(
                             unsigned int maxdepth,
@@ -342,6 +346,7 @@ void enumeratePositions(unsigned int maxdepth, std::string filename) {
     enumeratePositionsHelper(maxdepth, game, ofile, runner);
 
 }
+#endif
 
 int main(int argc, char** argv) {
     if(argc <= 1) {
@@ -373,6 +378,8 @@ int main(int argc, char** argv) {
         oneVsAi<AlphaBeta>(depth);
     }
 #endif
+
+#if ENABLE_ENUMERATOR
     if(std::strcmp(argv[1], "--enumerate") == 0) {
         if(argc <= 2) {
             Logger::log(Verb::Std, [](){
@@ -390,6 +397,7 @@ int main(int argc, char** argv) {
         
         enumeratePositions(maxdepth, filename);
     }
+#endif
 
 
     if(std::strcmp(argv[1], "--AIvAI") == 0) {
@@ -402,12 +410,12 @@ int main(int argc, char** argv) {
         int d0 = std::atoi(argv[2]);
         int d1 = std::atoi(argv[3]);
         Logger::log(Verb::Std, [&](){
-            std::stringstream ss;
-            ss << "Starting AIvAI mode with :\n";
-            ss << " depths : " + std::to_string(d0) + " vs " + std::to_string(d1) << '\n';
-            ss << " mode   : " << (argc <= 4 ? "pure" : argv[4]) << '\n';
-            ss << " config : " << (argc <= 5 ? "easy" : argv[5]) << '\n';
-            return ss.str();
+            std::string ss;
+            ss += "Starting AIvAI mode with :\n";
+            ss += " depths : " + std::to_string(d0) + " vs " + std::to_string(d1) + '\n';
+            ss += " mode   : " + (argc <= 4 ? std::string("pure") : std::string(argv[4])) + '\n';
+            ss += " config : " + (argc <= 5 ? std::string("easy") : std::string(argv[5])) + '\n';
+            return ss;
         });
         if(argc >= 5 && std::strcmp(argv[4], "alphabeta") == 0) {
             if(argc < 6 || (argc == 6 && std::strcmp(argv[5], "easy") == 0)) {
