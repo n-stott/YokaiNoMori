@@ -7,6 +7,7 @@
 #include "piece.h"
 #include <string>
 #include <utility>
+#include <fmt/core.h>
 
 struct Action {
     Piece p;
@@ -24,16 +25,21 @@ struct Action {
 
 
     std::string toString() const {
-        std::string message;
-        message += "Player ";
-        message += ('A'+(unsigned char)p.color());
-        message += " ";
         if(type == Move) {
-            message += "moves " + (std::string()+(char)p.toChar()) + " from " + src.toString() + " to " + dst.toString();
+            return fmt::format("Player {} moves {} from {} to {}",
+            'A'+(unsigned char)p.color(),
+            (char)p.toChar(),
+            src.toString(),
+            dst.toString()
+            );
         } else {
-            message += "drops " + (std::string()+(char)p.toChar()) + " from position " + std::to_string((int)src.pos) + " on " + dst.toString();
+            return fmt::format("Player {} drops {} from position {} on {}",
+            'A'+(unsigned char)p.color(),
+            (char)p.toChar(),
+            (int)src.pos,
+            dst.toString()
+            );
         }
-        return message;
     }
 };
 
