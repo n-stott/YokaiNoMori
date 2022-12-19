@@ -12,6 +12,7 @@
 #include <array>
 #include <string>
 #include <minimax/logger.h>
+#include <fmt/core.h>
 
 struct GameState {
 
@@ -78,66 +79,67 @@ struct GameState {
 
 
     inline std::string toString() const {
-        std::string s;
-        s += board.toString();
-        s += '|';
-        s += reserve0.toString();
-        s += '|';
-        s += reserve1.toString();
-        return s;
+        return fmt::format("{}|{}|{}", board.toString(), reserve0.toString(), reserve1.toString());
     }
 
-    inline std::string toString2() const {
-        char pieceCode[2*NB_PIECE_TYPE] = {
-            'v', // P1 NoType
-            'v', // P2 NoType
-            'a', // P1 King
-            'f', // P2 King
-            'c', // P1 Tower
-            'h', // P2 Tower
-            'b', // P1 Bishop
-            'g', // P2 Bishop
-            'd', // P1 Pawn
-            'i', // P2 Pawn
-            'e', // P1 SuperPawn
-            'j', // P2 SuperPawn
-        };
-        std::string b;
-        for(Piece p : board) b += pieceCode[p.id()];
-        std::string r0("vvvvvvvv");
-        std::string r1("vvvvvvvv");
-        for(unsigned int i = 0; i < reserve0.size; ++i) 
-            r0[i] = pieceCode[reserve0[i].id()];
-        for(unsigned int i = 0; i < reserve1.size; ++i) 
-            r1[i] = pieceCode[reserve1[i].id()];
+    // inline std::string toString2() const {
+    //     char pieceCode[2*NB_PIECE_TYPE] = {
+    //         'v', // P1 NoType
+    //         'v', // P2 NoType
+    //         'a', // P1 King
+    //         'f', // P2 King
+    //         'c', // P1 Tower
+    //         'h', // P2 Tower
+    //         'b', // P1 Bishop
+    //         'g', // P2 Bishop
+    //         'd', // P1 Pawn
+    //         'i', // P2 Pawn
+    //         'e', // P1 SuperPawn
+    //         'j', // P2 SuperPawn
+    //     };
+    //     std::string b;
+    //     for(Piece p : board) b += pieceCode[p.id()];
+    //     std::string r0("vvvvvvvv");
+    //     std::string r1("vvvvvvvv");
+    //     for(unsigned int i = 0; i < reserve0.size; ++i) 
+    //         r0[i] = pieceCode[reserve0[i].id()];
+    //     for(unsigned int i = 0; i < reserve1.size; ++i) 
+    //         r1[i] = pieceCode[reserve1[i].id()];
 
-        std::string s = b + " " + r0 + " " + r1;
-        return s;
-    }
+    //     std::string s = b + " " + r0 + " " + r1;
+    //     return s;
+    // }
 
     inline std::string niceToString() const {
-        std::string s;
-        s += "-----------------\n";
-        s += (currentPlayer == P1 ? "> " : "  ");
-        s += "Player b | ";
-        s += reserve1.toString();
-        s += '\n';
-        s += "-----------------";
-        for(uint8_t i = rows; i --> 0;) {
-            s += '\n' + std::to_string(i+1) + ' ';
-            for(uint8_t j = 0; j < cols; ++j) {
-                s += board.get(3*i+j).toChar();
-            }
-        }
-        s += '\n';
-        s += "  ABC\n";
-        s += "-----------------\n";
-        s += (currentPlayer == P0 ? "> " : "  ");
-        s += "Player A | ";
-        s += reserve0.toString();
-        s += '\n';
-        s += "-----------------";
-        return s;
+        auto niceBoardToString = [](const Board& board) {
+            return fmt::format(
+                "{} {}{}{}\n"
+                "{} {}{}{}\n"
+                "{} {}{}{}\n"
+                "{} {}{}{}\n"
+                "  {}{}{}\n",
+                4, board.get(11).toChar(), board.get(10).toChar(), board.get(9).toChar(),
+                3, board.get(8).toChar(), board.get(7).toChar(), board.get(6).toChar(),
+                2, board.get(5).toChar(), board.get(4).toChar(), board.get(3).toChar(),
+                1, board.get(2).toChar(), board.get(1).toChar(), board.get(0).toChar(),
+                'A', 'B', 'C'
+            );
+        };
+
+        return fmt::format(
+            "-----------------\n"
+            "{} Player b | {}\n"
+            "-----------------\n"
+            "{}\n"
+            "-----------------\n"
+            "{} Player A | {}\n"
+            "-----------------",
+            (currentPlayer == P1 ? "> " : "  "),
+            reserve1.toString(),
+            niceBoardToString(board),
+            (currentPlayer == P0 ? "> " : "  "),
+            reserve0.toString()
+        );
     }
 
     void fillAllowedActions(ActionSet*) const;

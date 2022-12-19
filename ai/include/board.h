@@ -41,8 +41,10 @@ struct Board {
     }
 
     std::string toString() const {
-        std::string s;
-        for(Piece p : *this) s+=p.toChar();
+        char buffer[12];
+        int i = 0;
+        for(Piece p : *this) buffer[i++] = p.toChar();
+        std::string s(buffer, buffer+12);
         return s;
     }
     

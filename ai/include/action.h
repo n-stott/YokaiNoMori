@@ -52,11 +52,11 @@ struct ActionSet {
 
     storage actions;
 
-    std::string toString() const {
-        std::string message;
-        for(const value_type& action : actions) message += action.toString()+'\n';
-        return message;
-    }
+    // std::string toString() const {
+    //     std::string message;
+    //     for(const value_type& action : actions) message += action.toString()+'\n';
+    //     return message;
+    // }
 
     size_t size() const { return actions.size(); }
 
