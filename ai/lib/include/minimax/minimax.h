@@ -27,9 +27,9 @@ struct Minimax {
     { }
 
 
-    double run(int maxDepth) {
-        const double inf = std::numeric_limits<double>::infinity();
-        double res = 0.0;
+    int run(int maxDepth) {
+        const int inf = std::numeric_limits<int>::max();
+        int res = 0;
         if(mode == PureMinimax) {
             res = search(root, maxDepth, maxDepth);
         }
@@ -49,13 +49,13 @@ struct Minimax {
 
 private:
 
-    double search(GameState currentState, int maxDepth, int depth) {
+    int search(GameState currentState, int maxDepth, int depth) {
 
         if(currentState.hasWon(currentState.currentPlayer)) {
-            return std::numeric_limits<double>::infinity();
+            return std::numeric_limits<int>::max();
         }
         if(currentState.hasLost(currentState.currentPlayer)) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<int>::max();
         }
         if(currentState.hasDraw()) {
             return agent.drawPenalty;
@@ -63,7 +63,7 @@ private:
         
         if(depth == 0) {
             typename Agent::score score = agent.evaluate(currentState);
-            double eval = score.value(currentState.currentPlayer);
+            int eval = score.value(currentState.currentPlayer);
             assert(eval == eval);
             return eval;
         }
@@ -77,12 +77,12 @@ private:
             orderer.sort();
         }
 
-        double bestEvaluation = -std::numeric_limits<double>::infinity();
+        int bestEvaluation = -std::numeric_limits<int>::max();
         for(Action action : actionset) {
             GameState tmp = currentState;
             bool validMove = tmp.apply(action);
             assert(validMove);
-            double evaluation = -search(tmp, maxDepth, depth-1);
+            int evaluation = -search(tmp, maxDepth, depth-1);
             if(depth == maxDepth) {
                 Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
             }
@@ -99,21 +99,21 @@ private:
     }
 
 
-    double alphaBetaSearch(GameState currentState, int maxDepth, int depth, double alpha, double beta) {
+    int alphaBetaSearch(GameState currentState, int maxDepth, int depth, int alpha, int beta) {
 
         if(currentState.hasWon(currentState.currentPlayer)) {
-            return std::numeric_limits<double>::infinity();
+            return std::numeric_limits<int>::max();
         }
         if(currentState.hasLost(currentState.currentPlayer)) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<int>::max();
         }
         if(currentState.hasDraw()) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<int>::max();
         }
         
         if(depth == 0) {
             typename Agent::score score = agent.evaluate(currentState);
-            double eval = score.value(currentState.currentPlayer);
+            int eval = score.value(currentState.currentPlayer);
             assert(eval == eval);
             return eval;
         }
@@ -121,7 +121,7 @@ private:
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
         if(actionset.empty()) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<int>::max();
         }
         assert(!actionset.empty());
 
@@ -130,7 +130,7 @@ private:
             orderer.sort();
         }
 
-        double bestEvaluation = -std::numeric_limits<double>::infinity();
+        int bestEvaluation = -std::numeric_limits<int>::max();
         for(Action action : actionset) {
             GameState tmp = currentState;
 #ifndef NDEBUG
@@ -138,7 +138,7 @@ private:
 #endif
             bool validMove = tmp.apply(action);
             assert(validMove);
-            double evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
+            int evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
             if(depth == maxDepth) {
                 Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
             }
@@ -171,21 +171,21 @@ private:
     }
 
 
-    double alphaBetaSearchWithHint(GameState currentState, int maxDepth, int depth, double alpha, double beta, Action* hint) {
+    int alphaBetaSearchWithHint(GameState currentState, int maxDepth, int depth, int alpha, int beta, Action* hint) {
 
         if(currentState.hasWon(currentState.currentPlayer)) {
-            return std::numeric_limits<double>::infinity();
+            return std::numeric_limits<int>::max();
         }
         if(currentState.hasLost(currentState.currentPlayer)) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<int>::max();
         }
         if(currentState.hasDraw()) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<int>::max();
         }
         
         if(depth == 0) {
             typename Agent::score score = agent.evaluate(currentState);
-            double eval = score.value(currentState.currentPlayer);
+            int eval = score.value(currentState.currentPlayer);
             assert(eval == eval);
             return eval;
         }
@@ -193,7 +193,7 @@ private:
         ActionSet actionset;
         currentState.fillAllowedActions(&actionset);
         if(actionset.empty()) {
-            return -std::numeric_limits<double>::infinity();
+            return -std::numeric_limits<int>::max();
         }
 
         {
@@ -206,7 +206,7 @@ private:
             const size_t historySize1 = tmp.history->positions.size();
             bool validMove = tmp.apply(action);
             assert(validMove);
-            double evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
+            int evaluation = -alphaBetaSearch(tmp, maxDepth, depth-1, -beta, -alpha);
             if(depth == maxDepth) {
                 Logger::with(Verb::Dev, [&](){ fmt::print("{} : {}\n", action.toString(), evaluation); });
             }
@@ -222,32 +222,32 @@ private:
             if(validMove) tmp.revert();
             const size_t historySize2 = tmp.history->positions.size();
             assert(historySize1 == historySize2);
-            return std::numeric_limits<double>::quiet_NaN(); // return nan as "no return" flag
+            return std::numeric_limits<int>::min(); // return nan as "no return" flag
         };
 
-        double bestEvaluation = -std::numeric_limits<double>::infinity();
+        int bestEvaluation = -std::numeric_limits<int>::max();
 
         if(hint) {
-            double val = tryAction(*hint);
+            int val = tryAction(*hint);
             Logger::with(Verb::Dev, [&](){
                 fmt::print("hint returns : {} {} {}\n", val, alpha, beta);
             });
-            if(val == val) return val;
+            if(val != std::numeric_limits<int>::min()) return val;
         }
         for(Action action : actionset) {
-            double val = tryAction(action);
-            if(val == val) return val;
+            int val = tryAction(action);
+            if(val != std::numeric_limits<int>::min()) return val;
         }
             
         assert(alpha == alpha);
         return alpha;
     }
 
-    double iterativeDeepening(GameState currentState, int maxDepth) {
-        const double inf = std::numeric_limits<double>::infinity();
+    int iterativeDeepening(GameState currentState, int maxDepth) {
+        const int inf = std::numeric_limits<int>::max();
         std::optional<Action> currentBest;
         bestAction.reset();
-        double bestScore = -inf;
+        int bestScore = -inf;
         for(int depth = 0; depth < maxDepth; ++depth) {
             Action hintAction;
             if(currentBest.has_value()) hintAction = currentBest.value();
@@ -257,7 +257,7 @@ private:
             });
             bestScore = alphaBetaSearchWithHint(currentState, depth, depth, -inf, inf, hint);
             currentBest = bestAction;
-            if(bestScore == std::numeric_limits<double>::infinity()) break;
+            if(bestScore == std::numeric_limits<int>::max()) break;
         }
         return bestScore;
     }
