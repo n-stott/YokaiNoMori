@@ -82,33 +82,35 @@ struct GameState {
         return fmt::format("{}|{}|{}", board.toString(), reserve0.toString(), reserve1.toString());
     }
 
-    // inline std::string toString2() const {
-    //     char pieceCode[2*NB_PIECE_TYPE] = {
-    //         'v', // P1 NoType
-    //         'v', // P2 NoType
-    //         'a', // P1 King
-    //         'f', // P2 King
-    //         'c', // P1 Tower
-    //         'h', // P2 Tower
-    //         'b', // P1 Bishop
-    //         'g', // P2 Bishop
-    //         'd', // P1 Pawn
-    //         'i', // P2 Pawn
-    //         'e', // P1 SuperPawn
-    //         'j', // P2 SuperPawn
-    //     };
-    //     std::string b;
-    //     for(Piece p : board) b += pieceCode[p.id()];
-    //     std::string r0("vvvvvvvv");
-    //     std::string r1("vvvvvvvv");
-    //     for(unsigned int i = 0; i < reserve0.size; ++i) 
-    //         r0[i] = pieceCode[reserve0[i].id()];
-    //     for(unsigned int i = 0; i < reserve1.size; ++i) 
-    //         r1[i] = pieceCode[reserve1[i].id()];
+#if ENABLE_ENUMERATOR
+    inline std::string toString2() const {
+        char pieceCode[2*NB_PIECE_TYPE] = {
+            'v', // P1 NoType
+            'v', // P2 NoType
+            'a', // P1 King
+            'f', // P2 King
+            'c', // P1 Tower
+            'h', // P2 Tower
+            'b', // P1 Bishop
+            'g', // P2 Bishop
+            'd', // P1 Pawn
+            'i', // P2 Pawn
+            'e', // P1 SuperPawn
+            'j', // P2 SuperPawn
+        };
+        std::string b;
+        for(Piece p : board) b += pieceCode[p.id()];
+        std::string r0("vvvvvvvv");
+        std::string r1("vvvvvvvv");
+        for(unsigned int i = 0; i < reserve0.size; ++i) 
+            r0[i] = pieceCode[reserve0[i].id()];
+        for(unsigned int i = 0; i < reserve1.size; ++i) 
+            r1[i] = pieceCode[reserve1[i].id()];
 
-    //     std::string s = b + " " + r0 + " " + r1;
-    //     return s;
-    // }
+        std::string s = b + " " + r0 + " " + r1;
+        return s;
+    }
+#endif
 
     inline std::string niceToString() const {
         auto niceBoardToString = [](const Board& board) {

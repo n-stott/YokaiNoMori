@@ -1,3 +1,15 @@
+#ifndef ENABLE_HUMAN_PLAYER
+#define ENABLE_HUMAN_PLAYER 1
+#endif
+
+#ifndef ENABLE_INTERACTIVE
+#define ENABLE_INTERACTIVE 1
+#endif
+
+#ifndef ENABLE_ENUMERATOR
+#define ENABLE_ENUMERATOR 1
+#endif
+
 #include "action.h"
 #include "actionordering.h"
 #include "enums.h"
@@ -9,39 +21,29 @@
 #include "minimax/logger.h"
 #include <cstring>
 
-#define ENABLE_HUMAN_PLAYER 0
-#define ENABLE_INTERACTIVE 0
-#define ENABLE_ENUMERATOR 0
+
 
 #if ENABLE_HUMAN_PLAYER
 #include <iostream>
 
 std::optional<ActionType> readActionType() {
     std::string command;
-    try {
-        std::cin >> command;
-        if(command == "move") return std::make_optional(ActionType::Move);
-        if(command == "drop") return std::make_optional(ActionType::Drop);
-    } catch(...) {
-        return std::nullopt;
-    }
+    std::cin >> command;
+    if(command == "move") return std::make_optional(ActionType::Move);
+    if(command == "drop") return std::make_optional(ActionType::Drop);
     return std::nullopt;
 }
 
 std::optional<PieceType> readPieceType() {
     std::string p;
-    try {
-        std::cin >> p;
-        if(p.size() < 1) return std::nullopt;
-        char pc = p[0];
-        if(pc == 'k' || pc == 'K') return std::make_optional(PieceType::King);
-        if(pc == 'b' || pc == 'B') return std::make_optional(PieceType::Bishop);
-        if(pc == 'r' || pc == 'R') return std::make_optional(PieceType::Rook);
-        if(pc == 'p' || pc == 'P') return std::make_optional(PieceType::Pawn);
-        if(pc == 'q' || pc == 'Q') return std::make_optional(PieceType::Queen);
-    } catch(...) {
-        return std::nullopt;
-    }
+    std::cin >> p;
+    if(p.size() < 1) return std::nullopt;
+    char pc = p[0];
+    if(pc == 'k' || pc == 'K') return std::make_optional(PieceType::King);
+    if(pc == 'b' || pc == 'B') return std::make_optional(PieceType::Bishop);
+    if(pc == 'r' || pc == 'R') return std::make_optional(PieceType::Rook);
+    if(pc == 'p' || pc == 'P') return std::make_optional(PieceType::Pawn);
+    if(pc == 'q' || pc == 'Q') return std::make_optional(PieceType::Queen);
     return std::nullopt;
 }
 
@@ -49,23 +51,19 @@ std::optional<Pos> readBoardPosition() {
     std::string p;
     int x = -1;
     int y = -1;
-    try {
-        std::cin >> p;
-        if(p.size() < 2) return std::nullopt;
-        const char pc0 = p[0];
-        const char pc1 = p[1];
-        if(pc0 == 'A' || pc0 == 'a') y = 0;
-        if(pc0 == 'B' || pc0 == 'b') y = 1;
-        if(pc0 == 'C' || pc0 == 'c') y = 2;
-        if(pc1 == '1') x = 3;
-        if(pc1 == '2') x = 2;
-        if(pc1 == '3') x = 1;
-        if(pc1 == '4') x = 0;
-        if(x != -1 && y != -1) {
-            return std::make_optional(Pos(3*x+y));
-        }
-    } catch(...) {
-        return std::nullopt;
+    std::cin >> p;
+    if(p.size() < 2) return std::nullopt;
+    const char pc0 = p[0];
+    const char pc1 = p[1];
+    if(pc0 == 'A' || pc0 == 'a') y = 0;
+    if(pc0 == 'B' || pc0 == 'b') y = 1;
+    if(pc0 == 'C' || pc0 == 'c') y = 2;
+    if(pc1 == '1') x = 3;
+    if(pc1 == '2') x = 2;
+    if(pc1 == '3') x = 1;
+    if(pc1 == '4') x = 0;
+    if(x != -1 && y != -1) {
+        return std::make_optional(Pos(3*x+y));
     }
     return std::nullopt;
 }
@@ -73,15 +71,11 @@ std::optional<Pos> readBoardPosition() {
 std::optional<uint8_t> readReservePosition() {
     std::string p;
     int x = -1;
-    try {
-        std::cin >> p;
-        if(p.size() > 1) return std::nullopt;
-        x = std::atoi(p.c_str());
-        if(x != -1) {
-            return std::make_optional(x);
-        }
-    } catch(...) {
-        return std::nullopt;
+    std::cin >> p;
+    if(p.size() > 1) return std::nullopt;
+    x = std::atoi(p.c_str());
+    if(x != -1) {
+        return std::make_optional(x);
     }
     return std::nullopt;
 }
@@ -127,7 +121,7 @@ void oneVsOne() {
         });
         std::optional<Action> action = readAction(state.currentPlayer);
         if(action) {
-            Logger::with(Verb::Dev, [&]() { fmt::print("{}\n", action.value().toString(); });
+            Logger::with(Verb::Dev, [&]() { fmt::print("{}\n", action.value().toString()); });
             bool ok = state.checkAction(action.value());
             if(!ok) {
                 Logger::with(Verb::Std, [&](){ fmt::print("invalid move\n"); });
@@ -150,20 +144,20 @@ void oneVsAi(int depth) {
     using MyMinimax = Minimax<mode, Action, ActionSet, GameState, Agent, ActionOrdering>;
 
     while(!state.gameOver()) {
-        Logger::log(Verb::Std, [&]() { return state.niceToString(); });
-        Logger::log(Verb::Std, [&]() { return std::string{"Turn of player : "} + (state.currentPlayer == P1 ? 'A' : 'B'); });
+        Logger::with(Verb::Std, [&]() { fmt::print(state.niceToString()); });
+        Logger::with(Verb::Std, [&]() { fmt::print("Turn of player : {}\n", (state.currentPlayer == P1 ? 'A' : 'B')); });
 
         if(state.currentPlayer == P1) {
             std::optional<Action> action = readAction(state.currentPlayer);
             if(action) {
-                Logger::log(Verb::Dev, [&]() { return action.value().toString(); });
+                Logger::with(Verb::Dev, [&]() { fmt::print("{}\n", action.value().toString()); });
                 bool ok = state.checkAction(action.value());
                 if(!ok) {
-                    Logger::log(Verb::Std, [&](){ return "invalid move"; });
+                    Logger::with(Verb::Std, [&](){ fmt::print("invalid move\n"); });
                     continue;
                 }
                 bool success = state.apply(action.value());
-                Logger::log(Verb::Dev, [&](){ return "move success : " + std::to_string(success); });
+                Logger::with(Verb::Dev, [&](){ fmt::print("move success : {}\n", std::to_string(success)); });
             }
         } else {
             std::optional<Action> action;
@@ -173,12 +167,8 @@ void oneVsAi(int depth) {
             if(action) {
                 state.apply(action.value());
             } else {
-            Logger::log(Verb::Std, [&]() {
-                std::string s;
-                s += "Player ";
-                s += (char)('A'+(int)state.currentPlayer);
-                s += " did not find a suitable action";
-                return s;
+            Logger::with(Verb::Std, [&]() {
+                fmt::print("Player {} did not find a suitable action\n", (char)('A'+(int)state.currentPlayer));
             });
                 break;
             }           
@@ -354,21 +344,21 @@ int main(int argc, char** argv) {
     }
 #if ENABLE_HUMAN_PLAYER
     if(std::strcmp(argv[1], "--1v1") == 0) {
-        Logger::log(Verb::Std, [](){
-            return "Starting 1v1 mode";
+        Logger::with(Verb::Std, [](){
+            fmt::print("Starting 1v1 mode\n");
         });
         oneVsOne();
     }
     if(std::strcmp(argv[1], "--1vAI") == 0) {
         if(argc <= 2) {
-            Logger::log(Verb::Std, [](){
-                return "Usage : exe 1vAI depth";
+            Logger::with(Verb::Std, [](){
+                fmt::print("Usage : exe 1vAI depth\n");
             });
             return 0;
         }
         int depth = std::atoi(argv[2]);
-        Logger::log(Verb::Std, [&](){
-            return "Starting 1vAI mode vs depth : " + std::to_string(depth);
+        Logger::with(Verb::Std, [&](){
+            fmt::print("Starting 1vAI mode vs depth : {}\n", depth);
         });
 
         // oneVsAi<PureMinimax>(depth);
@@ -379,8 +369,8 @@ int main(int argc, char** argv) {
 #if ENABLE_ENUMERATOR
     if(std::strcmp(argv[1], "--enumerate") == 0) {
         if(argc <= 2) {
-            Logger::log(Verb::Std, [](){
-                return "Usage : exe --enumerate [depth = 3] [filename = positions.txt]";
+            Logger::with(Verb::Std, [](){
+                fmt::print("Usage : exe --enumerate [depth = 3] [filename = positions.txt]");
             });
         }
         unsigned int maxdepth = 3;
